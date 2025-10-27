@@ -1,0 +1,330 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --radius: 1rem;
+        /* Warm, welcoming color palette for CoinCubs */
+        --background: 0.98 0.02 98;
+        --foreground: 0.25 0.015 25;
+        --card: 1 0 100;
+        --card-foreground: 0.25 0.015 25;
+        --popover: 1 0 100;
+        --popover-foreground: 0.25 0.015 25;
+        /* Rich Purple Primary (#7C3AED) */
+        --primary: 0.60 0.24 270;
+        --primary-foreground: 0.98 0.02 98;
+        /* Blue Accent (#3B82F6) */
+        --secondary: 0.65 0.20 250;
+        --secondary-foreground: 0.98 0.02 98;
+        /* Warm backgrounds */
+        --muted: 0.96 0.02 90;
+        --muted-foreground: 0.50 0.01 55;
+        /* Gold Accent (#F59E0B) */
+        --accent: 0.75 0.18 45;
+        --accent-foreground: 0.20 0.015 25;
+        /* Green for success */
+        --success: 0.65 0.18 150;
+        --success-foreground: 0.98 0.02 98;
+        /* Warm yellow */
+        --warning: 0.80 0.16 80;
+        --warning-foreground: 0.20 0.015 25;
+        --destructive: 0.55 0.22 25;
+        --destructive-foreground: 0.98 0.02 98;
+        --border: 0.92 0.03 85;
+        --input: 0.92 0.03 85;
+        --ring: 0.60 0.24 270;
+        --chart-1: 0.60 0.24 270;
+        --chart-2: 0.65 0.20 250;
+        --chart-3: 0.75 0.18 45;
+        --chart-4: 0.65 0.18 150;
+        --chart-5: 0.80 0.16 80;
+        --sidebar: 0.98 0.02 98;
+        --sidebar-foreground: 0.25 0.015 25;
+        --sidebar-primary: 0.60 0.24 270;
+        --sidebar-primary-foreground: 0.98 0.02 98;
+        --sidebar-accent: 0.96 0.02 90;
+        --sidebar-accent-foreground: 0.35 0.02 50;
+        --sidebar-border: 0.92 0.03 85;
+        --sidebar-ring: 0.60 0.24 270;
+    }
+
+    .dark {
+        --background: 0.20 0.015 20;
+        --foreground: 0.95 0.02 95;
+        --card: 0.25 0.015 25;
+        --card-foreground: 0.95 0.02 95;
+        --popover: 0.25 0.015 25;
+        --popover-foreground: 0.95 0.02 95;
+        --primary: 0.70 0.22 270;
+        --primary-foreground: 0.20 0.015 20;
+        --secondary: 0.70 0.18 250;
+        --secondary-foreground: 0.95 0.02 95;
+        --muted: 0.30 0.02 30;
+        --muted-foreground: 0.70 0.02 70;
+        --accent: 0.80 0.16 45;
+        --accent-foreground: 0.95 0.02 95;
+        --success: 0.70 0.16 150;
+        --success-foreground: 0.95 0.02 95;
+        --warning: 0.85 0.14 80;
+        --warning-foreground: 0.20 0.015 20;
+        --destructive: 0.60 0.20 25;
+        --destructive-foreground: 0.95 0.02 95;
+        --border: 0.35 0.02 35;
+        --input: 0.35 0.02 35;
+        --ring: 0.70 0.22 270;
+        --chart-1: 0.70 0.22 270;
+        --chart-2: 0.70 0.18 250;
+        --chart-3: 0.80 0.16 45;
+        --chart-4: 0.70 0.16 150;
+        --chart-5: 0.85 0.14 80;
+        --sidebar: 0.25 0.015 25;
+        --sidebar-foreground: 0.95 0.02 95;
+        --sidebar-primary: 0.70 0.22 270;
+        --sidebar-primary-foreground: 0.95 0.02 95;
+        --sidebar-accent: 0.30 0.02 30;
+        --sidebar-accent-foreground: 0.95 0.02 95;
+        --sidebar-border: 0.35 0.02 35;
+        --sidebar-ring: 0.70 0.22 270;
+    }
+
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+        font-family: 'Inter', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+}
+
+/* Custom animations for CoinCubs */
+@keyframes counter-up {
+    from {
+        transform: translateY(10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes progress-fill {
+    from {
+        width: 0;
+    }
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(-100%) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+@keyframes gentle-pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+}
+
+@keyframes zoom-in {
+    from {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slide-in-from-top {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.animate-counter-up {
+    animation: counter-up 0.5s ease-out;
+}
+
+.animate-progress-fill {
+    animation: progress-fill 1s ease-out;
+}
+
+.animate-confetti {
+    animation: confetti-fall 3s ease-in-out infinite;
+}
+
+.animate-gentle-pulse {
+    animation: gentle-pulse 2s ease-in-out infinite;
+}
+
+.animate-in {
+    animation-fill-mode: both;
+}
+
+.zoom-in {
+    animation: zoom-in 0.5s ease-out;
+}
+
+.fade-in {
+    animation: fade-in 0.7s ease-out;
+}
+
+.slide-in-from-top-2 {
+    animation: slide-in-from-top 0.3s ease-out;
+}
+
+.duration-300 {
+    animation-duration: 300ms;
+}
+
+.duration-500 {
+    animation-duration: 500ms;
+}
+
+.duration-700 {
+    animation-duration: 700ms;
+}
+
+/* Smooth transitions for all interactive elements */
+button, a, input, select, textarea {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Large, friendly typography for children */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', 'Nunito', sans-serif;
+    font-weight: 700;
+}
+
+/* Responsive text sizing */
+body {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* Mobile (<768px): 16px body font */
+@media (max-width: 767px) {
+    body {
+        font-size: 16px;
+    }
+}
+
+/* Tablet (768-1024px) and Desktop (>1024px): 14px body font */
+@media (min-width: 768px) {
+    body {
+        font-size: 14px;
+    }
+}
+
+/* Responsive display text for Class Display */
+.display-hero {
+    font-size: clamp(3rem, 8vw, 8rem);
+    line-height: 1.1;
+}
+
+.display-title {
+    font-size: clamp(2rem, 5vw, 5rem);
+    line-height: 1.2;
+}
+
+.display-text {
+    font-size: clamp(1.5rem, 3vw, 3rem);
+    line-height: 1.4;
+}
+
+/* Smooth scroll behavior */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for better aesthetics */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: oklch(var(--muted));
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: oklch(var(--primary) / 0.5);
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: oklch(var(--primary) / 0.7);
+}
+
+/* Responsive padding utilities */
+.responsive-container {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+@media (min-width: 768px) {
+    .responsive-container {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .responsive-container {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+}
+
+/* Responsive button heights */
+.btn-responsive {
+    height: 44px;
+}
+
+@media (min-width: 768px) {
+    .btn-responsive {
+        height: 40px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .btn-responsive {
+        height: 36px;
+    }
+}
+
+/* Touch target minimum for mobile */
+@media (max-width: 767px) {
+    button, a, input[type="button"], input[type="submit"] {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}

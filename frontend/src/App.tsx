@@ -1,5 +1,5 @@
-import { useInternetIdentity } from './hooks/useInternetIdentity';
-import { useGetCallerUserProfile } from './hooks/useQueries';
+import RoleSelection from './pages/RoleSelection';
+import { useAuth } from './hooks/useAuth';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from 'next-themes';
 import { RouterProvider, createRouter, createRootRoute, createRoute, Outlet } from '@tanstack/react-router';
@@ -7,13 +7,11 @@ import Header from './components/Header';
 import ParentHeader from './components/ParentHeader';
 import Footer from './components/Footer';
 import LoginScreen from './pages/LoginScreen';
-import ProfileSetup from './pages/ProfileSetup';
 import QuickAwardPage from './pages/QuickAwardPage';
 import ClassDisplayPage from './pages/ClassDisplayPage';
 import LessonsPage from './pages/LessonsPage';
 import SettingsPage from './pages/SettingsPage';
 import ParentPortalPage from './pages/ParentPortalPage';
-import { UserRole } from './backend';
 
 function TeacherLayout() {
   return (
@@ -40,16 +38,16 @@ function ParentLayout() {
 }
 
 function RootLayoutComponent() {
-  const { data: userProfile } = useGetCallerUserProfile();
-  const isTeacher = userProfile?.role === UserRole.admin;
-  
+  const { profile } = useAuth();
+  const isTeacher = profile?.role === 'teacher';
+
   return isTeacher ? <TeacherLayout /> : <ParentLayout />;
 }
 
 function IndexComponent() {
-  const { data: userProfile } = useGetCallerUserProfile();
-  const isTeacher = userProfile?.role === UserRole.admin;
-  
+  const { profile } = useAuth();
+  const isTeacher = profile?.role === 'teacher';
+
   return isTeacher ? <QuickAwardPage /> : <ParentPortalPage />;
 }
 
@@ -105,12 +103,11 @@ const routeTree = rootRoute.addChildren([
 const router = createRouter({ routeTree });
 
 export default function App() {
-  const { identity, isInitializing } = useInternetIdentity();
-  const { data: userProfile, isLoading: profileLoading, isFetched } = useGetCallerUserProfile();
+  const { user, profile, isLoading } = useAuth();
 
-  const isAuthenticated = !!identity;
+  const isAuthenticated = !!user;
 
-  if (isInitializing || (isAuthenticated && profileLoading)) {
+  if (isLoading) {
     return (
       <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
@@ -132,12 +129,10 @@ export default function App() {
     );
   }
 
-  const showProfileSetup = isAuthenticated && !profileLoading && isFetched && userProfile === null;
-
-  if (showProfileSetup) {
+  if (isAuthenticated && !profile) {
     return (
       <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-        <ProfileSetup />
+        <RoleSelection />
         <Toaster />
       </ThemeProvider>
     );

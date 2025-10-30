@@ -1,17 +1,22 @@
-import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useGetCallerUserProfile } from '../hooks/useQueries';
+import { useAuth } from '../hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Sparkles, LogOut } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function ParentHeader() {
-  const { clear } = useInternetIdentity();
-  const { data: userProfile } = useGetCallerUserProfile();
+  const { logout } = useAuth();
   const queryClient = useQueryClient();
 
   const handleLogout = async () => {
-    await clear();
-    queryClient.clear();
+    try {
+      await logout();
+      queryClient.clear();
+      toast.success('Logged out successfully');
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error('Failed to log out');
+    }
   };
 
   return (

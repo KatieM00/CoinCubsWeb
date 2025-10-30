@@ -1,15 +1,14 @@
-import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useGetCallerUserProfile } from '../hooks/useQueries';
+import { useAuth } from '../hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Sparkles, LogOut, Zap, Monitor, BookOpen, Settings, Menu } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 export default function Header() {
-  const { clear } = useInternetIdentity();
-  const { data: userProfile } = useGetCallerUserProfile();
+  const { logout } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const routerState = useRouterState();
@@ -17,8 +16,14 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
-    await clear();
-    queryClient.clear();
+    try {
+      await logout();
+      queryClient.clear();
+      toast.success('Logged out successfully');
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error('Failed to log out');
+    }
   };
 
   const handleNavigate = (path: string) => {

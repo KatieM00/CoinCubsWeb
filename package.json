@@ -1,0 +1,20 @@
+{
+  "name": "coincubs-web",
+  "version": "1.0.0",
+  "description": "CoinCubs Classroom Economy Application",
+  "private": true,
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=frontend",
+    "build": "npm run build --workspace=frontend",
+    "preview": "npm run preview --workspace=frontend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/CoincubsWeb.git"
+  },
+  "author": "",
+  "license": "MIT"
+}

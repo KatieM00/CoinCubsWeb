@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Award, TrendingUp, Users, Undo2, CheckCircle2, Trophy, Coins, TrendingUpIcon } from 'lucide-react';
 import { toast } from 'sonner';
-import { AwardSplit } from '../backend';
+import { AwardSplit } from '../types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -76,10 +76,10 @@ export default function QuickAwardPage() {
 
     try {
       const amount = BigInt(finalAmount);
-      const splitType = isWholeClass ? AwardSplit.allToClassFund : AwardSplit.defaultSplit;
+      const splitType = isWholeClass ? 'allToClassFund' : 'defaultSplit';
 
       await awardCubCoins.mutateAsync({
-        studentId: isWholeClass ? BigInt(0) : BigInt(selectedStudent),
+        studentId: isWholeClass ? '0' : selectedStudent,
         amount,
         splitType,
         description: awardReason,

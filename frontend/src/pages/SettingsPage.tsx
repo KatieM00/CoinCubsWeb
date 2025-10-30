@@ -17,8 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Principal } from '@icp-sdk/core/principal';
-import { AwardSplit, VoteOption } from '../backend';
+import { AwardSplit, VoteOption } from '../types';
 import { cn } from '@/lib/utils';
 
 type SettingsSection = 'students' | 'fund' | 'goals' | 'voting' | 'system';
@@ -71,7 +70,7 @@ export default function SettingsPage() {
   const [balanceOperation, setBalanceOperation] = useState<'add' | 'subtract' | 'set'>('add');
   const [balanceAmount, setBalanceAmount] = useState('');
   const [balanceReason, setBalanceReason] = useState('');
-  const [selectedStudent, setSelectedStudent] = useState<Principal | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
   const [studentName, setStudentName] = useState('');
   const [studentBalance, setStudentBalance] = useState('');
   const [studentNotes, setStudentNotes] = useState('');
@@ -105,6 +104,27 @@ export default function SettingsPage() {
   ]);
   const [selectedVoteId, setSelectedVoteId] = useState<bigint | null>(null);
   const [editingVoteCounts, setEditingVoteCounts] = useState<Record<string, string>>({});
+
+  if (adminLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-7xl space-y-6">
+        <Skeleton className="h-32 w-full rounded-3xl" />
+        <Skeleton className="h-64 w-full rounded-3xl" />
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <Alert variant="destructive">
+          <AlertDescription>
+            Only teachers can access the Settings page.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   const formatGems = (amount: bigint) => Number(amount).toLocaleString();
   const formatDate = (timestamp: bigint) => new Date(Number(timestamp) / 1000000).toLocaleString();

@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 export default function Header() {
-  const { logout } = useAuth();
+  const { logout, profile } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const routerState = useRouterState();
@@ -94,9 +94,9 @@ export default function Header() {
           {/* Right Side */}
           <div className="flex items-center gap-2 md:gap-4">
             {/* User Info - Hidden on mobile */}
-            {userProfile && (
+            {profile && (
               <div className="text-right hidden md:block">
-                <p className="text-sm font-medium text-foreground">{userProfile.name}</p>
+                <p className="text-sm font-medium text-foreground">{profile.full_name}</p>
                 <p className="text-xs text-muted-foreground">Teacher</p>
               </div>
             )}
@@ -116,9 +116,9 @@ export default function Header() {
               </SheetTrigger>
               <SheetContent side="right" className="w-[280px] sm:w-[320px]">
                 <div className="flex flex-col gap-4 mt-8">
-                  {userProfile && (
+                  {profile && (
                     <div className="pb-4 border-b">
-                      <p className="text-base font-semibold">{userProfile.name}</p>
+                      <p className="text-base font-semibold">{profile.full_name}</p>
                       <p className="text-sm text-muted-foreground">Teacher</p>
                     </div>
                   )}

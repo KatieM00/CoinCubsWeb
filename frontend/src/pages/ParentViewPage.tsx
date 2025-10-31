@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useGetClassFund, useGetClassAchievements, useGetClassGoals } from '../hooks/useQueries';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';

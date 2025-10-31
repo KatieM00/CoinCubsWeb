@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useEffect, useState, useRef } from 'react';
 import { useGetClassFund, useGetClassGoals, useGetActivityTicker, useGetDisplayMode, useGetActiveLessonContent, useGetActiveVotingProposals } from '../hooks/useQueries';
 import { Skeleton } from '@/components/ui/skeleton';

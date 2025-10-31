@@ -5,7 +5,7 @@ import { Sparkles, LogOut } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function ParentHeader() {
-  const { logout } = useAuth();
+  const { logout, profile } = useAuth();
   const queryClient = useQueryClient();
 
   const handleLogout = async () => {
@@ -38,9 +38,9 @@ export default function ParentHeader() {
 
           {/* Right Side */}
           <div className="flex items-center gap-2 md:gap-4">
-            {userProfile && (
+            {profile && (
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-medium text-foreground">{userProfile.name}</p>
+                <p className="text-sm font-medium text-foreground">{profile.full_name}</p>
                 <p className="text-xs text-muted-foreground">Parent</p>
               </div>
             )}

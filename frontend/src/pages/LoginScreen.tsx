@@ -1,8 +1,10 @@
 import { useAuth } from '../hooks/useAuth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Sparkles, GraduationCap, Users } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Sparkles, GraduationCap, Users, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
+import { isSupabaseConfigured } from '@/lib/supabase'
 
 export default function LoginScreen() {
   const { loginWithGoogle, isLoading } = useAuth()
@@ -31,6 +33,16 @@ export default function LoginScreen() {
             A classroom economy where every student helps the whole class succeed
           </p>
         </div>
+
+        {!isSupabaseConfigured && (
+          <Alert variant="destructive" className="max-w-2xl mx-auto mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Setup Required:</strong> Supabase environment variables are not configured.
+              Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your Netlify environment variables.
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Card className="bg-white/80 backdrop-blur-sm border-2 border-amber-300 shadow-xl hover:shadow-2xl transition-shadow max-w-md mx-auto">
           <CardHeader className="text-center">

@@ -1,21 +1,11 @@
-import * as React from "react"
+"use client"
 
-const Collapsible = ({ children }: { children: React.ReactNode; open?: boolean; onOpenChange?: (open: boolean) => void }) => {
-  return <div>{children}</div>
-}
+import * as CollapsiblePrimitive from "@radix-ui/react-collapsible"
 
-const CollapsibleTrigger = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement> & { asChild?: boolean }>(
-  ({ children, asChild, ...props }, ref) => {
-    return <div ref={ref} {...props}>{children}</div>
-  }
-)
-CollapsibleTrigger.displayName = "CollapsibleTrigger"
+const Collapsible = CollapsiblePrimitive.Root
 
-const CollapsibleContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <div ref={ref} className={className} {...props} />
-  )
-)
-CollapsibleContent.displayName = "CollapsibleContent"
+const CollapsibleTrigger = CollapsiblePrimitive.CollapsibleTrigger
+
+const CollapsibleContent = CollapsiblePrimitive.CollapsibleContent
 
 export { Collapsible, CollapsibleTrigger, CollapsibleContent }

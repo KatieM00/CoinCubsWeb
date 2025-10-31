@@ -5,6 +5,16 @@
   command = "npm run build"
   publish = "dist"
 
+# Disable secret scanning for VITE_SUPABASE_ANON_KEY
+# This is a PUBLIC key that MUST be in the client bundle
+# It's protected by Supabase Row Level Security (RLS)
+[build.processing]
+  skip_processing = false
+
+[build.environment]
+  # Tell Netlify that Vite public env vars are expected in the bundle
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY"
+
 # Redirect all requests to index.html for client-side routing
 [[redirects]]
   from = "/*"
@@ -15,6 +25,5 @@
 # VITE_SUPABASE_URL=https://your-project.supabase.co
 # VITE_SUPABASE_ANON_KEY=your-anon-key-here
 
-# Build settings
-[build.environment]
+# Additional build settings
   NODE_VERSION = "18"

@@ -16,6 +16,25 @@ export default function RoleSelection() {
   const [step, setStep] = useState<Step>('role-select')
   const [isLoading, setIsLoading] = useState(false)
 
+  // Safety check: if no user, show error
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 p-4">
+        <Card className="max-w-md">
+          <CardHeader>
+            <CardTitle>Authentication Required</CardTitle>
+            <CardDescription>Please sign in to continue</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              You need to be signed in to set up your profile. Please reload the page and sign in.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   // Teacher setup
   const [className, setClassName] = useState('')
   const [schoolYear, setSchoolYear] = useState('')

@@ -85,6 +85,8 @@ export default function RoleSelection() {
 
       toast.success(`Class created! Your class code is: ${classCode}`, { duration: 5000 })
       await refreshProfile()
+      // Give React time to update state and trigger re-render
+      await new Promise(resolve => setTimeout(resolve, 100))
     } catch (error: any) {
       console.error('Error creating teacher profile:', error)
       toast.error(error.message || 'Failed to create teacher profile')
@@ -128,6 +130,8 @@ export default function RoleSelection() {
 
       toast.success('Parent account created! You can now view your child\'s progress.')
       await refreshProfile()
+      // Give React time to update state and trigger re-render
+      await new Promise(resolve => setTimeout(resolve, 100))
     } catch (error: any) {
       console.error('Error creating parent profile:', error)
       toast.error(error.message || 'Failed to create parent profile')

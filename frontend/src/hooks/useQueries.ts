@@ -31,12 +31,12 @@ export const useIsCallerAdmin = () => {
 // Class Fund Queries
 export const useGetClassFund = () => {
   const { isDemoMode } = useDemo();
-  const demoData = useDemoData();
+  const demoData = isDemoMode ? useDemoData() : null;
 
   return useQuery({
     queryKey: ['classFund'],
     queryFn: async () => {
-      if (isDemoMode) {
+      if (isDemoMode && demoData) {
         return {
           balance: demoData.classFundBalance,
           transactions: demoData.transactions,
@@ -64,12 +64,12 @@ export const useAwardClassGems = () => {
 // Class Goals Queries
 export const useGetClassGoals = () => {
   const { isDemoMode } = useDemo();
-  const demoData = useDemoData();
+  const demoData = isDemoMode ? useDemoData() : null;
 
   return useQuery({
     queryKey: ['classGoals'],
     queryFn: async () => {
-      if (isDemoMode) {
+      if (isDemoMode && demoData) {
         return demoData.classGoals;
       }
       return [];
@@ -93,12 +93,12 @@ export const useCreateClassGoal = () => {
 // Activity Ticker Queries
 export const useGetActivityTicker = () => {
   const { isDemoMode } = useDemo();
-  const demoData = useDemoData();
+  const demoData = isDemoMode ? useDemoData() : null;
 
   return useQuery({
     queryKey: ['activityTicker'],
     queryFn: async () => {
-      if (isDemoMode) {
+      if (isDemoMode && demoData) {
         return demoData.activityTicker;
       }
       return [];
@@ -328,12 +328,12 @@ export const useBulkUpdateRewardPrices = () => {
 // Preset Amounts & Reasons Queries
 export const useGetPresetAmounts = () => {
   const { isDemoMode } = useDemo();
-  const demoData = useDemoData();
+  const demoData = isDemoMode ? useDemoData() : null;
 
   return useQuery({
     queryKey: ['presetAmounts'],
     queryFn: async () => {
-      if (isDemoMode) {
+      if (isDemoMode && demoData) {
         return demoData.presetAmounts.map(n => Number(n));
       }
       return [5, 10, 20, 50];
@@ -356,12 +356,12 @@ export const useUpdatePresetAmounts = () => {
 
 export const useGetPresetReasons = () => {
   const { isDemoMode } = useDemo();
-  const demoData = useDemoData();
+  const demoData = isDemoMode ? useDemoData() : null;
 
   return useQuery({
     queryKey: ['presetReasons'],
     queryFn: async () => {
-      if (isDemoMode) {
+      if (isDemoMode && demoData) {
         return demoData.presetReasons;
       }
       return [];
@@ -411,12 +411,12 @@ export const useDeleteReason = () => {
 // Student Queries
 export const useGetLastAwardedStudents = () => {
   const { isDemoMode } = useDemo();
-  const demoData = useDemoData();
+  const demoData = isDemoMode ? useDemoData() : null;
 
   return useQuery({
     queryKey: ['lastAwardedStudents'],
     queryFn: async () => {
-      if (isDemoMode) {
+      if (isDemoMode && demoData) {
         return demoData.lastAwardedStudents;
       }
       return [];
@@ -475,12 +475,12 @@ export const useUndoLastAward = () => {
 // Weekly Stats Queries
 export const useGetWeeklyStats = () => {
   const { isDemoMode } = useDemo();
-  const demoData = useDemoData();
+  const demoData = isDemoMode ? useDemoData() : null;
 
   return useQuery({
     queryKey: ['weeklyStats'],
     queryFn: async () => {
-      if (isDemoMode) {
+      if (isDemoMode && demoData) {
         return demoData.weeklyStats;
       }
       return { totalAwarded: 0, topEarners: [] };

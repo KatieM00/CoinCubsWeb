@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { supabase, UserProfile } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
 import { useDemo } from '@/contexts/DemoContext'
@@ -20,13 +20,15 @@ export function useAuth(): UseAuthReturn {
   const [isLoading, setIsLoading] = useState(true)
 
   // Create demo profile when in demo mode
-  const demoProfile: UserProfile | null = isDemoMode && demoRole ? {
-    id: 'demo-user-id',
-    email: demoRole === 'teacher' ? 'demo.teacher@coincubs.com' : 'demo.parent@coincubs.com',
-    role: demoRole,
-    full_name: demoRole === 'teacher' ? 'Demo Teacher' : 'Demo Parent',
-    created_at: new Date().toISOString()
-  } : null
+  const demoProfile: UserProfile | null = useMemo(() =>
+    isDemoMode && demoRole ? {
+      id: 'demo-user-id',
+      email: demoRole === 'teacher' ? 'demo.teacher@coincubs.com' : 'demo.parent@coincubs.com',
+      role: demoRole,
+      full_name: demoRole === 'teacher' ? 'Demo Teacher' : 'Demo Parent',
+      created_at: new Date().toISOString()
+    } : null
+  , [isDemoMode, demoRole])
 
   useEffect(() => {
     // In demo mode, skip Supabase auth and use demo profile
@@ -82,7 +84,7 @@ export function useAuth(): UseAuthReturn {
       clearTimeout(timeout)
       subscription.unsubscribe()
     }
-  }, [isDemoMode, demoProfile])
+  }, [isDemoMode, demoRole])
 
   const loadUserProfile = async (userId: string) => {
     try {

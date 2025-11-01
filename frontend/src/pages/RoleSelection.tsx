@@ -16,7 +16,14 @@ export default function RoleSelection() {
   const [step, setStep] = useState<Step>('role-select')
   const [isLoading, setIsLoading] = useState(false)
 
-  // Safety check: if no user, show error
+  // Teacher setup state
+  const [className, setClassName] = useState('')
+  const [schoolYear, setSchoolYear] = useState('')
+
+  // Parent setup state
+  const [classCode, setClassCode] = useState('')
+
+  // Safety check: if no user, show error (AFTER all hooks are declared)
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 p-4">
@@ -34,13 +41,6 @@ export default function RoleSelection() {
       </div>
     )
   }
-
-  // Teacher setup
-  const [className, setClassName] = useState('')
-  const [schoolYear, setSchoolYear] = useState('')
-
-  // Parent setup
-  const [classCode, setClassCode] = useState('')
 
   const generateClassCode = () => {
     const adjectives = ['LIONS', 'TIGERS', 'BEARS', 'EAGLES', 'DRAGONS', 'PANDAS', 'WOLVES']

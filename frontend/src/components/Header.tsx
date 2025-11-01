@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Sparkles, LogOut, Zap, Monitor, BookOpen, Settings, Menu, FlaskConical } from 'lucide-react';
+import { Sparkles, LogOut, Zap, Monitor, BookOpen, Settings, Menu } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -40,18 +40,7 @@ export default function Header() {
   };
 
   return (
-    <>
-      {/* Demo Mode Banner */}
-      {isDemoMode && (
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 px-4">
-          <div className="container mx-auto flex items-center justify-center gap-2 text-sm">
-            <FlaskConical className="w-4 h-4" />
-            <span className="font-medium">Demo Mode</span>
-            <span className="hidden sm:inline">- Changes won't be saved</span>
-          </div>
-        </div>
-      )}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-amber-200 sticky top-0 z-50">
+    <header className="bg-white/80 backdrop-blur-sm border-b border-amber-200 sticky top-0 z-50">
         <div className="container mx-auto px-3 md:px-4 lg:px-6 py-3 md:py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
@@ -113,20 +102,14 @@ export default function Header() {
           {/* Right Side */}
           <div className="flex items-center gap-2 md:gap-4">
             {/* User Info - Hidden on mobile */}
-            {isDemoMode ? (
+            {(isDemoMode || profile) && (
               <div className="text-right hidden md:block">
-                <p className="text-sm font-medium text-foreground flex items-center gap-2">
-                  <FlaskConical className="w-4 h-4 text-purple-600" />
-                  Demo User
+                <p className="text-sm font-medium text-foreground">
+                  {isDemoMode ? 'Demo Teacher' : profile?.full_name}
                 </p>
-                <p className="text-xs text-muted-foreground">Teacher Demo</p>
-              </div>
-            ) : profile ? (
-              <div className="text-right hidden md:block">
-                <p className="text-sm font-medium text-foreground">{profile.full_name}</p>
                 <p className="text-xs text-muted-foreground">Teacher</p>
               </div>
-            ) : null}
+            )}
 
             {/* Logout/Exit Demo Button */}
             <Button onClick={handleLogout} variant="outline" size="sm" className="gap-2 h-11 md:h-10 lg:h-9">
@@ -143,20 +126,14 @@ export default function Header() {
               </SheetTrigger>
               <SheetContent side="right" className="w-[280px] sm:w-[320px]">
                 <div className="flex flex-col gap-4 mt-8">
-                  {isDemoMode ? (
+                  {(isDemoMode || profile) && (
                     <div className="pb-4 border-b">
-                      <p className="text-base font-semibold flex items-center gap-2">
-                        <FlaskConical className="w-4 h-4 text-purple-600" />
-                        Demo User
+                      <p className="text-base font-semibold">
+                        {isDemoMode ? 'Demo Teacher' : profile?.full_name}
                       </p>
-                      <p className="text-sm text-muted-foreground">Teacher Demo</p>
-                    </div>
-                  ) : profile ? (
-                    <div className="pb-4 border-b">
-                      <p className="text-base font-semibold">{profile.full_name}</p>
                       <p className="text-sm text-muted-foreground">Teacher</p>
                     </div>
-                  ) : null}
+                  )}
                   <nav className="flex flex-col gap-2">
                     <Button
                       variant={currentPath === '/' || currentPath === '/quick-award' ? 'default' : 'ghost'}
@@ -202,6 +179,5 @@ export default function Header() {
         </div>
       </div>
     </header>
-    </>
   );
 }

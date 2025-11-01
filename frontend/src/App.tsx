@@ -113,8 +113,6 @@ function AppContent() {
   const { user, profile, isLoading } = useAuth();
   const { isDemoMode } = useDemo();
 
-  const isAuthenticated = !!user;
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
@@ -126,7 +124,7 @@ function AppContent() {
     );
   }
 
-  // Demo mode: skip authentication
+  // Demo mode: skip authentication, go straight to app
   if (isDemoMode) {
     return (
       <>
@@ -136,7 +134,11 @@ function AppContent() {
     );
   }
 
-  // Regular mode: require authentication
+  // Regular mode: check authentication step by step
+  const isAuthenticated = !!user;
+  const hasProfile = !!profile;
+
+  // Step 1: Not authenticated → show login screen
   if (!isAuthenticated) {
     return (
       <>
@@ -146,7 +148,8 @@ function AppContent() {
     );
   }
 
-  if (isAuthenticated && !profile) {
+  // Step 2: Authenticated but no profile → show role selection
+  if (isAuthenticated && !hasProfile) {
     return (
       <>
         <RoleSelection />
@@ -155,6 +158,7 @@ function AppContent() {
     );
   }
 
+  // Step 3: Authenticated with profile → show main app
   return (
     <>
       <RouterProvider router={router} />

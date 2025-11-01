@@ -113,6 +113,16 @@ function AppContent() {
   const { user, profile, isLoading } = useAuth();
   const { isDemoMode } = useDemo();
 
+  // Debug logging
+  console.log('🔍 App State:', {
+    isLoading,
+    isDemoMode,
+    hasUser: !!user,
+    hasProfile: !!profile,
+    user,
+    profile
+  });
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
@@ -126,6 +136,7 @@ function AppContent() {
 
   // Demo mode: skip authentication, go straight to app
   if (isDemoMode) {
+    console.log('✅ Demo mode active - showing app');
     return (
       <>
         <RouterProvider router={router} />
@@ -140,6 +151,7 @@ function AppContent() {
 
   // Step 1: Not authenticated → show login screen
   if (!isAuthenticated) {
+    console.log('🔐 Not authenticated - showing LoginScreen');
     return (
       <>
         <LoginScreen />
@@ -150,6 +162,7 @@ function AppContent() {
 
   // Step 2: Authenticated but no profile → show role selection
   if (isAuthenticated && !hasProfile) {
+    console.log('👤 Authenticated but no profile - showing RoleSelection');
     return (
       <>
         <RoleSelection />
@@ -159,6 +172,7 @@ function AppContent() {
   }
 
   // Step 3: Authenticated with profile → show main app
+  console.log('✅ Fully authenticated - showing main app');
   return (
     <>
       <RouterProvider router={router} />

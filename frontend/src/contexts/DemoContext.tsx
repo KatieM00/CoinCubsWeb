@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from 'react'
+import { DemoDataProvider } from './DemoDataContext'
 
 export type DemoRole = 'teacher' | 'parent' | null
 
@@ -29,7 +30,9 @@ export function DemoProvider({ children }: { children: ReactNode }) {
 
   return (
     <DemoContext.Provider value={{ isDemoMode, demoRole, enterDemoMode, exitDemoMode }}>
-      {children}
+      <DemoDataProvider>
+        {children}
+      </DemoDataProvider>
     </DemoContext.Provider>
   )
 }

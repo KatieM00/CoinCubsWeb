@@ -1,5 +1,7 @@
 import { useAuth } from './useAuth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useDemo } from '@/contexts/DemoContext';
+import { useDemoData } from '@/contexts/DemoDataContext';
 
 // Re-export user profile queries
 export { useGetUserProfile, useSaveUserProfile } from './useUserQueries';
@@ -7,13 +9,18 @@ export { useGetUserProfile, useSaveUserProfile } from './useUserQueries';
 // Authorization check
 export const useIsCallerAdmin = () => {
   const { profile } = useAuth();
+  const { isDemoMode } = useDemo();
 
   return useQuery({
     queryKey: ['isCallerAdmin', profile?.id],
     queryFn: async () => {
+      // In demo mode, always return true for teacher role
+      if (isDemoMode) {
+        return profile?.role === 'teacher';
+      }
       return profile?.role === 'teacher';
     },
-    enabled: !!profile
+    enabled: !!profile // Profile will exist in demo mode thanks to useAuth update
   });
 };
 
@@ -23,9 +30,21 @@ export const useIsCallerAdmin = () => {
 
 // Class Fund Queries
 export const useGetClassFund = () => {
+  const { isDemoMode } = useDemo();
+  const demoData = useDemoData();
+
   return useQuery({
     queryKey: ['classFund'],
-    queryFn: async () => ({ balance: 0 }),
+    queryFn: async () => {
+      if (isDemoMode) {
+        return {
+          balance: demoData.classFundBalance,
+          transactions: demoData.transactions,
+          goals: demoData.classGoals
+        };
+      }
+      return { balance: 0 };
+    },
   });
 };
 
@@ -44,9 +63,17 @@ export const useAwardClassGems = () => {
 
 // Class Goals Queries
 export const useGetClassGoals = () => {
+  const { isDemoMode } = useDemo();
+  const demoData = useDemoData();
+
   return useQuery({
     queryKey: ['classGoals'],
-    queryFn: async () => [],
+    queryFn: async () => {
+      if (isDemoMode) {
+        return demoData.classGoals;
+      }
+      return [];
+    },
   });
 };
 
@@ -65,9 +92,17 @@ export const useCreateClassGoal = () => {
 
 // Activity Ticker Queries
 export const useGetActivityTicker = () => {
+  const { isDemoMode } = useDemo();
+  const demoData = useDemoData();
+
   return useQuery({
     queryKey: ['activityTicker'],
-    queryFn: async () => [],
+    queryFn: async () => {
+      if (isDemoMode) {
+        return demoData.activityTicker;
+      }
+      return [];
+    },
   });
 };
 
@@ -292,9 +327,17 @@ export const useBulkUpdateRewardPrices = () => {
 
 // Preset Amounts & Reasons Queries
 export const useGetPresetAmounts = () => {
+  const { isDemoMode } = useDemo();
+  const demoData = useDemoData();
+
   return useQuery({
     queryKey: ['presetAmounts'],
-    queryFn: async () => [5, 10, 20, 50],
+    queryFn: async () => {
+      if (isDemoMode) {
+        return demoData.presetAmounts.map(n => Number(n));
+      }
+      return [5, 10, 20, 50];
+    },
   });
 };
 
@@ -312,9 +355,17 @@ export const useUpdatePresetAmounts = () => {
 };
 
 export const useGetPresetReasons = () => {
+  const { isDemoMode } = useDemo();
+  const demoData = useDemoData();
+
   return useQuery({
     queryKey: ['presetReasons'],
-    queryFn: async () => [],
+    queryFn: async () => {
+      if (isDemoMode) {
+        return demoData.presetReasons;
+      }
+      return [];
+    },
   });
 };
 
@@ -359,9 +410,17 @@ export const useDeleteReason = () => {
 
 // Student Queries
 export const useGetLastAwardedStudents = () => {
+  const { isDemoMode } = useDemo();
+  const demoData = useDemoData();
+
   return useQuery({
     queryKey: ['lastAwardedStudents'],
-    queryFn: async () => [],
+    queryFn: async () => {
+      if (isDemoMode) {
+        return demoData.lastAwardedStudents;
+      }
+      return [];
+    },
   });
 };
 
@@ -415,9 +474,17 @@ export const useUndoLastAward = () => {
 
 // Weekly Stats Queries
 export const useGetWeeklyStats = () => {
+  const { isDemoMode } = useDemo();
+  const demoData = useDemoData();
+
   return useQuery({
     queryKey: ['weeklyStats'],
-    queryFn: async () => ({ totalAwarded: 0, topEarners: [] }),
+    queryFn: async () => {
+      if (isDemoMode) {
+        return demoData.weeklyStats;
+      }
+      return { totalAwarded: 0, topEarners: [] };
+    },
   });
 };
 

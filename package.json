@@ -16,5 +16,9 @@
     "url": "https://github.com/yourusername/CoincubsWeb.git"
   },
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@tailwindcss/container-queries": "^0.1.1",
+    "@tailwindcss/typography": "^0.5.19"
+  }
 }

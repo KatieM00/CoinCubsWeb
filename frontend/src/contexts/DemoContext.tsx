@@ -20,12 +20,16 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     setIsDemoMode(true)
     setDemoRole(role)
     console.log(`Entering demo mode as ${role}`)
+    // Navigate to home page when entering demo mode
+    window.location.href = '/'
   }
 
   const exitDemoMode = () => {
     setIsDemoMode(false)
     setDemoRole(null)
     console.log('Exiting demo mode')
+    // Navigate to home/login when exiting demo mode
+    window.location.href = '/'
   }
 
   return (

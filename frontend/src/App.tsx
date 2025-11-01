@@ -55,6 +55,14 @@ function IndexComponent() {
   // In demo mode, use demo role; otherwise use profile role
   const isTeacher = isDemoMode ? demoRole === 'teacher' : profile?.role === 'teacher';
 
+  console.log('🏠 IndexComponent rendering:', {
+    isDemoMode,
+    demoRole,
+    profileRole: profile?.role,
+    isTeacher,
+    willShow: isTeacher ? 'QuickAwardPage (Teacher)' : 'ParentPortalPage (Parent)'
+  });
+
   return isTeacher ? <QuickAwardPage /> : <ParentPortalPage />;
 }
 

@@ -19,10 +19,13 @@ export function DemoProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate()
 
   const enterDemoMode = (role: DemoRole) => {
+    console.log(`Entering demo mode as ${role}`)
     setIsDemoMode(true)
     setDemoRole(role)
-    navigate({ to: '/' })
-    console.log(`Entering demo mode as ${role}`)
+    // Small delay to ensure state updates before navigation
+    setTimeout(() => {
+      navigate({ to: '/' })
+    }, 10)
   }
 
   const exitDemoMode = () => {

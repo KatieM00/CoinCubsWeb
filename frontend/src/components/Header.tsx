@@ -1,14 +1,16 @@
 import { useAuth } from '../hooks/useAuth';
+import { useDemo } from '../contexts/DemoContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Sparkles, LogOut, Zap, Monitor, BookOpen, Settings, Menu } from 'lucide-react';
+import { Sparkles, LogOut, Zap, Monitor, BookOpen, Settings, Menu, FlaskConical } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 export default function Header() {
   const { logout, profile } = useAuth();
+  const { isDemoMode, exitDemoMode } = useDemo();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const routerState = useRouterState();
@@ -16,6 +18,12 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
+    if (isDemoMode) {
+      exitDemoMode();
+      toast.success('Exited demo mode');
+      return;
+    }
+
     try {
       await logout();
       queryClient.clear();
@@ -32,24 +40,35 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white/80 backdrop-blur-sm border-b border-amber-200 sticky top-0 z-50">
-      <div className="container mx-auto px-3 md:px-4 lg:px-6 py-3 md:py-4">
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <button
-            onClick={() => handleNavigate('/')}
-            className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-opacity"
-          >
-            <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
-              <Sparkles className="w-4 h-4 md:w-6 md:h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
-                CoinCubs
-              </h1>
-              <p className="text-[10px] md:text-xs text-muted-foreground hidden sm:block">Growing Together</p>
-            </div>
-          </button>
+    <>
+      {/* Demo Mode Banner */}
+      {isDemoMode && (
+        <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 px-4">
+          <div className="container mx-auto flex items-center justify-center gap-2 text-sm">
+            <FlaskConical className="w-4 h-4" />
+            <span className="font-medium">Demo Mode</span>
+            <span className="hidden sm:inline">- Changes won't be saved</span>
+          </div>
+        </div>
+      )}
+      <header className="bg-white/80 backdrop-blur-sm border-b border-amber-200 sticky top-0 z-50">
+        <div className="container mx-auto px-3 md:px-4 lg:px-6 py-3 md:py-4">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <button
+              onClick={() => handleNavigate('/')}
+              className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-opacity"
+            >
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                <Sparkles className="w-4 h-4 md:w-6 md:h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+                  CoinCubs
+                </h1>
+                <p className="text-[10px] md:text-xs text-muted-foreground hidden sm:block">Growing Together</p>
+              </div>
+            </button>
 
           {/* Desktop Navigation (>1024px) */}
           <nav className="hidden lg:flex items-center gap-2">
@@ -94,17 +113,25 @@ export default function Header() {
           {/* Right Side */}
           <div className="flex items-center gap-2 md:gap-4">
             {/* User Info - Hidden on mobile */}
-            {profile && (
+            {isDemoMode ? (
+              <div className="text-right hidden md:block">
+                <p className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <FlaskConical className="w-4 h-4 text-purple-600" />
+                  Demo User
+                </p>
+                <p className="text-xs text-muted-foreground">Teacher Demo</p>
+              </div>
+            ) : profile ? (
               <div className="text-right hidden md:block">
                 <p className="text-sm font-medium text-foreground">{profile.full_name}</p>
                 <p className="text-xs text-muted-foreground">Teacher</p>
               </div>
-            )}
-            
-            {/* Logout Button */}
+            ) : null}
+
+            {/* Logout/Exit Demo Button */}
             <Button onClick={handleLogout} variant="outline" size="sm" className="gap-2 h-11 md:h-10 lg:h-9">
               <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline">Logout</span>
+              <span className="hidden sm:inline">{isDemoMode ? 'Exit Demo' : 'Logout'}</span>
             </Button>
 
             {/* Mobile Menu Button (<1024px) */}
@@ -116,12 +143,20 @@ export default function Header() {
               </SheetTrigger>
               <SheetContent side="right" className="w-[280px] sm:w-[320px]">
                 <div className="flex flex-col gap-4 mt-8">
-                  {profile && (
+                  {isDemoMode ? (
+                    <div className="pb-4 border-b">
+                      <p className="text-base font-semibold flex items-center gap-2">
+                        <FlaskConical className="w-4 h-4 text-purple-600" />
+                        Demo User
+                      </p>
+                      <p className="text-sm text-muted-foreground">Teacher Demo</p>
+                    </div>
+                  ) : profile ? (
                     <div className="pb-4 border-b">
                       <p className="text-base font-semibold">{profile.full_name}</p>
                       <p className="text-sm text-muted-foreground">Teacher</p>
                     </div>
-                  )}
+                  ) : null}
                   <nav className="flex flex-col gap-2">
                     <Button
                       variant={currentPath === '/' || currentPath === '/quick-award' ? 'default' : 'ghost'}
@@ -167,5 +202,6 @@ export default function Header() {
         </div>
       </div>
     </header>
+    </>
   );
 }

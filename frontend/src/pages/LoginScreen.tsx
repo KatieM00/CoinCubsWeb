@@ -1,13 +1,15 @@
 import { useAuth } from '../hooks/useAuth'
+import { useDemo } from '../contexts/DemoContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Sparkles, GraduationCap, Users, AlertCircle } from 'lucide-react'
+import { Sparkles, GraduationCap, Users, AlertCircle, FlaskConical } from 'lucide-react'
 import { toast } from 'sonner'
 import { isSupabaseConfigured } from '@/lib/supabase'
 
 export default function LoginScreen() {
   const { loginWithGoogle, isLoading } = useAuth()
+  const { enterDemoMode } = useDemo()
 
   const handleLogin = async () => {
     try {
@@ -98,9 +100,45 @@ export default function LoginScreen() {
           </CardContent>
         </Card>
 
+        {/* Demo Mode Section */}
+        <Card className="bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-300 shadow-lg hover:shadow-xl transition-shadow max-w-md mx-auto mt-6">
+          <CardHeader className="text-center pb-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-2">
+              <FlaskConical className="w-6 h-6 text-white" />
+            </div>
+            <CardTitle className="text-xl">Try Demo Mode</CardTitle>
+            <CardDescription>
+              Explore CoinCubs without signing in
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button
+              onClick={() => enterDemoMode('teacher')}
+              variant="outline"
+              size="lg"
+              className="w-full border-2 border-amber-400 hover:bg-amber-50 hover:border-amber-500 transition-all"
+            >
+              <GraduationCap className="w-5 h-5 mr-2 text-amber-600" />
+              Demo as Teacher
+            </Button>
+            <Button
+              onClick={() => enterDemoMode('parent')}
+              variant="outline"
+              size="lg"
+              className="w-full border-2 border-blue-400 hover:bg-blue-50 hover:border-blue-500 transition-all"
+            >
+              <Users className="w-5 h-5 mr-2 text-blue-600" />
+              Demo as Parent
+            </Button>
+            <p className="text-xs text-center text-muted-foreground pt-2">
+              Demo mode uses sample data and won't save changes
+            </p>
+          </CardContent>
+        </Card>
+
         <div className="text-center mt-6">
           <p className="text-xs text-muted-foreground">
-            Secure authentication powered by Supabase
+            {isSupabaseConfigured ? 'Secure authentication powered by Supabase' : 'Demo mode available - no sign-in required'}
           </p>
         </div>
       </div>

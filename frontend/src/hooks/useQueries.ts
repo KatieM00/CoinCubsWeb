@@ -266,7 +266,7 @@ export const useRestartCurriculum = () => {
 export const useGetCurriculumProgress = () => {
   return useQuery({
     queryKey: ['curriculumProgress'],
-    queryFn: async () => ({ completedWeeks: 0, totalWeeks: 36 }),
+    queryFn: async () => ({ completedWeeks: 0, totalWeeks: 36, currentWeek: 1 }),
   });
 };
 

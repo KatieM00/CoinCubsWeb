@@ -181,6 +181,12 @@ function AppContent() {
 
   // Step 2.5: Authenticated with profile(s) but no active role selected
   if (isAuthenticated && profiles.length > 0 && !activeRole) {
+    console.log('🔍 Step 2.5 check:', {
+      profiles: profiles.length,
+      activeRole,
+      hasMultipleRoles
+    });
+
     // If only one role, show RoleSelection (they can add another or continue)
     if (profiles.length === 1) {
       console.log('👤 User has 1 role but no active role - showing RoleSelection');
@@ -204,7 +210,11 @@ function AppContent() {
   }
 
   // Step 3: Authenticated with profile and active role → show main app
-  console.log('✅ Fully authenticated - showing main app');
+  console.log('✅ Fully authenticated - showing main app', {
+    activeRole,
+    profile: profile?.role,
+    profiles: profiles.length
+  });
   return (
     <>
       <RouterProvider router={router} />

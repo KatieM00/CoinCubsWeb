@@ -147,13 +147,19 @@ export function useAuth(): UseAuthReturn {
   }
 
   const switchRole = (role: 'teacher' | 'parent') => {
+    console.log(`🔄 switchRole called with role: ${role}`)
+    console.log(`🔍 Current profiles:`, profiles)
+    console.log(`🔍 Current activeRole:`, activeRole)
+
     // Check if user has this role
     const hasRole = profiles.some(p => p.role === role)
+    console.log(`🔍 User has ${role} role:`, hasRole)
+
     if (hasRole) {
       setActiveRole(role)
-      console.log(`Switched to ${role} role`)
+      console.log(`✅ Switched to ${role} role`)
     } else {
-      console.warn(`User does not have ${role} role`)
+      console.warn(`⚠️ User does not have ${role} role`)
     }
   }
 

@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDemo } from '@/contexts/DemoContext';
 import { useDemoData } from '@/contexts/DemoDataContext';
 import { supabase } from '@/lib/supabase';
+import { getAllCurriculumModules } from '@/data/curriculumData';
 
 // Re-export user profile queries
 export { useGetUserProfile, useSaveUserProfile } from './useUserQueries';
@@ -187,7 +188,10 @@ export const useValidateVoteTotals = () => {
 export const useGetCurriculumModules = () => {
   return useQuery({
     queryKey: ['curriculumModules'],
-    queryFn: async () => [],
+    queryFn: async () => {
+      // Return the curriculum data
+      return getAllCurriculumModules();
+    },
   });
 };
 

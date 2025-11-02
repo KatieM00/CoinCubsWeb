@@ -9,11 +9,23 @@ export type VoteOption = {
   voteCount: number
 }
 
-export type CurriculumModule = {
-  weekNumber: number
-  title: string
+export type LessonActivity = {
+  name: string
   description: string
-  mondayLesson: string
-  fridayLesson: string
-  isCompleted: boolean
+}
+
+export type Lesson = {
+  title: string
+  teacherScript: string
+  discussionQuestions: string[]
+  activities: LessonActivity[]
+}
+
+export type CurriculumModule = {
+  weekNumber: number | bigint
+  moduleName: string
+  learningObjectives: string[]
+  mondayLesson: Lesson
+  fridayLesson: Lesson
+  isCompleted?: boolean
 }

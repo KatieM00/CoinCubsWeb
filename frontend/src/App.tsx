@@ -179,15 +179,28 @@ function AppContent() {
     );
   }
 
-  // Step 2.5: Has multiple roles but no active role selected → show role switcher
-  if (isAuthenticated && hasMultipleRoles && !activeRole) {
-    console.log('🔄 Multiple roles but no active role - showing RoleSwitcher');
-    return (
-      <>
-        <RoleSwitcher />
-        <Toaster />
-      </>
-    );
+  // Step 2.5: Authenticated with profile(s) but no active role selected
+  if (isAuthenticated && profiles.length > 0 && !activeRole) {
+    // If only one role, show RoleSelection (they can add another or continue)
+    if (profiles.length === 1) {
+      console.log('👤 User has 1 role but no active role - showing RoleSelection');
+      return (
+        <>
+          <RoleSelection />
+          <Toaster />
+        </>
+      );
+    }
+    // If multiple roles, show RoleSwitcher to choose
+    if (hasMultipleRoles) {
+      console.log('🔄 Multiple roles but no active role - showing RoleSwitcher');
+      return (
+        <>
+          <RoleSwitcher />
+          <Toaster />
+        </>
+      );
+    }
   }
 
   // Step 3: Authenticated with profile and active role → show main app

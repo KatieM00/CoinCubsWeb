@@ -107,10 +107,7 @@ export function useAuth(): UseAuthReturn {
         setActiveRole(null)
       } else if (data && data.length > 0) {
         setProfiles(data)
-        // Set active role to the first profile if not already set
-        if (!activeRole) {
-          setActiveRole(data[0].role)
-        }
+        // Don't auto-set activeRole - let user choose via RoleSelection or RoleSwitcher
       } else {
         setProfiles([])
         setActiveRole(null)

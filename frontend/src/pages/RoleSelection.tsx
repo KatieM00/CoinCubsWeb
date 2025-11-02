@@ -12,7 +12,7 @@ import { toast } from 'sonner'
 type Step = 'role-select' | 'teacher-setup' | 'parent-setup'
 
 export default function RoleSelection() {
-  const { user, profiles, refreshProfile } = useAuth()
+  const { user, profiles, refreshProfile, switchRole } = useAuth()
   const [step, setStep] = useState<Step>('role-select')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -163,62 +163,112 @@ export default function RoleSelection() {
   }
 
   if (step === 'role-select') {
+    // Check if user already has roles
+    const existingRoles = [];
+    if (hasTeacherRole) existingRoles.push('Teacher');
+    if (hasParentRole) existingRoles.push('Parent');
+
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 p-4">
         <div className="max-w-4xl w-full">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold mb-2">Welcome to CoinCubs!</h1>
-            <p className="text-lg text-muted-foreground">Are you a teacher or a parent?</p>
+            <h1 className="text-4xl font-bold mb-2">
+              {existingRoles.length > 0 ? 'Add Another Role?' : 'Welcome to CoinCubs!'}
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              {existingRoles.length > 0
+                ? `You already have ${existingRoles.join(' and ')} access. Add another role or continue.`
+                : 'Are you a teacher or a parent?'}
+            </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
             <Card
-              className="bg-white/80 backdrop-blur-sm border-2 border-amber-300 shadow-xl hover:shadow-2xl transition-all cursor-pointer"
-              onClick={() => setStep('teacher-setup')}
+              className={`bg-white/80 backdrop-blur-sm border-2 shadow-xl transition-all ${
+                hasTeacherRole
+                  ? 'border-green-300 opacity-75'
+                  : 'border-amber-300 hover:shadow-2xl cursor-pointer'
+              }`}
+              onClick={() => !hasTeacherRole && setStep('teacher-setup')}
             >
               <CardHeader className="text-center">
                 <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <GraduationCap className="w-8 h-8 text-amber-600" />
                 </div>
-                <CardTitle className="text-2xl">I'm a Teacher</CardTitle>
+                <CardTitle className="text-2xl">
+                  {hasTeacherRole ? '✓ Teacher Account' : 'I\'m a Teacher'}
+                </CardTitle>
                 <CardDescription className="text-base">
-                  Set up your classroom economy and manage student awards
+                  {hasTeacherRole
+                    ? 'You already have teacher access'
+                    : 'Set up your classroom economy and manage student awards'}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Button
                   size="lg"
-                  className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold py-6 text-lg rounded-full shadow-lg"
+                  disabled={hasTeacherRole}
+                  className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold py-6 text-lg rounded-full shadow-lg disabled:opacity-50"
                 >
-                  Continue as Teacher
+                  {hasTeacherRole ? 'Already Added' : 'Continue as Teacher'}
                 </Button>
               </CardContent>
             </Card>
 
             <Card
-              className="bg-white/80 backdrop-blur-sm border-2 border-blue-300 shadow-xl hover:shadow-2xl transition-all cursor-pointer"
-              onClick={() => setStep('parent-setup')}
+              className={`bg-white/80 backdrop-blur-sm border-2 shadow-xl transition-all ${
+                hasParentRole
+                  ? 'border-green-300 opacity-75'
+                  : 'border-blue-300 hover:shadow-2xl cursor-pointer'
+              }`}
+              onClick={() => !hasParentRole && setStep('parent-setup')}
             >
               <CardHeader className="text-center">
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Users className="w-8 h-8 text-blue-600" />
                 </div>
-                <CardTitle className="text-2xl">I'm a Parent</CardTitle>
+                <CardTitle className="text-2xl">
+                  {hasParentRole ? '✓ Parent Account' : 'I\'m a Parent'}
+                </CardTitle>
                 <CardDescription className="text-base">
-                  View your child's progress and classroom activities
+                  {hasParentRole
+                    ? 'You already have parent access'
+                    : 'View your child\'s progress and classroom activities'}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Button
                   size="lg"
+                  disabled={hasParentRole}
                   variant="outline"
-                  className="w-full border-2 border-blue-500 text-blue-700 hover:bg-blue-50 font-semibold py-6 text-lg rounded-full shadow-lg"
+                  className="w-full border-2 border-blue-500 text-blue-700 hover:bg-blue-50 font-semibold py-6 text-lg rounded-full shadow-lg disabled:opacity-50"
                 >
-                  Continue as Parent
+                  {hasParentRole ? 'Already Added' : 'Continue as Parent'}
                 </Button>
               </CardContent>
             </Card>
           </div>
+
+          {/* Show "Continue to App" button if user already has at least one role */}
+          {existingRoles.length > 0 && (
+            <div className="text-center mt-8">
+              <Button
+                size="lg"
+                onClick={() => {
+                  // Set active role to first available role before continuing
+                  const firstRole = hasTeacherRole ? 'teacher' : 'parent';
+                  switchRole(firstRole);
+                  // Small delay to ensure state updates
+                  setTimeout(() => {
+                    window.location.href = '/';
+                  }, 50);
+                }}
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold px-12 py-6 text-lg rounded-full shadow-lg"
+              >
+                Continue to CoinCubs →
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     )

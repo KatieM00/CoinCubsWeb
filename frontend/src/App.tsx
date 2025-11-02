@@ -1,5 +1,5 @@
 import RoleSelection from './pages/RoleSelection';
-import { useAuth } from './hooks/useAuth';
+import { useAuth, AuthProvider } from './hooks/useAuth';
 import { DemoProvider, useDemo } from './contexts/DemoContext';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from 'next-themes';
@@ -227,7 +227,9 @@ export default function App() {
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <DemoProvider>
-        <AppContent />
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
       </DemoProvider>
     </ThemeProvider>
   );

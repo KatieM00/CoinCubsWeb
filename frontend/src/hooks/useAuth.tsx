@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, createContext, useContext, ReactNode } from 'react'
 import { supabase, UserProfile } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
 import { useDemo } from '@/contexts/DemoContext'
@@ -17,7 +17,26 @@ interface UseAuthReturn {
   switchRole: (role: 'teacher' | 'parent') => void
 }
 
+// Create Auth Context
+const AuthContext = createContext<UseAuthReturn | undefined>(undefined)
+
+// Auth Provider Component
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const authValue = useAuthLogic()
+  return <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>
+}
+
+// Hook to use Auth Context
 export function useAuth(): UseAuthReturn {
+  const context = useContext(AuthContext)
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+  return context
+}
+
+// Internal hook with actual auth logic
+function useAuthLogic(): UseAuthReturn {
   const { isDemoMode, demoRole } = useDemo()
   const [user, setUser] = useState<User | null>(null)
   const [profiles, setProfiles] = useState<UserProfile[]>([])

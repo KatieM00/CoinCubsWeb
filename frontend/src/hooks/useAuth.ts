@@ -5,18 +5,23 @@ import { useDemo } from '@/contexts/DemoContext'
 
 interface UseAuthReturn {
   user: User | null
-  profile: UserProfile | null
+  profile: UserProfile | null  // Currently active profile
+  profiles: UserProfile[]  // All profiles for this user
+  activeRole: 'teacher' | 'parent' | null
+  hasMultipleRoles: boolean
   isLoading: boolean
   isAuthenticated: boolean
   loginWithGoogle: () => Promise<void>
   logout: () => Promise<void>
   refreshProfile: () => Promise<void>
+  switchRole: (role: 'teacher' | 'parent') => void
 }
 
 export function useAuth(): UseAuthReturn {
   const { isDemoMode, demoRole } = useDemo()
   const [user, setUser] = useState<User | null>(null)
-  const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [profiles, setProfiles] = useState<UserProfile[]>([])
+  const [activeRole, setActiveRole] = useState<'teacher' | 'parent' | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   // Create demo profile when in demo mode
@@ -34,7 +39,8 @@ export function useAuth(): UseAuthReturn {
     // In demo mode, skip Supabase auth and use demo profile
     if (isDemoMode) {
       setIsLoading(false)
-      setProfile(demoProfile)
+      setProfiles(demoProfile ? [demoProfile] : [])
+      setActiveRole(demoRole)
       // Create a minimal mock user object for demo mode
       setUser({
         id: 'demo-user-id',
@@ -75,7 +81,8 @@ export function useAuth(): UseAuthReturn {
       if (session?.user) {
         await loadUserProfile(session.user.id)
       } else {
-        setProfile(null)
+        setProfiles([])
+        setActiveRole(null)
       }
       setIsLoading(false)
     })
@@ -88,21 +95,30 @@ export function useAuth(): UseAuthReturn {
 
   const loadUserProfile = async (userId: string) => {
     try {
+      // Load ALL profiles for this user (may have both teacher and parent)
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single()
 
       if (error) {
-        console.error('Error loading profile:', error)
-        setProfile(null)
+        console.error('Error loading profiles:', error)
+        setProfiles([])
+        setActiveRole(null)
+      } else if (data && data.length > 0) {
+        setProfiles(data)
+        // Set active role to the first profile if not already set
+        if (!activeRole) {
+          setActiveRole(data[0].role)
+        }
       } else {
-        setProfile(data)
+        setProfiles([])
+        setActiveRole(null)
       }
     } catch (error) {
-      console.error('Error loading profile:', error)
-      setProfile(null)
+      console.error('Error loading profiles:', error)
+      setProfiles([])
+      setActiveRole(null)
     }
   }
 
@@ -133,13 +149,32 @@ export function useAuth(): UseAuthReturn {
     }
   }
 
+  const switchRole = (role: 'teacher' | 'parent') => {
+    // Check if user has this role
+    const hasRole = profiles.some(p => p.role === role)
+    if (hasRole) {
+      setActiveRole(role)
+      console.log(`Switched to ${role} role`)
+    } else {
+      console.warn(`User does not have ${role} role`)
+    }
+  }
+
+  // Compute active profile based on activeRole
+  const profile = profiles.find(p => p.role === activeRole) || profiles[0] || null
+  const hasMultipleRoles = profiles.length > 1
+
   return {
     user,
     profile,
+    profiles,
+    activeRole,
+    hasMultipleRoles,
     isLoading,
     isAuthenticated: !!user,
     loginWithGoogle,
     logout,
-    refreshProfile
+    refreshProfile,
+    switchRole
   }
 }

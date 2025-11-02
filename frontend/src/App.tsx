@@ -8,6 +8,7 @@ import Header from './components/Header';
 import ParentHeader from './components/ParentHeader';
 import Footer from './components/Footer';
 import LoginScreen from './pages/LoginScreen';
+import RoleSwitcher from './components/RoleSwitcher';
 import QuickAwardPage from './pages/QuickAwardPage';
 import ClassDisplayPage from './pages/ClassDisplayPage';
 import LessonsPage from './pages/LessonsPage';
@@ -118,7 +119,7 @@ const routeTree = rootRoute.addChildren([
 const router = createRouter({ routeTree });
 
 function AppContent() {
-  const { user, profile, isLoading } = useAuth();
+  const { user, profile, profiles, hasMultipleRoles, activeRole, isLoading } = useAuth();
   const { isDemoMode } = useDemo();
 
   // Debug logging
@@ -155,7 +156,6 @@ function AppContent() {
 
   // Regular mode: check authentication step by step
   const isAuthenticated = !!user;
-  const hasProfile = !!profile;
 
   // Step 1: Not authenticated → show login screen
   if (!isAuthenticated) {
@@ -169,7 +169,7 @@ function AppContent() {
   }
 
   // Step 2: Authenticated but no profile → show role selection
-  if (isAuthenticated && !hasProfile) {
+  if (isAuthenticated && profiles.length === 0) {
     console.log('👤 Authenticated but no profile - showing RoleSelection');
     return (
       <>
@@ -179,7 +179,18 @@ function AppContent() {
     );
   }
 
-  // Step 3: Authenticated with profile → show main app
+  // Step 2.5: Has multiple roles but no active role selected → show role switcher
+  if (isAuthenticated && hasMultipleRoles && !activeRole) {
+    console.log('🔄 Multiple roles but no active role - showing RoleSwitcher');
+    return (
+      <>
+        <RoleSwitcher />
+        <Toaster />
+      </>
+    );
+  }
+
+  // Step 3: Authenticated with profile and active role → show main app
   console.log('✅ Fully authenticated - showing main app');
   return (
     <>

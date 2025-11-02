@@ -12,9 +12,13 @@ import { toast } from 'sonner'
 type Step = 'role-select' | 'teacher-setup' | 'parent-setup'
 
 export default function RoleSelection() {
-  const { user, refreshProfile } = useAuth()
+  const { user, profiles, refreshProfile } = useAuth()
   const [step, setStep] = useState<Step>('role-select')
   const [isLoading, setIsLoading] = useState(false)
+
+  // Check if user already has roles
+  const hasTeacherRole = profiles.some(p => p.role === 'teacher')
+  const hasParentRole = profiles.some(p => p.role === 'parent')
 
   // Teacher setup state
   const [className, setClassName] = useState('')
@@ -59,17 +63,20 @@ export default function RoleSelection() {
     try {
       const classCode = generateClassCode()
 
-      // Create profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: user!.id,
-          email: user!.email,
-          role: 'teacher',
-          full_name: user!.user_metadata.full_name || user!.email
-        })
+      // Check if teacher profile already exists
+      if (!hasTeacherRole) {
+        // Create teacher profile
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user!.id,
+            email: user!.email,
+            role: 'teacher',
+            full_name: user!.user_metadata.full_name || user!.email
+          })
 
-      if (profileError) throw profileError
+        if (profileError) throw profileError
+      }
 
       // Create class
       const { error: classError } = await supabase
@@ -116,19 +123,34 @@ export default function RoleSelection() {
         return
       }
 
-      // Create profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: user!.id,
-          email: user!.email,
-          role: 'parent',
-          full_name: user!.user_metadata.full_name || user!.email
+      // Check if parent profile already exists
+      if (!hasParentRole) {
+        // Create parent profile
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user!.id,
+            email: user!.email,
+            role: 'parent',
+            full_name: user!.user_metadata.full_name || user!.email
+          })
+
+        if (profileError) throw profileError
+      }
+
+      // Create or update parent-class enrollment
+      const { error: enrollmentError } = await supabase
+        .from('parent_class_enrollments')
+        .upsert({
+          parent_id: user!.id,
+          class_id: classData.id
         })
 
-      if (profileError) throw profileError
+      if (enrollmentError) {
+        console.error('Error creating enrollment:', enrollmentError)
+      }
 
-      toast.success('Parent account created! You can now view your child\'s progress.')
+      toast.success(hasParentRole ? 'Joined class successfully!' : 'Parent account created! You can now view your child\'s progress.')
       await refreshProfile()
       // Give React time to update state and trigger re-render
       await new Promise(resolve => setTimeout(resolve, 100))

@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useState } from 'react';
-import { useIsCallerAdmin, useGetClassFund, useListApprovals, useGetRewardsCatalog, useGetActiveVotingProposals, useUpdateStudentStatus, useUpdateStudentNotes, useAddReward, useUpdateRewardPrice, useBulkUpdateRewardPrices, useFinalizeVote, useAwardClassGems, useCreateClassGoal, useGetPresetAmounts, useUpdatePresetAmounts, useGetPresetReasons, useAddCustomReason, useUpdateReason, useDeleteReason, useUpdateVoteCount, useValidateVoteTotals, useCreateVotingProposal } from '../hooks/useQueries';
+import { useIsCallerAdmin, useGetClassFund, useListApprovals, useGetRewardsCatalog, useGetActiveVotingProposals, useUpdateStudentStatus, useUpdateStudentNotes, useAddReward, useUpdateRewardPrice, useBulkUpdateRewardPrices, useFinalizeVote, useAwardClassGems, useCreateClassGoal, useGetPresetAmounts, useUpdatePresetAmounts, useGetPresetReasons, useAddCustomReason, useUpdateReason, useDeleteReason, useUpdateVoteCount, useValidateVoteTotals, useCreateVotingProposal, useGetTeacherClass } from '../hooks/useQueries';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,6 +31,7 @@ export default function SettingsPage() {
   const { data: activeVotes, refetch: refetchVotes } = useGetActiveVotingProposals();
   const { data: presetAmounts } = useGetPresetAmounts();
   const { data: presetReasons } = useGetPresetReasons();
+  const { data: teacherClass } = useGetTeacherClass();
 
   const updateStudentStatus = useUpdateStudentStatus();
   const updateStudentNotes = useUpdateStudentNotes();
@@ -1189,6 +1190,60 @@ export default function SettingsPage() {
           {/* System Section */}
           {activeSection === 'system' && (
             <div className="space-y-6">
+              {/* Class Information Card */}
+              <Card>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl">Class Information</CardTitle>
+                  <CardDescription className="text-sm">Your classroom details and access code for parents</CardDescription>
+                </CardHeader>
+                <Separator />
+                <CardContent className="space-y-4 pt-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label className="text-sm font-medium">Class Name</Label>
+                      <div className="text-base">{teacherClass?.class_name || 'Not set'}</div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-sm font-medium">School Year</Label>
+                      <div className="text-base">{teacherClass?.school_year || 'Not set'}</div>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Parent Access Code</Label>
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 bg-amber-50 border-2 border-amber-200 rounded-lg p-4">
+                        <div className="text-3xl font-bold text-amber-900 tracking-wider text-center font-mono">
+                          {teacherClass?.class_code || 'LOADING...'}
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          if (teacherClass?.class_code) {
+                            navigator.clipboard.writeText(teacherClass.class_code);
+                            toast.success('Class code copied to clipboard!');
+                          }
+                        }}
+                        className="gap-2"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                          <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                        </svg>
+                        Copy
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Share this code with parents so they can view their child's progress. Parents enter this code when signing up.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
               <Card>
                 <CardHeader className="pb-4">
                   <CardTitle className="text-xl">Award Settings</CardTitle>

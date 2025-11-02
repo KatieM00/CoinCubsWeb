@@ -2,6 +2,7 @@ import { useAuth } from './useAuth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDemo } from '@/contexts/DemoContext';
 import { useDemoData } from '@/contexts/DemoDataContext';
+import { supabase } from '@/lib/supabase';
 
 // Re-export user profile queries
 export { useGetUserProfile, useSaveUserProfile } from './useUserQueries';
@@ -493,5 +494,31 @@ export const useListApprovals = () => {
   return useQuery({
     queryKey: ['approvals'],
     queryFn: async () => [],
+  });
+};
+
+// Teacher's Class Query
+export const useGetTeacherClass = () => {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ['teacherClass', user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+
+      const { data, error } = await supabase
+        .from('classes')
+        .select('*')
+        .eq('teacher_id', user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error loading teacher class:', error);
+        return null;
+      }
+
+      return data;
+    },
+    enabled: !!user,
   });
 };

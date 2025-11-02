@@ -258,10 +258,7 @@ export default function RoleSelection() {
                   // Set active role to first available role before continuing
                   const firstRole = hasTeacherRole ? 'teacher' : 'parent';
                   switchRole(firstRole);
-                  // Small delay to ensure state updates
-                  setTimeout(() => {
-                    window.location.href = '/';
-                  }, 50);
+                  // State update will cause App.tsx to re-render and show main app
                 }}
                 className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold px-12 py-6 text-lg rounded-full shadow-lg"
               >
@@ -359,15 +356,22 @@ export default function RoleSelection() {
               onChange={(e) => setClassCode(e.target.value.toUpperCase())}
               className="uppercase"
             />
-            <p className="text-xs text-muted-foreground">
-              Ask your child's teacher for this code
-            </p>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-sm text-blue-800">
-              <strong>Next:</strong> After joining, you'll be able to select your child from the class list and view their progress.
-            </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+            <div>
+              <p className="text-sm font-semibold text-blue-900 mb-2">How to get your class code:</p>
+              <ul className="text-xs text-blue-800 space-y-1 list-disc list-inside">
+                <li>Ask your child's teacher for the class code</li>
+                <li>Teachers receive this code when they set up their classroom</li>
+                <li>The code format is: ANIMAL-YEAR (e.g., LIONS-2025)</li>
+              </ul>
+            </div>
+            <div className="pt-2 border-t border-blue-200">
+              <p className="text-xs text-blue-700">
+                <strong>After joining:</strong> You'll be able to view your child's progress, class achievements, and stay connected with classroom activities.
+              </p>
+            </div>
           </div>
 
           <Button

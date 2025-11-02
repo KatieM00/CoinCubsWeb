@@ -504,10 +504,24 @@ export const useListApprovals = () => {
 // Teacher's Class Query
 export const useGetTeacherClass = () => {
   const { user } = useAuth();
+  const { isDemoMode } = useDemo();
+  const demoData = isDemoMode ? useDemoData() : null;
 
   return useQuery({
     queryKey: ['teacherClass', user?.id],
     queryFn: async () => {
+      // Return demo data in demo mode
+      if (isDemoMode && demoData) {
+        return {
+          id: 'demo-class-id',
+          teacher_id: user?.id || 'demo-user-id',
+          class_name: 'Demo Class',
+          school_year: '2024-2025',
+          class_code: 'LIONS-2025',
+          created_at: new Date().toISOString()
+        };
+      }
+
       if (!user) return null;
 
       const { data, error } = await supabase
@@ -519,6 +533,23 @@ export const useGetTeacherClass = () => {
       if (error) {
         console.error('Error loading teacher class:', error);
         return null;
+      }
+
+      // If no class exists yet, return a placeholder with generated code
+      if (!data) {
+        // Generate a random class code for new teachers
+        const animals = ['LIONS', 'TIGERS', 'BEARS', 'EAGLES', 'SHARKS', 'WOLVES', 'PANDAS', 'DRAGONS'];
+        const randomAnimal = animals[Math.floor(Math.random() * animals.length)];
+        const currentYear = new Date().getFullYear();
+
+        return {
+          id: 'placeholder',
+          teacher_id: user.id,
+          class_name: 'My Class',
+          school_year: `${currentYear}-${currentYear + 1}`,
+          class_code: `${randomAnimal}-${currentYear}`,
+          created_at: new Date().toISOString()
+        };
       }
 
       return data;

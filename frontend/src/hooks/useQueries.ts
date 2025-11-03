@@ -541,30 +541,52 @@ export const useGetTeacherClass = () => {
 
       console.log('📊 Supabase response:', { hasData: !!data, hasError: !!error, data, error });
 
-      // If there's an error OR no data, generate a placeholder class code
+      // If there's an error OR no data, create a real class in the database
       if (error || !data) {
         if (error) {
-          console.error('⚠️ Error loading teacher class (will use placeholder):', error);
+          console.error('⚠️ Error loading teacher class (will create new class):', error);
         } else {
-          console.log('📭 No class found - generating placeholder');
+          console.log('📭 No class found - creating new class in database');
         }
 
-        // Generate a random class code for new teachers
+        // Generate a consistent class code based on user ID
         const animals = ['LIONS', 'TIGERS', 'BEARS', 'EAGLES', 'SHARKS', 'WOLVES', 'PANDAS', 'DRAGONS'];
-        const randomAnimal = animals[Math.floor(Math.random() * animals.length)];
+        // Use user ID to pick a consistent animal (same user = same animal)
+        const userIdHash = user.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        const animalIndex = userIdHash % animals.length;
+        const selectedAnimal = animals[animalIndex];
         const currentYear = new Date().getFullYear();
+        const classCode = `${selectedAnimal}-${currentYear}`;
 
-        const placeholder = {
-          id: 'placeholder',
-          teacher_id: user.id,
-          class_name: 'My Class',
-          school_year: `${currentYear}-${currentYear + 1}`,
-          class_code: `${randomAnimal}-${currentYear}`,
-          created_at: new Date().toISOString()
-        };
+        console.log('✨ Creating class with code:', classCode);
 
-        console.log('✨ Generated placeholder class:', placeholder);
-        return placeholder;
+        // Try to insert the class into the database
+        const { data: newClass, error: insertError } = await supabase
+          .from('classes')
+          .insert({
+            teacher_id: user.id,
+            class_name: 'My Class',
+            school_year: `${currentYear}-${currentYear + 1}`,
+            class_code: classCode
+          })
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error('⚠️ Failed to create class in database:', insertError);
+          // Return placeholder if insert fails
+          return {
+            id: 'placeholder',
+            teacher_id: user.id,
+            class_name: 'My Class',
+            school_year: `${currentYear}-${currentYear + 1}`,
+            class_code: classCode,
+            created_at: new Date().toISOString()
+          };
+        }
+
+        console.log('✅ Class created successfully:', newClass);
+        return newClass;
       }
 
       console.log('✅ Returning class data from database:', data);

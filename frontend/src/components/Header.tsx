@@ -18,6 +18,8 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
+    console.log('🚪 Logout clicked', { isDemoMode });
+
     if (isDemoMode) {
       exitDemoMode();
       toast.success('Exited demo mode');
@@ -25,11 +27,14 @@ export default function Header() {
     }
 
     try {
+      console.log('🔓 Calling logout...');
       await logout();
+      console.log('✅ Logout successful, clearing query cache...');
       queryClient.clear();
+      console.log('✅ Cache cleared');
       toast.success('Logged out successfully');
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('❌ Logout error:', error);
       toast.error('Failed to log out');
     }
   };
@@ -112,7 +117,15 @@ export default function Header() {
             )}
 
             {/* Logout/Exit Demo Button */}
-            <Button onClick={handleLogout} variant="outline" size="sm" className="gap-2 h-11 md:h-10 lg:h-9">
+            <Button
+              onClick={() => {
+                console.log('🖱️ BUTTON CLICKED!');
+                handleLogout();
+              }}
+              variant="outline"
+              size="sm"
+              className="gap-2 h-11 md:h-10 lg:h-9"
+            >
               <LogOut className="w-4 h-4" />
               <span className="hidden sm:inline">{isDemoMode ? 'Exit Demo' : 'Logout'}</span>
             </Button>

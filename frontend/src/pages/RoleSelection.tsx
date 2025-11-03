@@ -109,19 +109,27 @@ export default function RoleSelection() {
     }
 
     setIsLoading(true)
+    console.log('👶 Parent signup starting with class code:', classCode.toUpperCase());
+
     try {
       // Verify class exists
+      console.log('🔍 Looking up class by code...');
       const { data: classData, error: classError } = await supabase
         .from('classes')
         .select('id')
         .eq('class_code', classCode.toUpperCase())
         .single()
 
+      console.log('📊 Class lookup result:', { hasData: !!classData, hasError: !!classError, classData, classError });
+
       if (classError || !classData) {
+        console.error('❌ Class not found or error:', classError);
         toast.error('Invalid class code. Please check with your teacher.')
         setIsLoading(false)
         return
       }
+
+      console.log('✅ Class found! ID:', classData.id);
 
       // Check if parent profile already exists
       if (!hasParentRole) {

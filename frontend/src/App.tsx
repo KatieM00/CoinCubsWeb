@@ -1,9 +1,10 @@
+import { useEffect } from 'react';
 import RoleSelection from './pages/RoleSelection';
 import { useAuth, AuthProvider } from './hooks/useAuth';
 import { DemoProvider, useDemo } from './contexts/DemoContext';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from 'next-themes';
-import { RouterProvider, createRouter, createRootRoute, createRoute, Outlet } from '@tanstack/react-router';
+import { RouterProvider, createRouter, createRootRoute, createRoute, Outlet, useNavigate } from '@tanstack/react-router';
 import Header from './components/Header';
 import ParentHeader from './components/ParentHeader';
 import Footer from './components/Footer';
@@ -50,16 +51,17 @@ function RootLayoutComponent() {
 }
 
 function IndexComponent() {
-  const { profile } = useAuth();
+  const { profile, activeRole } = useAuth();
   const { isDemoMode, demoRole } = useDemo();
 
-  // In demo mode, use demo role; otherwise use profile role
-  const isTeacher = isDemoMode ? demoRole === 'teacher' : profile?.role === 'teacher';
+  // In demo mode, use demo role; otherwise use activeRole
+  const isTeacher = isDemoMode ? demoRole === 'teacher' : activeRole === 'teacher';
 
   console.log('🏠 IndexComponent rendering:', {
     isDemoMode,
     demoRole,
     profileRole: profile?.role,
+    activeRole,
     isTeacher,
     willShow: isTeacher ? 'QuickAwardPage (Teacher)' : 'ParentPortalPage (Parent)'
   });
@@ -107,6 +109,20 @@ const parentPortalRoute = createRoute({
   component: ParentPortalPage,
 });
 
+// Auth callback route - redirects to home after OAuth
+const authCallbackRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/auth/callback',
+  component: () => {
+    const navigate = useNavigate();
+    useEffect(() => {
+      // Redirect to home after OAuth callback
+      navigate({ to: '/', replace: true });
+    }, [navigate]);
+    return null;
+  },
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   quickAwardRoute,
@@ -114,6 +130,7 @@ const routeTree = rootRoute.addChildren([
   lessonsRoute,
   settingsRoute,
   parentPortalRoute,
+  authCallbackRoute,
 ]);
 
 const router = createRouter({ routeTree });

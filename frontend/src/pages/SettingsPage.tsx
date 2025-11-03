@@ -33,6 +33,9 @@ export default function SettingsPage() {
   const { data: presetReasons } = useGetPresetReasons();
   const { data: teacherClass } = useGetTeacherClass();
 
+  // Debug logging
+  console.log('🏫 Teacher Class Data:', teacherClass);
+
   const updateStudentStatus = useUpdateStudentStatus();
   const updateStudentNotes = useUpdateStudentNotes();
   const addReward = useAddReward();

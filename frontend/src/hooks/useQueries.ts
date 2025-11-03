@@ -219,11 +219,32 @@ export const useStartMondayLesson = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (weekNumber: any) => {
-      console.log('Stub: Start Monday lesson', weekNumber);
-      return { success: true };
+      console.log('📚 Starting Monday lesson for week:', weekNumber);
+
+      // Get the curriculum module for this week
+      const modules = getAllCurriculumModules();
+      const module = modules.find(m => Number(m.weekNumber) === Number(weekNumber));
+
+      if (!module) {
+        throw new Error(`No curriculum found for week ${weekNumber}`);
+      }
+
+      // Return the Monday lesson content
+      return {
+        weekNumber: module.weekNumber,
+        moduleName: module.moduleName,
+        dayType: 'monday',
+        title: module.mondayLesson.title,
+        teacherScript: module.mondayLesson.teacherScript,
+        discussionQuestions: module.mondayLesson.discussionQuestions,
+        activities: module.mondayLesson.activities,
+        learningObjectives: module.learningObjectives,
+      };
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['activeLessonContent'] });
+    onSuccess: (lessonData) => {
+      console.log('✅ Monday lesson started, setting active lesson content:', lessonData);
+      // Set the active lesson content in the cache
+      queryClient.setQueryData(['activeLessonContent'], lessonData);
     },
   });
 };
@@ -232,11 +253,32 @@ export const useStartFridayLesson = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (weekNumber: any) => {
-      console.log('Stub: Start Friday lesson', weekNumber);
-      return { success: true };
+      console.log('📚 Starting Friday lesson for week:', weekNumber);
+
+      // Get the curriculum module for this week
+      const modules = getAllCurriculumModules();
+      const module = modules.find(m => Number(m.weekNumber) === Number(weekNumber));
+
+      if (!module) {
+        throw new Error(`No curriculum found for week ${weekNumber}`);
+      }
+
+      // Return the Friday lesson content
+      return {
+        weekNumber: module.weekNumber,
+        moduleName: module.moduleName,
+        dayType: 'friday',
+        title: module.fridayLesson.title,
+        teacherScript: module.fridayLesson.teacherScript,
+        discussionQuestions: module.fridayLesson.discussionQuestions,
+        activities: module.fridayLesson.activities,
+        learningObjectives: module.learningObjectives,
+      };
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['activeLessonContent'] });
+    onSuccess: (lessonData) => {
+      console.log('✅ Friday lesson started, setting active lesson content:', lessonData);
+      // Set the active lesson content in the cache
+      queryClient.setQueryData(['activeLessonContent'], lessonData);
     },
   });
 };

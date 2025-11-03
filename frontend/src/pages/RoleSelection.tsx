@@ -8,11 +8,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { GraduationCap, Users, ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
+import { useNavigate } from '@tanstack/react-router'
 
 type Step = 'role-select' | 'teacher-setup' | 'parent-setup'
 
 export default function RoleSelection() {
   const { user, profiles, refreshProfile, switchRole } = useAuth()
+  const navigate = useNavigate()
   const [step, setStep] = useState<Step>('role-select')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -92,8 +94,11 @@ export default function RoleSelection() {
 
       toast.success(`Class created! Your class code is: ${classCode}`, { duration: 5000 })
       await refreshProfile()
-      // Give React time to update state and trigger re-render
+      // Switch to teacher role and navigate to home
+      switchRole('teacher')
+      // Give React time to update state
       await new Promise(resolve => setTimeout(resolve, 100))
+      navigate({ to: '/' })
     } catch (error: any) {
       console.error('Error creating teacher profile:', error)
       toast.error(error.message || 'Failed to create teacher profile')
@@ -160,8 +165,11 @@ export default function RoleSelection() {
 
       toast.success(hasParentRole ? 'Joined class successfully!' : 'Parent account created! You can now view your child\'s progress.')
       await refreshProfile()
-      // Give React time to update state and trigger re-render
+      // Switch to parent role and navigate to home
+      switchRole('parent')
+      // Give React time to update state
       await new Promise(resolve => setTimeout(resolve, 100))
+      navigate({ to: '/' })
     } catch (error: any) {
       console.error('Error creating parent profile:', error)
       toast.error(error.message || 'Failed to create parent profile')

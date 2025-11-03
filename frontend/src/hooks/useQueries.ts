@@ -509,9 +509,14 @@ export const useGetTeacherClass = () => {
 
   return useQuery({
     queryKey: ['teacherClass', user?.id],
+    retry: false, // Don't retry on error, just return placeholder
+    throwOnError: false, // Don't throw, return placeholder instead
     queryFn: async () => {
+      console.log('🔍 useGetTeacherClass - Starting query', { isDemoMode, hasUser: !!user });
+
       // Return demo data in demo mode
       if (isDemoMode && demoData) {
+        console.log('🎭 Returning demo class data');
         return {
           id: 'demo-class-id',
           teacher_id: user?.id || 'demo-user-id',
@@ -522,27 +527,34 @@ export const useGetTeacherClass = () => {
         };
       }
 
-      if (!user) return null;
+      if (!user) {
+        console.log('❌ No user - returning null');
+        return null;
+      }
 
+      console.log('📡 Querying Supabase for teacher class...');
       const { data, error } = await supabase
         .from('classes')
         .select('*')
         .eq('teacher_id', user.id)
         .maybeSingle();
 
-      if (error) {
-        console.error('Error loading teacher class:', error);
-        return null;
-      }
+      console.log('📊 Supabase response:', { hasData: !!data, hasError: !!error, data, error });
 
-      // If no class exists yet, return a placeholder with generated code
-      if (!data) {
+      // If there's an error OR no data, generate a placeholder class code
+      if (error || !data) {
+        if (error) {
+          console.error('⚠️ Error loading teacher class (will use placeholder):', error);
+        } else {
+          console.log('📭 No class found - generating placeholder');
+        }
+
         // Generate a random class code for new teachers
         const animals = ['LIONS', 'TIGERS', 'BEARS', 'EAGLES', 'SHARKS', 'WOLVES', 'PANDAS', 'DRAGONS'];
         const randomAnimal = animals[Math.floor(Math.random() * animals.length)];
         const currentYear = new Date().getFullYear();
 
-        return {
+        const placeholder = {
           id: 'placeholder',
           teacher_id: user.id,
           class_name: 'My Class',
@@ -550,8 +562,12 @@ export const useGetTeacherClass = () => {
           class_code: `${randomAnimal}-${currentYear}`,
           created_at: new Date().toISOString()
         };
+
+        console.log('✨ Generated placeholder class:', placeholder);
+        return placeholder;
       }
 
+      console.log('✅ Returning class data from database:', data);
       return data;
     },
     enabled: !!user,

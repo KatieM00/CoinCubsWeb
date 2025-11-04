@@ -1,16 +1,26 @@
 // @ts-nocheck
 import { useState, useEffect } from 'react';
-import { useGetCurriculumModules, useGetCurrentWeek, useInitializeCurriculum, useStartMondayLesson, useStartFridayLesson, useSkipToWeek, useRestartCurriculum, useIsCallerAdmin, useGetLessonCompletions } from '../hooks/useQueries';
+import { useGetCurriculumModules, useGetCurrentWeek, useInitializeCurriculum, useStartMondayLesson, useStartFridayLesson, useSkipToWeek, useRestartCurriculum, useIsCallerAdmin, useGetLessonCompletions, useUpdateLessonNotes } from '../hooks/useQueries';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BookOpen, Play, RotateCcw, FileDown, ChevronDown, ChevronUp, CheckCircle2, FileText } from 'lucide-react';
+import { BookOpen, Play, RotateCcw, FileDown, ChevronDown, ChevronUp, CheckCircle2, FileText, Eye, Edit2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { CurriculumModule, LessonCompletion } from '../types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 
 export default function LessonsPage() {
   const { data: isAdmin, isLoading: adminLoading } = useIsCallerAdmin();
@@ -22,6 +32,7 @@ export default function LessonsPage() {
   const startFriday = useStartFridayLesson();
   const skipWeek = useSkipToWeek();
   const restartCurriculum = useRestartCurriculum();
+  const updateNotes = useUpdateLessonNotes();
 
   useEffect(() => {
     if (!modulesLoading && curriculumModules && curriculumModules.length === 0) {
@@ -69,8 +80,153 @@ export default function LessonsPage() {
     }
   };
 
-  const handleExportPDF = () => {
-    toast.info('PDF export feature coming soon!');
+  const handleExportAllPDF = () => {
+    if (lessonCompletions.length === 0) {
+      toast.error('No completed lessons to export');
+      return;
+    }
+
+    // Sort completions by week and day
+    const sortedCompletions = [...lessonCompletions].sort((a, b) =>
+      a.weekNumber - b.weekNumber || (a.dayType === 'monday' ? -1 : 1)
+    );
+
+    // Create printable HTML content
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      toast.error('Please allow pop-ups to export PDF');
+      return;
+    }
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>All Lesson Notes - CoinCubs Curriculum</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              max-width: 800px;
+              margin: 40px auto;
+              padding: 20px;
+              color: #333;
+            }
+            h1 {
+              color: #7C3AED;
+              border-bottom: 3px solid #7C3AED;
+              padding-bottom: 10px;
+              margin-bottom: 30px;
+            }
+            .lesson-note {
+              margin-bottom: 30px;
+              padding: 20px;
+              border: 2px solid #E5E7EB;
+              border-radius: 8px;
+              page-break-inside: avoid;
+            }
+            .lesson-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-start;
+              margin-bottom: 15px;
+            }
+            .lesson-title {
+              font-size: 18px;
+              font-weight: bold;
+              color: #1F2937;
+              margin-bottom: 5px;
+            }
+            .lesson-meta {
+              font-size: 14px;
+              color: #6B7280;
+            }
+            .lesson-date {
+              font-size: 12px;
+              color: #9CA3AF;
+              text-align: right;
+            }
+            .lesson-notes {
+              margin-top: 15px;
+              padding-top: 15px;
+              border-top: 1px solid #E5E7EB;
+              line-height: 1.6;
+              white-space: pre-wrap;
+            }
+            .no-notes {
+              font-style: italic;
+              color: #9CA3AF;
+            }
+            .footer {
+              margin-top: 40px;
+              padding-top: 20px;
+              border-top: 2px solid #E5E7EB;
+              text-align: center;
+              color: #6B7280;
+              font-size: 12px;
+            }
+            @media print {
+              body {
+                margin: 0;
+                padding: 20px;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <h1>📚 CoinCubs Curriculum - All Lesson Notes</h1>
+          ${sortedCompletions.map((completion) => {
+            const module = curriculumModules?.find(m => Number(m.weekNumber) === completion.weekNumber);
+            const lesson = completion.dayType === 'monday' ? module?.mondayLesson : module?.fridayLesson;
+            const date = new Date(completion.completedAt);
+
+            return `
+              <div class="lesson-note">
+                <div class="lesson-header">
+                  <div>
+                    <div class="lesson-title">${lesson?.title || 'Lesson'}</div>
+                    <div class="lesson-meta">
+                      Week ${completion.weekNumber} • ${completion.dayType.charAt(0).toUpperCase() + completion.dayType.slice(1)}
+                      ${module ? ` • ${module.moduleName}` : ''}
+                    </div>
+                  </div>
+                  <div class="lesson-date">
+                    Completed: ${date.toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </div>
+                </div>
+                <div class="lesson-notes">
+                  ${completion.notes ? completion.notes : '<span class="no-notes">No notes recorded</span>'}
+                </div>
+              </div>
+            `;
+          }).join('')}
+          <div class="footer">
+            Generated on ${new Date().toLocaleDateString('en-US', {
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric',
+              hour: 'numeric',
+              minute: '2-digit'
+            })}
+          </div>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(html);
+    printWindow.document.close();
+
+    // Wait for content to load, then trigger print dialog
+    printWindow.onload = () => {
+      setTimeout(() => {
+        printWindow.print();
+      }, 250);
+    };
+
+    toast.success('Opening print dialog...');
   };
 
   if (adminLoading || modulesLoading || weekLoading) {
@@ -108,21 +264,6 @@ export default function LessonsPage() {
         </div>
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-purple-900">CoinCubs Curriculum</h1>
         <p className="text-lg sm:text-xl md:text-2xl text-blue-700 font-medium">8-Week Financial Literacy Program</p>
-
-        {/* Quick link to Lesson Notes */}
-        {lessonCompletions.length > 0 && (
-          <div className="pt-2">
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => window.location.href = '/lesson-notes'}
-              className="gap-2 shadow-md"
-            >
-              <FileText className="w-5 h-5" />
-              View All Lesson Notes ({lessonCompletions.length})
-            </Button>
-          </div>
-        )}
       </div>
 
       {/* Four Lesson Cards in Responsive Grid */}
@@ -148,6 +289,8 @@ export default function LessonsPage() {
                 onStartFriday={handleStartFridayLesson}
                 startMondayPending={startMonday.isPending}
                 startFridayPending={startFriday.isPending}
+                updateNotes={updateNotes}
+                curriculumModules={curriculumModules}
               />
             );
           })
@@ -210,12 +353,17 @@ export default function LessonsPage() {
               </AlertDialog>
             </div>
 
-            {/* Export PDF */}
+            {/* Export All Lesson Notes */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Export</label>
-              <Button variant="outline" className="w-full h-11 md:h-12 text-base" onClick={handleExportPDF}>
+              <label className="text-sm font-medium text-gray-700">Export Notes</label>
+              <Button
+                variant="outline"
+                className="w-full h-11 md:h-12 text-base"
+                onClick={handleExportAllPDF}
+                disabled={lessonCompletions.length === 0}
+              >
                 <FileDown className="w-4 h-4 mr-2" />
-                Export as PDF
+                Export All Notes ({lessonCompletions.length})
               </Button>
             </div>
           </div>
@@ -234,7 +382,9 @@ function LessonCard({
   onStartMonday,
   onStartFriday,
   startMondayPending,
-  startFridayPending
+  startFridayPending,
+  updateNotes,
+  curriculumModules
 }: {
   module: CurriculumModule;
   isCurrent: boolean;
@@ -244,8 +394,89 @@ function LessonCard({
   onStartFriday: (weekNumber: bigint) => void;
   startMondayPending: boolean;
   startFridayPending: boolean;
+  updateNotes: any;
+  curriculumModules: CurriculumModule[] | undefined;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showNotesDialog, setShowNotesDialog] = useState(false);
+  const [selectedDay, setSelectedDay] = useState<'monday' | 'friday' | null>(null);
+  const [editedNotes, setEditedNotes] = useState('');
+
+  const handleViewNotes = (dayType: 'monday' | 'friday') => {
+    const completion = dayType === 'monday' ? mondayCompletion : fridayCompletion;
+    setSelectedDay(dayType);
+    setEditedNotes(completion?.notes || '');
+    setShowNotesDialog(true);
+  };
+
+  const handleSaveNotes = async () => {
+    if (!selectedDay) return;
+
+    try {
+      await updateNotes.mutateAsync({
+        weekNumber: Number(module.weekNumber),
+        dayType: selectedDay,
+        notes: editedNotes,
+      });
+      toast.success('Notes updated successfully');
+      setShowNotesDialog(false);
+      setSelectedDay(null);
+      setEditedNotes('');
+    } catch (error) {
+      toast.error('Failed to update notes');
+      console.error(error);
+    }
+  };
+
+  const handleExportLesson = (dayType: 'monday' | 'friday') => {
+    const completion = dayType === 'monday' ? mondayCompletion : fridayCompletion;
+    if (!completion) {
+      toast.error('This lesson has not been completed yet');
+      return;
+    }
+
+    const lesson = dayType === 'monday' ? module.mondayLesson : module.fridayLesson;
+    const date = new Date(completion.completedAt);
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      toast.error('Please allow pop-ups to export PDF');
+      return;
+    }
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>${lesson.title} - Notes</title>
+          <style>
+            body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; color: #333; }
+            h1 { color: #7C3AED; border-bottom: 3px solid #7C3AED; padding-bottom: 10px; margin-bottom: 30px; }
+            .meta { color: #6B7280; font-size: 14px; margin-bottom: 20px; }
+            .notes { margin-top: 20px; padding: 20px; border: 2px solid #E5E7EB; border-radius: 8px; line-height: 1.6; white-space: pre-wrap; }
+            .no-notes { font-style: italic; color: #9CA3AF; }
+            @media print { body { margin: 0; padding: 20px; } }
+          </style>
+        </head>
+        <body>
+          <h1>📚 ${lesson.title}</h1>
+          <div class="meta">
+            Week ${Number(module.weekNumber)} • ${dayType.charAt(0).toUpperCase() + dayType.slice(1)} • ${module.moduleName}<br>
+            Completed: ${date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+          </div>
+          <div class="notes">
+            <strong>Notes:</strong><br><br>
+            ${completion.notes || '<span class="no-notes">No notes recorded</span>'}
+          </div>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.onload = () => setTimeout(() => printWindow.print(), 250);
+    toast.success('Opening print dialog...');
+  };
 
   return (
     <Card
@@ -363,51 +594,145 @@ function LessonCard({
 
         {/* Action Buttons */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-          <div className="relative">
-            <Button
-              size="lg"
-              className="h-11 md:h-14 text-sm md:text-base font-bold bg-blue-600 hover:bg-blue-700 shadow-md w-full"
-              onClick={() => onStartMonday(module.weekNumber)}
-              disabled={startMondayPending}
-            >
-              <Play className="w-4 h-4 md:w-5 md:h-5 mr-2" />
-              {startMondayPending ? 'Starting...' : 'START MONDAY LESSON'}
-            </Button>
+          <div className="space-y-2">
+            <div className="relative">
+              <Button
+                size="lg"
+                className="h-11 md:h-14 text-sm md:text-base font-bold bg-blue-600 hover:bg-blue-700 shadow-md w-full"
+                onClick={() => onStartMonday(module.weekNumber)}
+                disabled={startMondayPending}
+              >
+                <Play className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                {startMondayPending ? 'Starting...' : 'START MONDAY LESSON'}
+              </Button>
+              {mondayCompletion && (
+                <div className="absolute -top-2 -right-2 bg-green-500 text-white rounded-full p-1 shadow-lg">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+              )}
+            </div>
             {mondayCompletion && (
-              <div className="absolute -top-2 -right-2 bg-green-500 text-white rounded-full p-1 shadow-lg">
-                <CheckCircle2 className="w-5 h-5" />
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1 text-xs"
+                  onClick={() => handleViewNotes('monday')}
+                >
+                  <Eye className="w-3 h-3 mr-1" />
+                  View Notes
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1 text-xs"
+                  onClick={() => handleExportLesson('monday')}
+                >
+                  <FileDown className="w-3 h-3 mr-1" />
+                  Export
+                </Button>
               </div>
             )}
             {mondayCompletion?.notes && (
-              <p className="text-xs text-gray-600 mt-1 italic truncate" title={mondayCompletion.notes}>
+              <p className="text-xs text-gray-600 italic truncate" title={mondayCompletion.notes}>
                 Note: {mondayCompletion.notes}
               </p>
             )}
           </div>
 
-          <div className="relative">
-            <Button
-              size="lg"
-              className="h-11 md:h-14 text-sm md:text-base font-bold bg-orange-600 hover:bg-orange-700 shadow-md w-full"
-              onClick={() => onStartFriday(module.weekNumber)}
-              disabled={startFridayPending}
-            >
-              <Play className="w-4 h-4 md:w-5 md:h-5 mr-2" />
-              {startFridayPending ? 'Starting...' : 'START FRIDAY LESSON'}
-            </Button>
+          <div className="space-y-2">
+            <div className="relative">
+              <Button
+                size="lg"
+                className="h-11 md:h-14 text-sm md:text-base font-bold bg-orange-600 hover:bg-orange-700 shadow-md w-full"
+                onClick={() => onStartFriday(module.weekNumber)}
+                disabled={startFridayPending}
+              >
+                <Play className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                {startFridayPending ? 'Starting...' : 'START FRIDAY LESSON'}
+              </Button>
+              {fridayCompletion && (
+                <div className="absolute -top-2 -right-2 bg-green-500 text-white rounded-full p-1 shadow-lg">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+              )}
+            </div>
             {fridayCompletion && (
-              <div className="absolute -top-2 -right-2 bg-green-500 text-white rounded-full p-1 shadow-lg">
-                <CheckCircle2 className="w-5 h-5" />
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1 text-xs"
+                  onClick={() => handleViewNotes('friday')}
+                >
+                  <Eye className="w-3 h-3 mr-1" />
+                  View Notes
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1 text-xs"
+                  onClick={() => handleExportLesson('friday')}
+                >
+                  <FileDown className="w-3 h-3 mr-1" />
+                  Export
+                </Button>
               </div>
             )}
             {fridayCompletion?.notes && (
-              <p className="text-xs text-gray-600 mt-1 italic truncate" title={fridayCompletion.notes}>
+              <p className="text-xs text-gray-600 italic truncate" title={fridayCompletion.notes}>
                 Note: {fridayCompletion.notes}
               </p>
             )}
           </div>
         </div>
       </CardContent>
+
+      {/* Notes Dialog */}
+      <Dialog open={showNotesDialog} onOpenChange={setShowNotesDialog}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">Lesson Notes</DialogTitle>
+            <DialogDescription className="text-base">
+              {selectedDay && `Week ${Number(module.weekNumber)} • ${selectedDay.charAt(0).toUpperCase() + selectedDay.slice(1)} • ${module.moduleName}`}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="notes" className="text-base font-semibold">Notes</Label>
+              <Textarea
+                id="notes"
+                placeholder="Add any observations, student reactions, or reminders for next time..."
+                value={editedNotes}
+                onChange={(e) => setEditedNotes(e.target.value)}
+                className="min-h-[200px] text-base"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowNotesDialog(false);
+                setSelectedDay(null);
+                setEditedNotes('');
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleSaveNotes}
+              disabled={updateNotes.isPending}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              <Edit2 className="w-4 h-4 mr-2" />
+              {updateNotes.isPending ? 'Saving...' : 'Save Notes'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

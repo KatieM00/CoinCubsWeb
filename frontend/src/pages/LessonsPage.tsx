@@ -1,13 +1,13 @@
 // @ts-nocheck
 import { useState, useEffect } from 'react';
-import { useGetCurriculumModules, useGetCurrentWeek, useInitializeCurriculum, useStartMondayLesson, useStartFridayLesson, useSkipToWeek, useRestartCurriculum, useIsCallerAdmin } from '../hooks/useQueries';
+import { useGetCurriculumModules, useGetCurrentWeek, useInitializeCurriculum, useStartMondayLesson, useStartFridayLesson, useSkipToWeek, useRestartCurriculum, useIsCallerAdmin, useGetLessonCompletions } from '../hooks/useQueries';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BookOpen, Play, RotateCcw, FileDown, ChevronDown, ChevronUp } from 'lucide-react';
+import { BookOpen, Play, RotateCcw, FileDown, ChevronDown, ChevronUp, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { CurriculumModule } from '../types';
+import { CurriculumModule, LessonCompletion } from '../types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -16,6 +16,7 @@ export default function LessonsPage() {
   const { data: isAdmin, isLoading: adminLoading } = useIsCallerAdmin();
   const { data: curriculumModules, isLoading: modulesLoading } = useGetCurriculumModules();
   const { data: currentWeek, isLoading: weekLoading } = useGetCurrentWeek();
+  const { data: lessonCompletions = [] } = useGetLessonCompletions();
   const initCurriculum = useInitializeCurriculum();
   const startMonday = useStartMondayLesson();
   const startFriday = useStartFridayLesson();
@@ -114,12 +115,20 @@ export default function LessonsPage() {
         {curriculumModules && curriculumModules.length > 0 ? (
           curriculumModules.map((module) => {
             const isCurrent = Number(module.weekNumber) === currentWeekNumber;
-            
+            const mondayCompletion = lessonCompletions.find(
+              (c: LessonCompletion) => c.weekNumber === Number(module.weekNumber) && c.dayType === 'monday'
+            );
+            const fridayCompletion = lessonCompletions.find(
+              (c: LessonCompletion) => c.weekNumber === Number(module.weekNumber) && c.dayType === 'friday'
+            );
+
             return (
               <LessonCard
                 key={Number(module.weekNumber)}
                 module={module}
                 isCurrent={isCurrent}
+                mondayCompletion={mondayCompletion}
+                fridayCompletion={fridayCompletion}
                 onStartMonday={handleStartMondayLesson}
                 onStartFriday={handleStartFridayLesson}
                 startMondayPending={startMonday.isPending}
@@ -202,16 +211,20 @@ export default function LessonsPage() {
 }
 
 // Lesson Card Component with Expandable Sections
-function LessonCard({ 
-  module, 
+function LessonCard({
+  module,
   isCurrent,
+  mondayCompletion,
+  fridayCompletion,
   onStartMonday,
   onStartFriday,
   startMondayPending,
   startFridayPending
-}: { 
+}: {
   module: CurriculumModule;
   isCurrent: boolean;
+  mondayCompletion?: LessonCompletion;
+  fridayCompletion?: LessonCompletion;
   onStartMonday: (weekNumber: bigint) => void;
   onStartFriday: (weekNumber: bigint) => void;
   startMondayPending: boolean;
@@ -335,25 +348,49 @@ function LessonCard({
 
         {/* Action Buttons */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-          <Button
-            size="lg"
-            className="h-11 md:h-14 text-sm md:text-base font-bold bg-blue-600 hover:bg-blue-700 shadow-md"
-            onClick={() => onStartMonday(module.weekNumber)}
-            disabled={startMondayPending}
-          >
-            <Play className="w-4 h-4 md:w-5 md:h-5 mr-2" />
-            {startMondayPending ? 'Starting...' : 'START MONDAY LESSON'}
-          </Button>
+          <div className="relative">
+            <Button
+              size="lg"
+              className="h-11 md:h-14 text-sm md:text-base font-bold bg-blue-600 hover:bg-blue-700 shadow-md w-full"
+              onClick={() => onStartMonday(module.weekNumber)}
+              disabled={startMondayPending}
+            >
+              <Play className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+              {startMondayPending ? 'Starting...' : 'START MONDAY LESSON'}
+            </Button>
+            {mondayCompletion && (
+              <div className="absolute -top-2 -right-2 bg-green-500 text-white rounded-full p-1 shadow-lg">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+            )}
+            {mondayCompletion?.notes && (
+              <p className="text-xs text-gray-600 mt-1 italic truncate" title={mondayCompletion.notes}>
+                Note: {mondayCompletion.notes}
+              </p>
+            )}
+          </div>
 
-          <Button
-            size="lg"
-            className="h-11 md:h-14 text-sm md:text-base font-bold bg-orange-600 hover:bg-orange-700 shadow-md"
-            onClick={() => onStartFriday(module.weekNumber)}
-            disabled={startFridayPending}
-          >
-            <Play className="w-4 h-4 md:w-5 md:h-5 mr-2" />
-            {startFridayPending ? 'Starting...' : 'START FRIDAY LESSON'}
-          </Button>
+          <div className="relative">
+            <Button
+              size="lg"
+              className="h-11 md:h-14 text-sm md:text-base font-bold bg-orange-600 hover:bg-orange-700 shadow-md w-full"
+              onClick={() => onStartFriday(module.weekNumber)}
+              disabled={startFridayPending}
+            >
+              <Play className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+              {startFridayPending ? 'Starting...' : 'START FRIDAY LESSON'}
+            </Button>
+            {fridayCompletion && (
+              <div className="absolute -top-2 -right-2 bg-green-500 text-white rounded-full p-1 shadow-lg">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+            )}
+            {fridayCompletion?.notes && (
+              <p className="text-xs text-gray-600 mt-1 italic truncate" title={fridayCompletion.notes}>
+                Note: {fridayCompletion.notes}
+              </p>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>

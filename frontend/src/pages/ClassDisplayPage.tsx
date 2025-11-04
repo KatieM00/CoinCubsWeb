@@ -1,10 +1,20 @@
 // @ts-nocheck
 import { useEffect, useState, useRef } from 'react';
-import { useGetClassFund, useGetClassGoals, useGetActivityTicker, useGetDisplayMode, useGetActiveLessonContent, useGetActiveVotingProposals, useEndLesson } from '../hooks/useQueries';
+import { useGetClassFund, useGetClassGoals, useGetActivityTicker, useGetDisplayMode, useGetActiveLessonContent, useGetActiveVotingProposals, useEndLesson, useMarkLessonComplete } from '../hooks/useQueries';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
+import { X, Check } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 
 export default function ClassDisplayPage() {
   const { data: classFund, isLoading: fundLoading } = useGetClassFund();
@@ -14,6 +24,7 @@ export default function ClassDisplayPage() {
   const { data: lessonContent } = useGetActiveLessonContent();
   const { data: votingProposals } = useGetActiveVotingProposals();
   const endLesson = useEndLesson();
+  const markLessonComplete = useMarkLessonComplete();
 
   const [displayedTotal, setDisplayedTotal] = useState<number>(0);
   const [showCelebration, setShowCelebration] = useState(false);
@@ -21,6 +32,10 @@ export default function ClassDisplayPage() {
   const [currentTickerIndex, setCurrentTickerIndex] = useState(0);
   const previousTotalRef = useRef<number>(0);
   const previousTickerLengthRef = useRef<number>(0);
+
+  // Lesson completion dialog state
+  const [showCompletionDialog, setShowCompletionDialog] = useState(false);
+  const [lessonNotes, setLessonNotes] = useState('');
 
   const formatCubCoins = (amount: bigint) => Number(amount).toLocaleString();
 
@@ -30,12 +45,34 @@ export default function ClassDisplayPage() {
 
   const isLessonMode = displayMode === 'lessonMode';
 
-  const handleEndLesson = async () => {
+  const handleEndLessonWithoutCompletion = async () => {
     try {
       await endLesson.mutateAsync();
       toast.success('Lesson ended - returning to dashboard');
     } catch (error) {
       toast.error('Failed to end lesson');
+      console.error(error);
+    }
+  };
+
+  const handleMarkComplete = async () => {
+    if (!lessonContent) return;
+
+    try {
+      await markLessonComplete.mutateAsync({
+        weekNumber: Number(lessonContent.weekNumber),
+        dayType: lessonContent.dayType,
+        notes: lessonNotes,
+      });
+
+      // End the lesson and return to dashboard
+      await endLesson.mutateAsync();
+
+      toast.success('Lesson marked as complete!');
+      setShowCompletionDialog(false);
+      setLessonNotes('');
+    } catch (error) {
+      toast.error('Failed to mark lesson complete');
       console.error(error);
     }
   };
@@ -906,16 +943,84 @@ export default function ClassDisplayPage() {
           </div>
         </div>
 
-        {/* End Lesson Button - Fixed at bottom right */}
-        <Button
-          onClick={handleEndLesson}
-          disabled={endLesson.isPending}
-          size="lg"
-          className="fixed bottom-8 right-8 h-16 px-8 text-xl font-bold bg-red-600 hover:bg-red-700 shadow-2xl z-50 border-4 border-white"
-        >
-          <X className="w-6 h-6 mr-3" />
-          {endLesson.isPending ? 'Ending...' : 'End Lesson'}
-        </Button>
+        {/* Lesson Control Buttons - Fixed at bottom */}
+        <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 flex gap-4 z-50">
+          <Button
+            onClick={() => setShowCompletionDialog(true)}
+            disabled={markLessonComplete.isPending || endLesson.isPending}
+            size="lg"
+            className="h-16 px-8 text-xl font-bold bg-green-600 hover:bg-green-700 shadow-2xl border-4 border-white"
+          >
+            <Check className="w-6 h-6 mr-3" />
+            Complete Lesson
+          </Button>
+          <Button
+            onClick={handleEndLessonWithoutCompletion}
+            disabled={endLesson.isPending}
+            size="lg"
+            variant="outline"
+            className="h-16 px-8 text-xl font-bold bg-white hover:bg-gray-100 shadow-2xl border-4 border-gray-300"
+          >
+            <X className="w-6 h-6 mr-3" />
+            {endLesson.isPending ? 'Ending...' : 'End Without Saving'}
+          </Button>
+        </div>
+
+        {/* Completion Dialog */}
+        <Dialog open={showCompletionDialog} onOpenChange={setShowCompletionDialog}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">Complete Lesson</DialogTitle>
+              <DialogDescription className="text-base">
+                Mark this lesson as complete and add any notes for future reference.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-lg font-semibold text-purple-900">
+                  <span className="text-2xl">📚</span>
+                  <span>{lessonContent?.title}</span>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Week {lessonContent?.weekNumber ? Number(lessonContent.weekNumber) : ''} • {lessonContent?.dayType === 'monday' ? 'Monday' : 'Friday'}
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="notes" className="text-base font-semibold">
+                  Lesson Notes (Optional)
+                </Label>
+                <Textarea
+                  id="notes"
+                  placeholder="Add any observations, student reactions, or reminders for next time..."
+                  value={lessonNotes}
+                  onChange={(e) => setLessonNotes(e.target.value)}
+                  className="min-h-[150px] text-base"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setShowCompletionDialog(false);
+                  setLessonNotes('');
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                onClick={handleMarkComplete}
+                disabled={markLessonComplete.isPending || endLesson.isPending}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <Check className="w-4 h-4 mr-2" />
+                {markLessonComplete.isPending || endLesson.isPending ? 'Saving...' : 'Mark Complete'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }

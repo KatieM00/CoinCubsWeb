@@ -29,3 +29,11 @@ export type CurriculumModule = {
   fridayLesson: Lesson
   isCompleted?: boolean
 }
+
+export type LessonCompletion = {
+  weekNumber: number
+  dayType: 'monday' | 'friday'
+  completedAt: string // ISO date string
+  notes: string
+  teacherId: string
+}

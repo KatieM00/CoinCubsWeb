@@ -4,6 +4,7 @@ import { useDemo } from '@/contexts/DemoContext';
 import { useDemoData } from '@/contexts/DemoDataContext';
 import { supabase } from '@/lib/supabase';
 import { getAllCurriculumModules } from '@/data/curriculumData';
+import { LessonCompletion } from '@/types';
 
 // Re-export user profile queries
 export { useGetUserProfile, useSaveUserProfile } from './useUserQueries';
@@ -306,6 +307,90 @@ export const useEndLesson = () => {
       queryClient.setQueryData(['activeLessonContent'], null);
       // Set display mode back to dashboard
       queryClient.setQueryData(['displayMode'], 'dashboard');
+    },
+  });
+};
+
+// Lesson Completion Queries
+export const useGetLessonCompletions = () => {
+  const { profile } = useAuth();
+
+  return useQuery({
+    queryKey: ['lessonCompletions', profile?.id],
+    queryFn: async () => {
+      // For now, return from localStorage
+      // TODO: Replace with Supabase query when backend is ready
+      const stored = localStorage.getItem(`lessonCompletions_${profile?.id || 'demo'}`);
+      return stored ? JSON.parse(stored) : [];
+    },
+    enabled: !!profile,
+  });
+};
+
+export const useMarkLessonComplete = () => {
+  const queryClient = useQueryClient();
+  const { profile } = useAuth();
+
+  return useMutation({
+    mutationFn: async (params: { weekNumber: number; dayType: 'monday' | 'friday'; notes: string }) => {
+      console.log('✅ Marking lesson as complete:', params);
+
+      const completion: LessonCompletion = {
+        weekNumber: params.weekNumber,
+        dayType: params.dayType,
+        completedAt: new Date().toISOString(),
+        notes: params.notes,
+        teacherId: profile?.id || 'demo',
+      };
+
+      // For now, store in localStorage
+      // TODO: Replace with Supabase mutation when backend is ready
+      const stored = localStorage.getItem(`lessonCompletions_${profile?.id || 'demo'}`);
+      const completions: LessonCompletion[] = stored ? JSON.parse(stored) : [];
+
+      // Remove any existing completion for this lesson
+      const filtered = completions.filter(
+        c => !(c.weekNumber === params.weekNumber && c.dayType === params.dayType)
+      );
+
+      // Add new completion
+      filtered.push(completion);
+      localStorage.setItem(`lessonCompletions_${profile?.id || 'demo'}`, JSON.stringify(filtered));
+
+      return completion;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lessonCompletions'] });
+    },
+  });
+};
+
+export const useUpdateLessonNotes = () => {
+  const queryClient = useQueryClient();
+  const { profile } = useAuth();
+
+  return useMutation({
+    mutationFn: async (params: { weekNumber: number; dayType: 'monday' | 'friday'; notes: string }) => {
+      console.log('📝 Updating lesson notes:', params);
+
+      // For now, update in localStorage
+      // TODO: Replace with Supabase mutation when backend is ready
+      const stored = localStorage.getItem(`lessonCompletions_${profile?.id || 'demo'}`);
+      const completions: LessonCompletion[] = stored ? JSON.parse(stored) : [];
+
+      const completion = completions.find(
+        c => c.weekNumber === params.weekNumber && c.dayType === params.dayType
+      );
+
+      if (completion) {
+        completion.notes = params.notes;
+        localStorage.setItem(`lessonCompletions_${profile?.id || 'demo'}`, JSON.stringify(completions));
+      }
+
+      return completion;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lessonCompletions'] });
     },
   });
 };

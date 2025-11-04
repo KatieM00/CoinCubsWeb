@@ -313,40 +313,50 @@ export const useEndLesson = () => {
 
 // Lesson Completion Queries
 export const useGetLessonCompletions = () => {
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
+  const { isDemoMode } = useDemo();
 
   return useQuery({
-    queryKey: ['lessonCompletions', profile?.id],
+    queryKey: ['lessonCompletions', profile?.id, user?.id],
     queryFn: async () => {
+      // Use profile ID if available, otherwise fall back to user ID
+      const storageKey = profile?.id || user?.id || 'demo';
+      console.log('📚 Loading lesson completions with key:', `lessonCompletions_${storageKey}`);
+
       // For now, return from localStorage
       // TODO: Replace with Supabase query when backend is ready
-      const stored = localStorage.getItem(`lessonCompletions_${profile?.id || 'demo'}`);
-      return stored ? JSON.parse(stored) : [];
+      const stored = localStorage.getItem(`lessonCompletions_${storageKey}`);
+      const completions = stored ? JSON.parse(stored) : [];
+      console.log('📚 Loaded completions:', completions);
+      return completions;
     },
-    enabled: !!profile,
+    enabled: !!(profile || user || isDemoMode),
   });
 };
 
 export const useMarkLessonComplete = () => {
   const queryClient = useQueryClient();
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
 
   return useMutation({
     mutationFn: async (params: { weekNumber: number; dayType: 'monday' | 'friday'; notes: string }) => {
-      console.log('✅ Marking lesson as complete:', params);
+      // Use profile ID if available, otherwise fall back to user ID
+      const storageKey = profile?.id || user?.id || 'demo';
+      console.log('✅ Marking lesson as complete with key:', `lessonCompletions_${storageKey}`, params);
 
       const completion: LessonCompletion = {
         weekNumber: params.weekNumber,
         dayType: params.dayType,
         completedAt: new Date().toISOString(),
         notes: params.notes,
-        teacherId: profile?.id || 'demo',
+        teacherId: storageKey,
       };
 
       // For now, store in localStorage
       // TODO: Replace with Supabase mutation when backend is ready
-      const stored = localStorage.getItem(`lessonCompletions_${profile?.id || 'demo'}`);
+      const stored = localStorage.getItem(`lessonCompletions_${storageKey}`);
       const completions: LessonCompletion[] = stored ? JSON.parse(stored) : [];
+      console.log('📚 Current completions before adding:', completions);
 
       // Remove any existing completion for this lesson
       const filtered = completions.filter(
@@ -355,7 +365,8 @@ export const useMarkLessonComplete = () => {
 
       // Add new completion
       filtered.push(completion);
-      localStorage.setItem(`lessonCompletions_${profile?.id || 'demo'}`, JSON.stringify(filtered));
+      console.log('📚 Saving updated completions:', filtered);
+      localStorage.setItem(`lessonCompletions_${storageKey}`, JSON.stringify(filtered));
 
       return completion;
     },
@@ -367,15 +378,17 @@ export const useMarkLessonComplete = () => {
 
 export const useUpdateLessonNotes = () => {
   const queryClient = useQueryClient();
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
 
   return useMutation({
     mutationFn: async (params: { weekNumber: number; dayType: 'monday' | 'friday'; notes: string }) => {
-      console.log('📝 Updating lesson notes:', params);
+      // Use profile ID if available, otherwise fall back to user ID
+      const storageKey = profile?.id || user?.id || 'demo';
+      console.log('📝 Updating lesson notes with key:', `lessonCompletions_${storageKey}`, params);
 
       // For now, update in localStorage
       // TODO: Replace with Supabase mutation when backend is ready
-      const stored = localStorage.getItem(`lessonCompletions_${profile?.id || 'demo'}`);
+      const stored = localStorage.getItem(`lessonCompletions_${storageKey}`);
       const completions: LessonCompletion[] = stored ? JSON.parse(stored) : [];
 
       const completion = completions.find(
@@ -384,7 +397,10 @@ export const useUpdateLessonNotes = () => {
 
       if (completion) {
         completion.notes = params.notes;
-        localStorage.setItem(`lessonCompletions_${profile?.id || 'demo'}`, JSON.stringify(completions));
+        console.log('📝 Saving updated notes:', completions);
+        localStorage.setItem(`lessonCompletions_${storageKey}`, JSON.stringify(completions));
+      } else {
+        console.warn('⚠️ Completion not found for week', params.weekNumber, params.dayType);
       }
 
       return completion;

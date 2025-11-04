@@ -124,17 +124,39 @@ function useAuthLogic(): UseAuthReturn {
         console.error('Error loading profiles:', error)
         setProfiles([])
         setActiveRole(null)
+        localStorage.removeItem('activeRole')
       } else if (data && data.length > 0) {
         setProfiles(data)
-        // Don't auto-set activeRole - let user choose via RoleSelection or RoleSwitcher
+
+        // Check if there's a saved activeRole in localStorage
+        const savedRole = localStorage.getItem('activeRole') as 'teacher' | 'parent' | null
+
+        // If saved role exists and user has that role, restore it
+        if (savedRole && data.some(p => p.role === savedRole)) {
+          console.log('🔄 Restoring saved role:', savedRole)
+          setActiveRole(savedRole)
+        } else {
+          // Auto-set activeRole if user only has one role
+          if (data.length === 1) {
+            console.log('✨ Auto-setting role:', data[0].role)
+            setActiveRole(data[0].role)
+            localStorage.setItem('activeRole', data[0].role)
+          } else {
+            // Multiple roles, no saved role - user needs to choose
+            console.log('🔍 Multiple roles, no saved role - user needs to choose')
+            setActiveRole(null)
+          }
+        }
       } else {
         setProfiles([])
         setActiveRole(null)
+        localStorage.removeItem('activeRole')
       }
     } catch (error) {
       console.error('Error loading profiles:', error)
       setProfiles([])
       setActiveRole(null)
+      localStorage.removeItem('activeRole')
     }
   }
 
@@ -157,6 +179,8 @@ function useAuthLogic(): UseAuthReturn {
       console.error('Logout error:', error)
       throw error
     }
+    // Clear saved role on logout
+    localStorage.removeItem('activeRole')
   }
 
   const refreshProfile = async () => {
@@ -176,7 +200,8 @@ function useAuthLogic(): UseAuthReturn {
 
     if (hasRole) {
       setActiveRole(role)
-      console.log(`✅ Switched to ${role} role`)
+      localStorage.setItem('activeRole', role)
+      console.log(`✅ Switched to ${role} role and saved to localStorage`)
     } else {
       console.warn(`⚠️ User does not have ${role} role`)
     }

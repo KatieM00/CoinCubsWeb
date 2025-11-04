@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Sparkles, LogOut, Zap, Monitor, BookOpen, Settings, Menu, FileText } from 'lucide-react';
+import { Sparkles, LogOut, Zap, Monitor, BookOpen, Settings, Menu } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -94,15 +94,6 @@ export default function Header() {
               Lessons
             </Button>
             <Button
-              variant={currentPath === '/lesson-notes' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => handleNavigate('/lesson-notes')}
-              className="gap-2 h-9"
-            >
-              <FileText className="w-4 h-4" />
-              Lesson Notes
-            </Button>
-            <Button
               variant={currentPath === '/settings' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => handleNavigate('/settings')}
@@ -183,15 +174,6 @@ export default function Header() {
                     >
                       <BookOpen className="w-5 h-5" />
                       Lessons
-                    </Button>
-                    <Button
-                      variant={currentPath === '/lesson-notes' ? 'default' : 'ghost'}
-                      size="lg"
-                      onClick={() => handleNavigate('/lesson-notes')}
-                      className="justify-start gap-3 h-12"
-                    >
-                      <FileText className="w-5 h-5" />
-                      Lesson Notes
                     </Button>
                     <Button
                       variant={currentPath === '/settings' ? 'default' : 'ghost'}

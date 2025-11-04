@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BookOpen, Play, RotateCcw, FileDown, ChevronDown, ChevronUp, CheckCircle2 } from 'lucide-react';
+import { BookOpen, Play, RotateCcw, FileDown, ChevronDown, ChevronUp, CheckCircle2, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { CurriculumModule, LessonCompletion } from '../types';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -108,6 +108,21 @@ export default function LessonsPage() {
         </div>
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-purple-900">CoinCubs Curriculum</h1>
         <p className="text-lg sm:text-xl md:text-2xl text-blue-700 font-medium">8-Week Financial Literacy Program</p>
+
+        {/* Quick link to Lesson Notes */}
+        {lessonCompletions.length > 0 && (
+          <div className="pt-2">
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => window.location.href = '/lesson-notes'}
+              className="gap-2 shadow-md"
+            >
+              <FileText className="w-5 h-5" />
+              View All Lesson Notes ({lessonCompletions.length})
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Four Lesson Cards in Responsive Grid */}

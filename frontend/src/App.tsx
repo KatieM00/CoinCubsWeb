@@ -13,6 +13,7 @@ import RoleSwitcher from './components/RoleSwitcher';
 import QuickAwardPage from './pages/QuickAwardPage';
 import ClassDisplayPage from './pages/ClassDisplayPage';
 import LessonsPage from './pages/LessonsPage';
+import LessonNotesPage from './pages/LessonNotesPage';
 import SettingsPage from './pages/SettingsPage';
 import ParentPortalPage from './pages/ParentPortalPage';
 
@@ -97,6 +98,12 @@ const lessonsRoute = createRoute({
   component: LessonsPage,
 });
 
+const lessonNotesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/lesson-notes',
+  component: LessonNotesPage,
+});
+
 const settingsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/settings',
@@ -128,6 +135,7 @@ const routeTree = rootRoute.addChildren([
   quickAwardRoute,
   classDisplayRoute,
   lessonsRoute,
+  lessonNotesRoute,
   settingsRoute,
   parentPortalRoute,
   authCallbackRoute,

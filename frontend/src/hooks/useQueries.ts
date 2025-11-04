@@ -112,7 +112,7 @@ export const useGetActivityTicker = () => {
 export const useGetDisplayMode = () => {
   return useQuery({
     queryKey: ['displayMode'],
-    queryFn: async () => ({ mode: 'dashboard' }),
+    queryFn: async () => 'dashboard',
   });
 };
 
@@ -229,22 +229,27 @@ export const useStartMondayLesson = () => {
         throw new Error(`No curriculum found for week ${weekNumber}`);
       }
 
-      // Return the Monday lesson content
+      // Return the Monday lesson content with all required fields
       return {
         weekNumber: module.weekNumber,
         moduleName: module.moduleName,
+        weekTopic: module.moduleName, // Map moduleName to weekTopic
         dayType: 'monday',
         title: module.mondayLesson.title,
         teacherScript: module.mondayLesson.teacherScript,
+        discussionPrompt: module.mondayLesson.discussionQuestions.join(' '), // Combine questions into prompt
         discussionQuestions: module.mondayLesson.discussionQuestions,
         activities: module.mondayLesson.activities,
         learningObjectives: module.learningObjectives,
+        votingOptions: [], // Monday lessons don't have voting options
       };
     },
     onSuccess: (lessonData) => {
       console.log('✅ Monday lesson started, setting active lesson content:', lessonData);
       // Set the active lesson content in the cache
       queryClient.setQueryData(['activeLessonContent'], lessonData);
+      // Set display mode to lessonMode
+      queryClient.setQueryData(['displayMode'], 'lessonMode');
     },
   });
 };
@@ -263,22 +268,27 @@ export const useStartFridayLesson = () => {
         throw new Error(`No curriculum found for week ${weekNumber}`);
       }
 
-      // Return the Friday lesson content
+      // Return the Friday lesson content with all required fields
       return {
         weekNumber: module.weekNumber,
         moduleName: module.moduleName,
+        weekTopic: module.moduleName, // Map moduleName to weekTopic
         dayType: 'friday',
         title: module.fridayLesson.title,
         teacherScript: module.fridayLesson.teacherScript,
+        discussionPrompt: module.fridayLesson.discussionQuestions.join(' '), // Combine questions into prompt
         discussionQuestions: module.fridayLesson.discussionQuestions,
         activities: module.fridayLesson.activities,
         learningObjectives: module.learningObjectives,
+        votingOptions: [], // Will be populated separately for voting lessons
       };
     },
     onSuccess: (lessonData) => {
       console.log('✅ Friday lesson started, setting active lesson content:', lessonData);
       // Set the active lesson content in the cache
       queryClient.setQueryData(['activeLessonContent'], lessonData);
+      // Set display mode to lessonMode
+      queryClient.setQueryData(['displayMode'], 'lessonMode');
     },
   });
 };

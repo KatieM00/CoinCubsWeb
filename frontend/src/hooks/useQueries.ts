@@ -293,6 +293,23 @@ export const useStartFridayLesson = () => {
   });
 };
 
+export const useEndLesson = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      console.log('🎓 Ending lesson and returning to dashboard');
+      return { success: true };
+    },
+    onSuccess: () => {
+      console.log('✅ Lesson ended, clearing active lesson content and returning to dashboard');
+      // Clear the active lesson content
+      queryClient.setQueryData(['activeLessonContent'], null);
+      // Set display mode back to dashboard
+      queryClient.setQueryData(['displayMode'], 'dashboard');
+    },
+  });
+};
+
 export const useSkipToWeek = () => {
   const queryClient = useQueryClient();
   return useMutation({

@@ -1,7 +1,10 @@
 // @ts-nocheck
 import { useEffect, useState, useRef } from 'react';
-import { useGetClassFund, useGetClassGoals, useGetActivityTicker, useGetDisplayMode, useGetActiveLessonContent, useGetActiveVotingProposals } from '../hooks/useQueries';
+import { useGetClassFund, useGetClassGoals, useGetActivityTicker, useGetDisplayMode, useGetActiveLessonContent, useGetActiveVotingProposals, useEndLesson } from '../hooks/useQueries';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { X } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function ClassDisplayPage() {
   const { data: classFund, isLoading: fundLoading } = useGetClassFund();
@@ -10,6 +13,7 @@ export default function ClassDisplayPage() {
   const { data: displayMode } = useGetDisplayMode();
   const { data: lessonContent } = useGetActiveLessonContent();
   const { data: votingProposals } = useGetActiveVotingProposals();
+  const endLesson = useEndLesson();
 
   const [displayedTotal, setDisplayedTotal] = useState<number>(0);
   const [showCelebration, setShowCelebration] = useState(false);
@@ -25,6 +29,16 @@ export default function ClassDisplayPage() {
   const primaryGoal = activeGoals[0];
 
   const isLessonMode = displayMode === 'lessonMode';
+
+  const handleEndLesson = async () => {
+    try {
+      await endLesson.mutateAsync();
+      toast.success('Lesson ended - returning to dashboard');
+    } catch (error) {
+      toast.error('Failed to end lesson');
+      console.error(error);
+    }
+  };
 
   // Get active voting proposal for Lesson 2, Lesson 3, and Lesson 4 Friday
   const activeVote = votingProposals && votingProposals.length > 0 ? votingProposals[0] : null;
@@ -885,12 +899,23 @@ export default function ClassDisplayPage() {
           <div className="bg-[#10B981]/20 rounded-2xl p-8 border-4 border-[#10B981]">
             <div className="text-5xl mb-4">🌟</div>
             <p className="text-2xl md:text-3xl lg:text-4xl font-bold text-[#065F46]">
-              {(isFridayVoting || isLesson3Friday || isLesson4Friday) && votingFinalized 
-                ? 'Democracy in action! Every voice matters!' 
+              {(isFridayVoting || isLesson3Friday || isLesson4Friday) && votingFinalized
+                ? 'Democracy in action! Every voice matters!'
                 : 'Working together makes us stronger!'}
             </p>
           </div>
         </div>
+
+        {/* End Lesson Button - Fixed at bottom right */}
+        <Button
+          onClick={handleEndLesson}
+          disabled={endLesson.isPending}
+          size="lg"
+          className="fixed bottom-8 right-8 h-16 px-8 text-xl font-bold bg-red-600 hover:bg-red-700 shadow-2xl z-50 border-4 border-white"
+        >
+          <X className="w-6 h-6 mr-3" />
+          {endLesson.isPending ? 'Ending...' : 'End Lesson'}
+        </Button>
       </div>
     );
   }

@@ -80,7 +80,7 @@ export const useAwardClassGems = () => {
   const demoData = isDemoMode ? useDemoData() : null;
 
   return useMutation({
-    mutationFn: async (params: { amount: number; reason: string }) => {
+    mutationFn: async (params: { studentId?: string; amount: bigint | number; splitType?: string; description?: string; reason?: string }) => {
       console.log('💎 Awarding class gems:', params);
 
       if (isDemoMode && demoData) {
@@ -95,14 +95,17 @@ export const useAwardClassGems = () => {
       const stored = localStorage.getItem(`classFund_${storageKey}`);
       const data = stored ? JSON.parse(stored) : { balance: 0, transactions: [], goals: [] };
 
+      // Convert BigInt to number if needed
+      const amountNumber = typeof params.amount === 'bigint' ? Number(params.amount) : params.amount;
+
       // Update balance
-      const newBalance = Number(data.balance || 0) + params.amount;
+      const newBalance = Number(data.balance || 0) + amountNumber;
 
       // Add transaction
       const transaction = {
         id: Date.now(),
-        amount: params.amount,
-        reason: params.reason,
+        amount: amountNumber,
+        reason: params.description || params.reason || 'Award',
         timestamp: new Date().toISOString(),
         type: 'award'
       };

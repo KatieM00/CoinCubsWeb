@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useState } from 'react';
-import { useIsCallerAdmin, useGetClassFund, useListApprovals, useGetRewardsCatalog, useGetActiveVotingProposals, useUpdateStudentStatus, useUpdateStudentNotes, useAddReward, useUpdateRewardPrice, useBulkUpdateRewardPrices, useFinalizeVote, useAwardClassGems, useCreateClassGoal, useGetPresetAmounts, useUpdatePresetAmounts, useGetPresetReasons, useAddCustomReason, useUpdateReason, useDeleteReason, useUpdateVoteCount, useValidateVoteTotals, useCreateVotingProposal, useGetTeacherClass, useGetStudents, useAddStudent } from '../hooks/useQueries';
+import { useIsCallerAdmin, useGetClassFund, useListApprovals, useGetRewardsCatalog, useGetActiveVotingProposals, useUpdateStudentStatus, useUpdateStudentNotes, useAddReward, useUpdateRewardPrice, useBulkUpdateRewardPrices, useFinalizeVote, useAwardClassGems, useCreateClassGoal, useGetPresetAmounts, useUpdatePresetAmounts, useGetPresetReasons, useAddCustomReason, useUpdateReason, useDeleteReason, useUpdateVoteCount, useValidateVoteTotals, useCreateVotingProposal, useGetTeacherClass, useGetStudents, useAddStudent, useUpdateClassBalance, useUpdateStudent } from '../hooks/useQueries';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,6 +40,8 @@ export default function SettingsPage() {
   const updateStudentStatus = useUpdateStudentStatus();
   const updateStudentNotes = useUpdateStudentNotes();
   const addStudent = useAddStudent();
+  const updateClassBalance = useUpdateClassBalance();
+  const updateStudent = useUpdateStudent();
   const addReward = useAddReward();
   const updateRewardPrice = useUpdateRewardPrice();
   const bulkUpdatePrices = useBulkUpdateRewardPrices();
@@ -141,10 +143,20 @@ export default function SettingsPage() {
       toast.error('Please enter an amount');
       return;
     }
-    toast.success('Balance updated successfully!');
-    setEditBalanceOpen(false);
-    setBalanceAmount('');
-    setBalanceReason('');
+    try {
+      await updateClassBalance.mutateAsync({
+        amount: Number(balanceAmount),
+        reason: balanceReason || 'Manual balance adjustment',
+        type: 'set' // Set the balance to the exact amount entered
+      });
+      toast.success('Balance updated successfully!');
+      setEditBalanceOpen(false);
+      setBalanceAmount('');
+      setBalanceReason('');
+    } catch (error) {
+      toast.error('Failed to update balance');
+      console.error(error);
+    }
   };
 
   const handleAddStudent = async () => {
@@ -170,10 +182,13 @@ export default function SettingsPage() {
   const handleEditStudent = async () => {
     if (!selectedStudent) return;
     try {
-      if (studentNotes) {
-        await updateStudentNotes.mutateAsync({ studentId: selectedStudent, notes: studentNotes });
-      }
-      await updateStudentStatus.mutateAsync({ studentId: selectedStudent, isActive: studentActive });
+      await updateStudent.mutateAsync({
+        studentId: selectedStudent,
+        name: studentName,
+        personalBalance: studentBalance ? Number(studentBalance) : undefined,
+        notes: studentNotes,
+        isActive: studentActive
+      });
       toast.success('Student updated successfully!');
       setEditStudentOpen(false);
       setSelectedStudent(null);
@@ -577,7 +592,14 @@ export default function SettingsPage() {
                             <TableCell><Badge variant="outline" className="text-xs">{student.classContribution} CubCoins</Badge></TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-1.5">
-                                <Button size="sm" variant="outline" className="gap-1 h-9 text-xs" onClick={() => { setSelectedStudent(student.id); setEditStudentOpen(true); }}>
+                                <Button size="sm" variant="outline" className="gap-1 h-9 text-xs" onClick={() => {
+                                  setSelectedStudent(student.id);
+                                  setStudentName(student.name);
+                                  setStudentBalance(student.personalBalance.toString());
+                                  setStudentNotes(student.notes || '');
+                                  setStudentActive(student.isActive);
+                                  setEditStudentOpen(true);
+                                }}>
                                   <Edit className="w-3 h-3" />
                                   Edit
                                 </Button>
@@ -621,8 +643,8 @@ export default function SettingsPage() {
                   </div>
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setEditStudentOpen(false)} size="sm" className="h-9">Cancel</Button>
-                    <Button onClick={handleEditStudent} disabled={updateStudentNotes.isPending || updateStudentStatus.isPending} size="sm" className="h-9">
-                      {updateStudentNotes.isPending || updateStudentStatus.isPending ? 'Saving...' : 'Save Changes'}
+                    <Button onClick={handleEditStudent} disabled={updateStudent.isPending} size="sm" className="h-9">
+                      {updateStudent.isPending ? 'Saving...' : 'Save Changes'}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -697,7 +719,9 @@ export default function SettingsPage() {
                         </div>
                         <DialogFooter>
                           <Button variant="outline" onClick={() => setEditBalanceOpen(false)} size="sm" className="h-9">Cancel</Button>
-                          <Button onClick={handleEditBalance} size="sm" className="h-9">Update Balance</Button>
+                          <Button onClick={handleEditBalance} disabled={updateClassBalance.isPending} size="sm" className="h-9">
+                            {updateClassBalance.isPending ? 'Updating...' : 'Update Balance'}
+                          </Button>
                         </DialogFooter>
                       </DialogContent>
                     </Dialog>

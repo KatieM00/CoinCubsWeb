@@ -122,6 +122,56 @@ export const useAwardClassGems = () => {
   });
 };
 
+export const useUpdateClassBalance = () => {
+  const queryClient = useQueryClient();
+  const { profile, user } = useAuth();
+  const { isDemoMode } = useDemo();
+
+  return useMutation({
+    mutationFn: async (params: { amount: number; reason: string; type: 'add' | 'subtract' | 'set' }) => {
+      if (isDemoMode) {
+        console.log('Demo mode - balance update not persisted');
+        return { success: true };
+      }
+
+      const storageKey = profile?.id || user?.id || 'default';
+      const stored = localStorage.getItem(`classFund_${storageKey}`);
+      const data = stored ? JSON.parse(stored) : { balance: 0, transactions: [], goals: [] };
+
+      let newBalance = Number(data.balance || 0);
+
+      if (params.type === 'add') {
+        newBalance += params.amount;
+      } else if (params.type === 'subtract') {
+        newBalance -= params.amount;
+      } else if (params.type === 'set') {
+        newBalance = params.amount;
+      }
+
+      // Add transaction
+      const transaction = {
+        id: Date.now(),
+        amount: params.type === 'set' ? params.amount - Number(data.balance || 0) : params.amount,
+        reason: params.reason,
+        timestamp: new Date().toISOString(),
+        type: params.type === 'subtract' ? 'deduction' : 'adjustment'
+      };
+
+      data.balance = newBalance;
+      data.transactions = [transaction, ...(data.transactions || [])];
+
+      localStorage.setItem(`classFund_${storageKey}`, JSON.stringify(data));
+      console.log('💾 Updated class balance:', data);
+
+      return { success: true, newBalance };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['classFund'] });
+      queryClient.invalidateQueries({ queryKey: ['weeklyStats'] });
+    },
+  });
+};
+
 // Class Goals Queries
 export const useGetClassGoals = () => {
   const { isDemoMode } = useDemo();
@@ -817,12 +867,38 @@ export const useGetLastAwardedStudents = () => {
   });
 };
 
-export const useUpdateStudentNotes = () => {
+export const useUpdateStudent = () => {
   const queryClient = useQueryClient();
+  const { profile, user } = useAuth();
+  const { isDemoMode } = useDemo();
+
   return useMutation({
-    mutationFn: async (params: any) => {
-      console.log('Stub: Update student notes', params);
-      return { success: true };
+    mutationFn: async (params: { studentId: string; name?: string; personalBalance?: number; classContribution?: number; notes?: string; isActive?: boolean }) => {
+      if (isDemoMode) {
+        console.log('Demo mode - student update not persisted');
+        return { success: true };
+      }
+
+      const storageKey = profile?.id || user?.id || 'default';
+      const stored = localStorage.getItem(`students_${storageKey}`);
+      const students = stored ? JSON.parse(stored) : [];
+
+      const studentIndex = students.findIndex((s: any) => s.id === params.studentId);
+      if (studentIndex === -1) {
+        throw new Error('Student not found');
+      }
+
+      // Update only the fields that are provided
+      if (params.name !== undefined) students[studentIndex].name = params.name;
+      if (params.personalBalance !== undefined) students[studentIndex].personalBalance = params.personalBalance;
+      if (params.classContribution !== undefined) students[studentIndex].classContribution = params.classContribution;
+      if (params.notes !== undefined) students[studentIndex].notes = params.notes;
+      if (params.isActive !== undefined) students[studentIndex].isActive = params.isActive;
+
+      localStorage.setItem(`students_${storageKey}`, JSON.stringify(students));
+      console.log('✅ Updated student:', students[studentIndex]);
+
+      return { success: true, student: students[studentIndex] };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
@@ -830,15 +906,26 @@ export const useUpdateStudentNotes = () => {
   });
 };
 
-export const useUpdateStudentStatus = () => {
-  const queryClient = useQueryClient();
+export const useUpdateStudentNotes = () => {
+  const updateStudent = useUpdateStudent();
   return useMutation({
-    mutationFn: async (params: any) => {
-      console.log('Stub: Update student status', params);
-      return { success: true };
+    mutationFn: async (params: { studentId: string; notes: string }) => {
+      return updateStudent.mutateAsync({ studentId: params.studentId, notes: params.notes });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['students'] });
+      // Already handled by useUpdateStudent
+    },
+  });
+};
+
+export const useUpdateStudentStatus = () => {
+  const updateStudent = useUpdateStudent();
+  return useMutation({
+    mutationFn: async (params: { studentId: string; isActive: boolean }) => {
+      return updateStudent.mutateAsync({ studentId: params.studentId, isActive: params.isActive });
+    },
+    onSuccess: () => {
+      // Already handled by useUpdateStudent
     },
   });
 };

@@ -35,9 +35,10 @@ export const useIsCallerAdmin = () => {
 export const useGetClassFund = () => {
   const { isDemoMode } = useDemo();
   const demoData = isDemoMode ? useDemoData() : null;
+  const { profile, user } = useAuth();
 
   return useQuery({
-    queryKey: ['classFund'],
+    queryKey: ['classFund', profile?.id, user?.id],
     queryFn: async () => {
       if (isDemoMode && demoData) {
         return {
@@ -46,20 +47,77 @@ export const useGetClassFund = () => {
           goals: demoData.classGoals
         };
       }
-      return { balance: 0 };
+
+      // For non-demo mode, use localStorage
+      const storageKey = profile?.id || user?.id || 'default';
+      const stored = localStorage.getItem(`classFund_${storageKey}`);
+
+      if (stored) {
+        const data = JSON.parse(stored);
+        return {
+          balance: BigInt(data.balance || 0),
+          transactions: data.transactions || [],
+          goals: data.goals || []
+        };
+      }
+
+      // Initialize with default values
+      const defaultData = {
+        balance: 0,
+        transactions: [],
+        goals: []
+      };
+      localStorage.setItem(`classFund_${storageKey}`, JSON.stringify(defaultData));
+      return { balance: BigInt(0), transactions: [], goals: [] };
     },
   });
 };
 
 export const useAwardClassGems = () => {
   const queryClient = useQueryClient();
+  const { profile, user } = useAuth();
+  const { isDemoMode } = useDemo();
+  const demoData = isDemoMode ? useDemoData() : null;
+
   return useMutation({
     mutationFn: async (params: { amount: number; reason: string }) => {
-      console.log('Stub: Award class gems', params);
-      return { success: true };
+      console.log('💎 Awarding class gems:', params);
+
+      if (isDemoMode && demoData) {
+        // In demo mode, use the demo context's awardStudent function
+        // For now, just log - the demo context handles this
+        console.log('Demo mode - award handled by demo context');
+        return { success: true };
+      }
+
+      // For non-demo mode, update localStorage
+      const storageKey = profile?.id || user?.id || 'default';
+      const stored = localStorage.getItem(`classFund_${storageKey}`);
+      const data = stored ? JSON.parse(stored) : { balance: 0, transactions: [], goals: [] };
+
+      // Update balance
+      const newBalance = Number(data.balance || 0) + params.amount;
+
+      // Add transaction
+      const transaction = {
+        id: Date.now(),
+        amount: params.amount,
+        reason: params.reason,
+        timestamp: new Date().toISOString(),
+        type: 'award'
+      };
+
+      data.balance = newBalance;
+      data.transactions = [transaction, ...(data.transactions || [])];
+
+      localStorage.setItem(`classFund_${storageKey}`, JSON.stringify(data));
+      console.log('💾 Updated class fund:', data);
+
+      return { success: true, newBalance };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['classFund'] });
+      queryClient.invalidateQueries({ queryKey: ['weeklyStats'] });
     },
   });
 };
@@ -68,13 +126,24 @@ export const useAwardClassGems = () => {
 export const useGetClassGoals = () => {
   const { isDemoMode } = useDemo();
   const demoData = isDemoMode ? useDemoData() : null;
+  const { profile, user } = useAuth();
 
   return useQuery({
-    queryKey: ['classGoals'],
+    queryKey: ['classGoals', profile?.id, user?.id],
     queryFn: async () => {
       if (isDemoMode && demoData) {
         return demoData.classGoals;
       }
+
+      // Read from classFund storage
+      const storageKey = profile?.id || user?.id || 'default';
+      const stored = localStorage.getItem(`classFund_${storageKey}`);
+
+      if (stored) {
+        const data = JSON.parse(stored);
+        return data.goals || [];
+      }
+
       return [];
     },
   });
@@ -82,13 +151,39 @@ export const useGetClassGoals = () => {
 
 export const useCreateClassGoal = () => {
   const queryClient = useQueryClient();
+  const { profile, user } = useAuth();
+  const { isDemoMode } = useDemo();
+
   return useMutation({
-    mutationFn: async (params: any) => {
-      console.log('Stub: Create class goal', params);
-      return { success: true };
+    mutationFn: async (params: { name: string; description: string; targetAmount: bigint | number }) => {
+      if (isDemoMode) {
+        console.log('Demo mode - goal creation not persisted');
+        return { success: true };
+      }
+
+      const storageKey = profile?.id || user?.id || 'default';
+      const stored = localStorage.getItem(`classFund_${storageKey}`);
+      const data = stored ? JSON.parse(stored) : { balance: 0, transactions: [], goals: [] };
+
+      const newGoal = {
+        id: Date.now().toString(),
+        name: params.name,
+        description: params.description,
+        targetAmount: typeof params.targetAmount === 'bigint' ? Number(params.targetAmount) : params.targetAmount,
+        currentAmount: 0,
+        isActive: true,
+        createdAt: new Date().toISOString()
+      };
+
+      data.goals = [...(data.goals || []), newGoal];
+      localStorage.setItem(`classFund_${storageKey}`, JSON.stringify(data));
+      console.log('✅ Created goal:', newGoal);
+
+      return { success: true, goal: newGoal };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['classGoals'] });
+      queryClient.invalidateQueries({ queryKey: ['classFund'] });
     },
   });
 };
@@ -455,18 +550,66 @@ export const useGetClassAchievements = () => {
 
 // Rewards Queries
 export const useGetRewardsCatalog = () => {
+  const { profile, user } = useAuth();
+  const { isDemoMode } = useDemo();
+
   return useQuery({
-    queryKey: ['rewardsCatalog'],
-    queryFn: async () => [],
+    queryKey: ['rewardsCatalog', profile?.id, user?.id],
+    queryFn: async () => {
+      if (isDemoMode) {
+        // Return empty for demo mode for now
+        return [];
+      }
+
+      const storageKey = profile?.id || user?.id || 'default';
+      const stored = localStorage.getItem(`rewards_${storageKey}`);
+
+      if (stored) {
+        return JSON.parse(stored);
+      }
+
+      // Initialize with some default rewards
+      const defaultRewards = [
+        { id: '1', name: 'Extra Recess', cost: 100, description: '5 minutes extra recess time', isActive: true },
+        { id: '2', name: 'Homework Pass', cost: 150, description: 'Skip one homework assignment', isActive: true },
+        { id: '3', name: 'Lunch with Teacher', cost: 200, description: 'Have lunch in the classroom', isActive: true },
+      ];
+
+      localStorage.setItem(`rewards_${storageKey}`, JSON.stringify(defaultRewards));
+      return defaultRewards;
+    },
   });
 };
 
 export const useAddReward = () => {
   const queryClient = useQueryClient();
+  const { profile, user } = useAuth();
+  const { isDemoMode } = useDemo();
+
   return useMutation({
-    mutationFn: async (params: any) => {
-      console.log('Stub: Add reward', params);
-      return { success: true };
+    mutationFn: async (params: { name: string; cost: bigint | number; description?: string }) => {
+      if (isDemoMode) {
+        console.log('Demo mode - reward addition not persisted');
+        return { success: true };
+      }
+
+      const storageKey = profile?.id || user?.id || 'default';
+      const stored = localStorage.getItem(`rewards_${storageKey}`);
+      const rewards = stored ? JSON.parse(stored) : [];
+
+      const newReward = {
+        id: Date.now().toString(),
+        name: params.name,
+        cost: typeof params.cost === 'bigint' ? Number(params.cost) : params.cost,
+        description: params.description || '',
+        isActive: true
+      };
+
+      rewards.push(newReward);
+      localStorage.setItem(`rewards_${storageKey}`, JSON.stringify(rewards));
+      console.log('✅ Added reward:', newReward);
+
+      return { success: true, reward: newReward };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['rewardsCatalog'] });
@@ -584,6 +727,81 @@ export const useDeleteReason = () => {
 };
 
 // Student Queries
+export const useGetStudents = () => {
+  const { isDemoMode } = useDemo();
+  const demoData = isDemoMode ? useDemoData() : null;
+  const { profile, user } = useAuth();
+
+  return useQuery({
+    queryKey: ['students', profile?.id, user?.id],
+    queryFn: async () => {
+      if (isDemoMode && demoData) {
+        return demoData.students;
+      }
+
+      // For non-demo mode, use localStorage
+      const storageKey = profile?.id || user?.id || 'default';
+      const stored = localStorage.getItem(`students_${storageKey}`);
+
+      if (stored) {
+        return JSON.parse(stored);
+      }
+
+      // Initialize with mock students from QuickAwardPage
+      const defaultStudents = [
+        { id: '1', name: 'Emma Johnson', personalBalance: 0, classContribution: 0, isActive: true, notes: '' },
+        { id: '2', name: 'Liam Smith', personalBalance: 0, classContribution: 0, isActive: true, notes: '' },
+        { id: '3', name: 'Olivia Brown', personalBalance: 0, classContribution: 0, isActive: true, notes: '' },
+        { id: '4', name: 'Noah Davis', personalBalance: 0, classContribution: 0, isActive: true, notes: '' },
+        { id: '5', name: 'Ava Wilson', personalBalance: 0, classContribution: 0, isActive: true, notes: '' },
+        { id: '6', name: 'Ethan Martinez', personalBalance: 0, classContribution: 0, isActive: true, notes: '' },
+        { id: '7', name: 'Sophia Anderson', personalBalance: 0, classContribution: 0, isActive: true, notes: '' },
+        { id: '8', name: 'Mason Taylor', personalBalance: 0, classContribution: 0, isActive: true, notes: '' },
+      ];
+
+      localStorage.setItem(`students_${storageKey}`, JSON.stringify(defaultStudents));
+      return defaultStudents;
+    },
+  });
+};
+
+export const useAddStudent = () => {
+  const queryClient = useQueryClient();
+  const { profile, user } = useAuth();
+  const { isDemoMode } = useDemo();
+
+  return useMutation({
+    mutationFn: async (params: { name: string; balance?: number }) => {
+      if (isDemoMode) {
+        console.log('Demo mode - student addition not persisted');
+        return { success: true };
+      }
+
+      const storageKey = profile?.id || user?.id || 'default';
+      const stored = localStorage.getItem(`students_${storageKey}`);
+      const students = stored ? JSON.parse(stored) : [];
+
+      const newStudent = {
+        id: Date.now().toString(),
+        name: params.name,
+        personalBalance: params.balance || 0,
+        classContribution: 0,
+        isActive: true,
+        notes: ''
+      };
+
+      students.push(newStudent);
+      localStorage.setItem(`students_${storageKey}`, JSON.stringify(students));
+      console.log('✅ Added student:', newStudent);
+
+      return { success: true, student: newStudent };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+    },
+  });
+};
+
 export const useGetLastAwardedStudents = () => {
   const { isDemoMode } = useDemo();
   const demoData = isDemoMode ? useDemoData() : null;
@@ -651,20 +869,26 @@ export const useUndoLastAward = () => {
 export const useGetWeeklyStats = () => {
   const { isDemoMode } = useDemo();
   const demoData = isDemoMode ? useDemoData() : null;
+  const { profile, user } = useAuth();
 
   return useQuery({
-    queryKey: ['weeklyStats'],
+    queryKey: ['weeklyStats', profile?.id, user?.id],
     queryFn: async () => {
       if (isDemoMode && demoData) {
         return demoData.weeklyStats;
       }
-      // Return demo-compatible structure for non-demo mode
-      // TODO: Replace with real Supabase query when backend is ready
+
+      // For non-demo mode, read from localStorage
+      const storageKey = profile?.id || user?.id || 'default';
+      const stored = localStorage.getItem(`classFund_${storageKey}`);
+      const data = stored ? JSON.parse(stored) : { balance: 0, transactions: [], goals: [] };
+
+      // Return demo-compatible structure with actual balance
       return {
-        classFundBalance: BigInt(1250), // Demo default
-        studentsContributed: BigInt(18),
-        totalStudents: BigInt(24),
-        totalCubCoinsEarned: BigInt(850)
+        classFundBalance: BigInt(data.balance || 0),
+        studentsContributed: BigInt(18), // TODO: Calculate from actual student data
+        totalStudents: BigInt(24), // TODO: Get from actual student list
+        totalCubCoinsEarned: BigInt(data.balance || 0) // Use balance as total earned for now
       };
     },
   });

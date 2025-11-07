@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useState } from 'react';
-import { useIsCallerAdmin, useGetClassFund, useListApprovals, useGetRewardsCatalog, useGetActiveVotingProposals, useUpdateStudentStatus, useUpdateStudentNotes, useAddReward, useUpdateRewardPrice, useBulkUpdateRewardPrices, useFinalizeVote, useAwardClassGems, useCreateClassGoal, useGetPresetAmounts, useUpdatePresetAmounts, useGetPresetReasons, useAddCustomReason, useUpdateReason, useDeleteReason, useUpdateVoteCount, useValidateVoteTotals, useCreateVotingProposal, useGetTeacherClass } from '../hooks/useQueries';
+import { useIsCallerAdmin, useGetClassFund, useListApprovals, useGetRewardsCatalog, useGetActiveVotingProposals, useUpdateStudentStatus, useUpdateStudentNotes, useAddReward, useUpdateRewardPrice, useBulkUpdateRewardPrices, useFinalizeVote, useAwardClassGems, useCreateClassGoal, useGetPresetAmounts, useUpdatePresetAmounts, useGetPresetReasons, useAddCustomReason, useUpdateReason, useDeleteReason, useUpdateVoteCount, useValidateVoteTotals, useCreateVotingProposal, useGetTeacherClass, useGetStudents, useAddStudent } from '../hooks/useQueries';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,12 +32,14 @@ export default function SettingsPage() {
   const { data: presetAmounts } = useGetPresetAmounts();
   const { data: presetReasons } = useGetPresetReasons();
   const { data: teacherClass } = useGetTeacherClass();
+  const { data: students, isLoading: studentsLoading } = useGetStudents();
 
   // Debug logging
   console.log('🏫 Teacher Class Data:', teacherClass);
 
   const updateStudentStatus = useUpdateStudentStatus();
   const updateStudentNotes = useUpdateStudentNotes();
+  const addStudent = useAddStudent();
   const addReward = useAddReward();
   const updateRewardPrice = useUpdateRewardPrice();
   const bulkUpdatePrices = useBulkUpdateRewardPrices();
@@ -143,6 +145,26 @@ export default function SettingsPage() {
     setEditBalanceOpen(false);
     setBalanceAmount('');
     setBalanceReason('');
+  };
+
+  const handleAddStudent = async () => {
+    if (!studentName) {
+      toast.error('Please enter a student name');
+      return;
+    }
+    try {
+      await addStudent.mutateAsync({
+        name: studentName,
+        balance: studentBalance ? Number(studentBalance) : 0
+      });
+      toast.success('Student added successfully!');
+      setAddStudentOpen(false);
+      setStudentName('');
+      setStudentBalance('');
+    } catch (error) {
+      toast.error('Failed to add student');
+      console.error(error);
+    }
   };
 
   const handleEditStudent = async () => {
@@ -397,7 +419,7 @@ export default function SettingsPage() {
   const transactions = classFund?.transactions || [];
   const classGoals = classFund?.goals || [];
   const activeGoals = classGoals.filter(goal => goal.isActive);
-  const students = approvals?.filter(a => a.status === 'approved') || [];
+  const studentsList = students || [];
 
   const sidebarItems = [
     { id: 'students' as SettingsSection, label: 'Students', icon: Users },
@@ -487,7 +509,7 @@ export default function SettingsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <CardTitle className="text-xl">Student Management</CardTitle>
-                      <CardDescription className="text-sm">{students.length} students in class</CardDescription>
+                      <CardDescription className="text-sm">{studentsList.length} students in class</CardDescription>
                     </div>
                     <div className="flex gap-2">
                       <Dialog open={addStudentOpen} onOpenChange={setAddStudentOpen}>
@@ -514,7 +536,9 @@ export default function SettingsPage() {
                           </div>
                           <DialogFooter>
                             <Button variant="outline" onClick={() => setAddStudentOpen(false)} size="sm" className="h-9">Cancel</Button>
-                            <Button onClick={() => toast.info('Feature coming soon!')} size="sm" className="h-9">Add Student</Button>
+                            <Button onClick={handleAddStudent} disabled={addStudent.isPending} size="sm" className="h-9">
+                              {addStudent.isPending ? 'Adding...' : 'Add Student'}
+                            </Button>
                           </DialogFooter>
                         </DialogContent>
                       </Dialog>
@@ -541,15 +565,19 @@ export default function SettingsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {students.length > 0 ? (
-                        students.map((student) => (
-                          <TableRow key={student.principal.toString()} className="h-10">
-                            <TableCell className="font-medium text-sm">Student</TableCell>
-                            <TableCell><Badge variant="secondary" className="text-xs">0 gems</Badge></TableCell>
-                            <TableCell><Badge variant="outline" className="text-xs">0 gems</Badge></TableCell>
+                      {studentsLoading ? (
+                        <TableRow>
+                          <TableCell colSpan={4} className="text-center text-muted-foreground text-sm h-20">Loading students...</TableCell>
+                        </TableRow>
+                      ) : studentsList.length > 0 ? (
+                        studentsList.map((student) => (
+                          <TableRow key={student.id} className="h-10">
+                            <TableCell className="font-medium text-sm">{student.name}</TableCell>
+                            <TableCell><Badge variant="secondary" className="text-xs">{student.personalBalance} CubCoins</Badge></TableCell>
+                            <TableCell><Badge variant="outline" className="text-xs">{student.classContribution} CubCoins</Badge></TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-1.5">
-                                <Button size="sm" variant="outline" className="gap-1 h-9 text-xs" onClick={() => { setSelectedStudent(student.principal); setEditStudentOpen(true); }}>
+                                <Button size="sm" variant="outline" className="gap-1 h-9 text-xs" onClick={() => { setSelectedStudent(student.id); setEditStudentOpen(true); }}>
                                   <Edit className="w-3 h-3" />
                                   Edit
                                 </Button>
@@ -1442,7 +1470,7 @@ export default function SettingsPage() {
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-sm">Student Count</Label>
-                      <Input value={students.length} disabled className="h-9" />
+                      <Input value={studentsList.length} disabled className="h-9" />
                     </div>
                   </div>
                   <Button size="sm" className="gap-2 h-9">

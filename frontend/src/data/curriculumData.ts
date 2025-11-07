@@ -121,7 +121,7 @@ export const curriculumModules: CurriculumModule[] = [
       activities: [
         {
           name: "Live Vote Count",
-          description: "Teacher counts votes for each option on Class Display. Announce winner with celebration. Record the decision on blockchain."
+          description: "Teacher counts votes for each option on Class Display. Announce winner with celebration. Record the decision in the system."
         }
       ]
     }

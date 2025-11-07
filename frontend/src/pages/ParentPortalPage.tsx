@@ -294,21 +294,21 @@ export default function ParentPortalPage() {
                 </div>
               </div>
 
-              {/* Concordium Integration */}
+              {/* Secure Payments */}
               <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg p-6 border border-purple-200">
                 <div className="flex items-start gap-4">
                   <Lock className="w-6 h-6 text-purple-600 mt-1" />
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-purple-900 mb-2">
-                      Blockchain-Powered Payments
+                      Secure Online Payments
                     </h3>
                     <p className="text-purple-700 mb-4">
-                      Soon you'll be able to make secure, transparent payments using Concordium blockchain technology. 
-                      All transactions will be verified and recorded on-chain for complete transparency.
+                      Soon you'll be able to make secure, transparent payments directly through the platform.
+                      All transactions will be verified and recorded for complete transparency.
                     </p>
                     <Button disabled variant="outline" className="border-purple-600 text-purple-700">
                       <Lock className="w-4 h-4 mr-2" />
-                      Connect Concordium Wallet (Coming Soon)
+                      Set Up Payment Method (Coming Soon)
                     </Button>
                   </div>
                 </div>
@@ -413,13 +413,13 @@ export default function ParentPortalPage() {
                       Secure Digital Signatures
                     </h3>
                     <p className="text-purple-700 mb-4">
-                      All digital signatures are powered by Concordium blockchain technology, 
-                      ensuring security, verification, and permanent record-keeping. Your signatures 
+                      All digital signatures are secured with industry-standard encryption,
+                      ensuring security, verification, and permanent record-keeping. Your signatures
                       are legally binding and cryptographically secured.
                     </p>
                     <div className="flex items-center gap-2 text-sm text-purple-700">
                       <CheckCircle2 className="w-4 h-4" />
-                      <span>Blockchain verified</span>
+                      <span>Cryptographically verified</span>
                     </div>
                   </div>
                 </div>

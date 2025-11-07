@@ -773,11 +773,11 @@ export default function ClassDisplayPage() {
                     </p>
                   </div>
 
-                  {/* Blockchain Record */}
+                  {/* Decision Record */}
                   <div className="bg-gradient-to-r from-[#1E3A8A] to-[#3B82F6] rounded-2xl p-8 border-4 border-[#1E40AF] shadow-2xl">
                     <div className="text-5xl mb-4">🔒</div>
                     <p className="text-2xl md:text-3xl font-bold text-white">
-                      Vote recorded on blockchain (immutable)
+                      Vote recorded in system (permanent)
                     </p>
                     <p className="text-lg md:text-xl text-white/90 mt-4">
                       This decision is now permanent and transparent!
@@ -904,12 +904,12 @@ export default function ClassDisplayPage() {
                 </p>
               </div>
 
-              {/* Blockchain Record (if finalized) */}
+              {/* Decision Record (if finalized) */}
               {votingFinalized && (
                 <div className="bg-gradient-to-r from-[#7C3AED] to-[#A78BFA] rounded-2xl p-8 border-4 border-[#5B21B6] shadow-2xl">
                   <div className="text-5xl mb-4">🔒</div>
                   <p className="text-2xl md:text-3xl lg:text-4xl font-bold text-white">
-                    Vote recorded on blockchain (immutable)
+                    Vote recorded in system (permanent)
                   </p>
                   <p className="text-lg md:text-xl text-white/90 mt-4">
                     This decision is now permanent and transparent!

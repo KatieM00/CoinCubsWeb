@@ -617,16 +617,16 @@ export default function SettingsPage() {
                   <div className="bg-gray-50 rounded-lg p-3 space-y-2">
                     <div className="flex items-center gap-2 mb-2">
                       <Lock className="w-4 h-4 text-gray-600" />
-                      <h4 className="font-semibold text-sm text-gray-900">Blockchain Preparation Fields</h4>
+                      <h4 className="font-semibold text-sm text-gray-900">System Information</h4>
                     </div>
                     <div className="grid md:grid-cols-2 gap-3 text-xs">
                       <div>
-                        <Label className="text-gray-600 text-xs">Blockchain Hash</Label>
-                        <p className="text-gray-800 font-mono text-xs">{classFund?.blockchainHash || '(empty)'}</p>
+                        <Label className="text-gray-600 text-xs">Database ID</Label>
+                        <p className="text-gray-800 font-mono text-xs">{classFund?.id || '(empty)'}</p>
                       </div>
                       <div>
-                        <Label className="text-gray-600 text-xs">Last Synced</Label>
-                        <p className="text-gray-800 text-xs">{classFund?.lastSynced ? formatDate(classFund.lastSynced) : 'Not synced'}</p>
+                        <Label className="text-gray-600 text-xs">Last Updated</Label>
+                        <p className="text-gray-800 text-xs">{classFund?.lastSynced ? formatDate(classFund.lastSynced) : 'Not updated'}</p>
                       </div>
                     </div>
                   </div>

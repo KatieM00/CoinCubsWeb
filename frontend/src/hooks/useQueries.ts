@@ -658,7 +658,14 @@ export const useGetWeeklyStats = () => {
       if (isDemoMode && demoData) {
         return demoData.weeklyStats;
       }
-      return { totalAwarded: 0, topEarners: [] };
+      // Return demo-compatible structure for non-demo mode
+      // TODO: Replace with real Supabase query when backend is ready
+      return {
+        classFundBalance: BigInt(1250), // Demo default
+        studentsContributed: BigInt(18),
+        totalStudents: BigInt(24),
+        totalCubCoinsEarned: BigInt(850)
+      };
     },
   });
 };

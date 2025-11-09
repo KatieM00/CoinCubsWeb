@@ -46,7 +46,7 @@ export default function SettingsPage() {
   const updateRewardPrice = useUpdateRewardPrice();
   const bulkUpdatePrices = useBulkUpdateRewardPrices();
   const finalizeVote = useFinalizeVote();
-  const awardGems = useAwardClassGems();
+  const awardCubCoins = useAwardClassGems();
   const createGoal = useCreateClassGoal();
   const updatePresets = useUpdatePresetAmounts();
   const addReason = useAddCustomReason();
@@ -135,7 +135,10 @@ export default function SettingsPage() {
     );
   }
 
-  const formatGems = (amount: bigint) => Number(amount).toLocaleString();
+  const formatCubCoins = (amount: bigint | number) => {
+    const num = typeof amount === 'bigint' ? Number(amount) : amount;
+    return num.toLocaleString();
+  };
   const formatDate = (timestamp: bigint) => new Date(Number(timestamp) / 1000000).toLocaleString();
 
   const handleEditBalance = async () => {
@@ -430,7 +433,7 @@ export default function SettingsPage() {
     );
   }
 
-  const totalClassGems = classFund?.totalAmount || BigInt(0);
+  const totalClassCubCoins = classFund?.totalAmount || BigInt(0);
   const transactions = classFund?.transactions || [];
   const classGoals = classFund?.goals || [];
   const activeGoals = classGoals.filter(goal => goal.isActive);
@@ -659,7 +662,7 @@ export default function SettingsPage() {
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center justify-between text-xl">
                     <span>Current Balance</span>
-                    <Badge variant="secondary" className="text-xl px-3 py-1">{formatGems(totalClassGems)} gems</Badge>
+                    <Badge variant="secondary" className="text-xl px-3 py-1">{formatCubCoins(totalClassCubCoins)} CubCoins</Badge>
                   </CardTitle>
                 </CardHeader>
                 <Separator />
@@ -749,7 +752,7 @@ export default function SettingsPage() {
                           <p className="text-xs text-muted-foreground mt-0.5">{formatDate(tx.timestamp)}</p>
                         </div>
                         <div className="flex gap-1.5">
-                          <Badge variant="secondary" className="text-xs">+{formatGems(tx.amount)}</Badge>
+                          <Badge variant="secondary" className="text-xs">+{formatCubCoins(tx.amount)}</Badge>
                           <Button size="sm" variant="outline" className="gap-1 h-8 px-2">
                             <Edit className="w-3 h-3" />
                           </Button>
@@ -823,7 +826,7 @@ export default function SettingsPage() {
                                 <h4 className="font-semibold text-base">{goal.name}</h4>
                                 <p className="text-sm text-muted-foreground mt-0.5">{goal.description}</p>
                               </div>
-                              <Badge variant="secondary" className="text-xs">{formatGems(goal.targetAmount)} gems</Badge>
+                              <Badge variant="secondary" className="text-xs">{formatCubCoins(goal.targetAmount)} CubCoins</Badge>
                             </div>
                             <div className="flex gap-1.5">
                               <Button size="sm" variant="outline" className="gap-1 h-8 text-xs">
@@ -941,7 +944,7 @@ export default function SettingsPage() {
                         rewards.map((reward) => (
                           <TableRow key={Number(reward.id)} className="h-10">
                             <TableCell className="font-medium text-sm">{reward.name}</TableCell>
-                            <TableCell><Badge variant="secondary" className="text-xs">{formatGems(reward.cost)} gems</Badge></TableCell>
+                            <TableCell><Badge variant="secondary" className="text-xs">{formatCubCoins(reward.cost)} CubCoins</Badge></TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-1.5">
                                 <Button size="sm" variant="outline" className="gap-1 h-8 text-xs" onClick={() => { setSelectedRewardId(reward.id); setRewardCost(reward.cost.toString()); setEditRewardOpen(true); }}>

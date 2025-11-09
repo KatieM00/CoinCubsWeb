@@ -81,7 +81,7 @@ export const useAwardClassGems = () => {
 
   return useMutation({
     mutationFn: async (params: { studentId?: string; amount: bigint | number; splitType?: string; description?: string; reason?: string }) => {
-      console.log('💎 Awarding class gems:', params);
+      console.log('💎 Awarding class CubCoins:', params);
 
       if (isDemoMode && demoData) {
         // In demo mode, use the demo context's awardStudent function

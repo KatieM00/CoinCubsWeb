@@ -380,7 +380,7 @@ export const useStartMondayLesson = () => {
 
       // Return the Monday lesson content with all required fields
       return {
-        weekNumber: module.weekNumber,
+        weekNumber: Number(module.weekNumber),
         moduleName: module.moduleName,
         weekTopic: module.moduleName, // Map moduleName to weekTopic
         dayType: 'monday',
@@ -419,7 +419,7 @@ export const useStartFridayLesson = () => {
 
       // Return the Friday lesson content with all required fields
       return {
-        weekNumber: module.weekNumber,
+        weekNumber: Number(module.weekNumber),
         moduleName: module.moduleName,
         weekTopic: module.moduleName, // Map moduleName to weekTopic
         dayType: 'friday',

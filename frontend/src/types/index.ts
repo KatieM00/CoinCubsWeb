@@ -22,7 +22,7 @@ export type Lesson = {
 }
 
 export type CurriculumModule = {
-  weekNumber: number | bigint
+  weekNumber: number
   moduleName: string
   learningObjectives: string[]
   mondayLesson: Lesson

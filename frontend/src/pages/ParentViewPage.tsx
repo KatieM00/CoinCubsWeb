@@ -226,10 +226,10 @@ export default function ParentViewPage() {
                     <div className="flex justify-between text-sm">
                       <span className="font-medium">{goal.name}</span>
                       <span className="text-muted-foreground">
-                        {Number((goal.currentAmount * BigInt(100)) / goal.targetAmount)}%
+                        {Math.min(100, Math.floor((Number(goal.currentAmount) * 100) / Number(goal.targetAmount)))}%
                       </span>
                     </div>
-                    <Progress value={Number((goal.currentAmount * BigInt(100)) / goal.targetAmount)} className="h-2" />
+                    <Progress value={Math.min(100, Math.floor((Number(goal.currentAmount) * 100) / Number(goal.targetAmount)))} className="h-2" />
                   </div>
                 ))}
               </div>

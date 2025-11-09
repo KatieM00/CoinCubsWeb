@@ -153,7 +153,7 @@ export default function ClassDisplayPage() {
 
   // Trigger goal celebration
   useEffect(() => {
-    if (primaryGoal && primaryGoal.currentAmount >= primaryGoal.targetAmount) {
+    if (primaryGoal && Number(primaryGoal.currentAmount) >= Number(primaryGoal.targetAmount)) {
       setCelebrationType('wholeClass');
       setShowCelebration(true);
       const timer = setTimeout(() => setShowCelebration(false), 5000);
@@ -1103,7 +1103,7 @@ export default function ClassDisplayPage() {
 
                 {/* Progress Message */}
                 <p className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#10B981]">
-                  {primaryGoal.currentAmount >= primaryGoal.targetAmount 
+                  {Number(primaryGoal.currentAmount) >= Number(primaryGoal.targetAmount)
                     ? '🎉 Goal Reached! Amazing work, class! 🎉'
                     : `Only ${formatCubCoins(cubCoinsToGo)} CubCoins to go!`
                   }

@@ -3,7 +3,7 @@ import { CurriculumModule } from '../types';
 export const curriculumModules: CurriculumModule[] = [
   // Week 1: Community Inflation (Part 1)
   {
-    weekNumber: BigInt(1),
+    weekNumber: 1,
     moduleName: "Community Inflation (Part 1)",
     learningObjectives: [
       "Understand how community funds work",
@@ -45,7 +45,7 @@ export const curriculumModules: CurriculumModule[] = [
 
   // Week 2: Community Inflation (Part 2)
   {
-    weekNumber: BigInt(2),
+    weekNumber: 2,
     moduleName: "Community Inflation (Part 2)",
     learningObjectives: [
       "Apply inflation concepts to real scenarios",
@@ -87,7 +87,7 @@ export const curriculumModules: CurriculumModule[] = [
 
   // Week 3: Democratic Decision Making (Part 1)
   {
-    weekNumber: BigInt(3),
+    weekNumber: 3,
     moduleName: "Democratic Decision Making (Part 1)",
     learningObjectives: [
       "Understand how democratic voting works",
@@ -129,7 +129,7 @@ export const curriculumModules: CurriculumModule[] = [
 
   // Week 4: Democratic Decision Making (Part 2)
   {
-    weekNumber: BigInt(4),
+    weekNumber: 4,
     moduleName: "Democratic Decision Making (Part 2)",
     learningObjectives: [
       "Reflect on democratic decision outcomes",
@@ -171,7 +171,7 @@ export const curriculumModules: CurriculumModule[] = [
 
   // Week 5: Savings & Delayed Gratification (Part 1)
   {
-    weekNumber: BigInt(5),
+    weekNumber: 5,
     moduleName: "Savings & Delayed Gratification (Part 1)",
     learningObjectives: [
       "Understand delayed gratification concepts",
@@ -213,7 +213,7 @@ export const curriculumModules: CurriculumModule[] = [
 
   // Week 6: Savings & Delayed Gratification (Part 2)
   {
-    weekNumber: BigInt(6),
+    weekNumber: 6,
     moduleName: "Savings & Delayed Gratification (Part 2)",
     learningObjectives: [
       "Practice patience while working toward goals",
@@ -255,7 +255,7 @@ export const curriculumModules: CurriculumModule[] = [
 
   // Week 7: Cross-Classroom Collaboration (Part 1)
   {
-    weekNumber: BigInt(7),
+    weekNumber: 7,
     moduleName: "Cross-Classroom Collaboration (Part 1)",
     learningObjectives: [
       "Understand cross-classroom collaboration",
@@ -297,7 +297,7 @@ export const curriculumModules: CurriculumModule[] = [
 
   // Week 8: Cross-Classroom Collaboration (Part 2)
   {
-    weekNumber: BigInt(8),
+    weekNumber: 8,
     moduleName: "Cross-Classroom Collaboration (Part 2)",
     learningObjectives: [
       "Experience working toward shared goals",

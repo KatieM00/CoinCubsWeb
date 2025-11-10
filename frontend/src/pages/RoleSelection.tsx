@@ -68,7 +68,21 @@ export default function RoleSelection() {
       // Check if teacher profile already exists
       let teacherProfileId: string | undefined
       if (!hasTeacherRole) {
+        // Verify user is authenticated
+        const { data: { session } } = await supabase.auth.getSession()
+        console.log('🔐 Current session:', { hasSession: !!session, userId: session?.user?.id, authUid: user!.id })
+
+        if (!session) {
+          throw new Error('No active session - please sign in again')
+        }
+
         // Create teacher profile
+        console.log('📝 Creating teacher profile with:', {
+          user_id: user!.id,
+          email: user!.email,
+          role: 'teacher'
+        })
+
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .insert({
@@ -80,7 +94,12 @@ export default function RoleSelection() {
           .select()
           .single()
 
-        if (profileError) throw profileError
+        if (profileError) {
+          console.error('❌ Profile creation error:', profileError)
+          throw profileError
+        }
+
+        console.log('✅ Teacher profile created:', profileData)
         teacherProfileId = profileData.id
       } else {
         // Get existing teacher profile ID
@@ -105,11 +124,19 @@ export default function RoleSelection() {
       if (classError) throw classError
 
       toast.success(`Class created! Your class code is: ${classCode}`, { duration: 5000 })
+
+      // Refresh profile to load the newly created teacher profile
       await refreshProfile()
+
+      // Wait a bit longer for profile to load
+      await new Promise(resolve => setTimeout(resolve, 300))
+
       // Switch to teacher role and navigate to home
       switchRole('teacher')
+
       // Give React time to update state
       await new Promise(resolve => setTimeout(resolve, 100))
+
       navigate({ to: '/' })
     } catch (error: any) {
       console.error('Error creating teacher profile:', error)
@@ -151,7 +178,21 @@ export default function RoleSelection() {
       // Check if parent profile already exists
       let parentProfileId: string | undefined
       if (!hasParentRole) {
+        // Verify user is authenticated
+        const { data: { session } } = await supabase.auth.getSession()
+        console.log('🔐 Current session:', { hasSession: !!session, userId: session?.user?.id, authUid: user!.id })
+
+        if (!session) {
+          throw new Error('No active session - please sign in again')
+        }
+
         // Create parent profile
+        console.log('📝 Creating parent profile with:', {
+          user_id: user!.id,
+          email: user!.email,
+          role: 'parent'
+        })
+
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .insert({
@@ -163,7 +204,12 @@ export default function RoleSelection() {
           .select()
           .single()
 
-        if (profileError) throw profileError
+        if (profileError) {
+          console.error('❌ Profile creation error:', profileError)
+          throw profileError
+        }
+
+        console.log('✅ Parent profile created:', profileData)
         parentProfileId = profileData.id
       } else {
         // Get existing parent profile ID
@@ -188,11 +234,19 @@ export default function RoleSelection() {
       }
 
       toast.success(hasParentRole ? 'Joined class successfully!' : 'Parent account created! You can now view your child\'s progress.')
+
+      // Refresh profile to load the newly created parent profile
       await refreshProfile()
+
+      // Wait a bit longer for profile to load
+      await new Promise(resolve => setTimeout(resolve, 300))
+
       // Switch to parent role and navigate to home
       switchRole('parent')
+
       // Give React time to update state
       await new Promise(resolve => setTimeout(resolve, 100))
+
       navigate({ to: '/' })
     } catch (error: any) {
       console.error('Error creating parent profile:', error)

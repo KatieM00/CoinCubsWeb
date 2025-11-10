@@ -66,25 +66,37 @@ export default function RoleSelection() {
       const classCode = generateClassCode()
 
       // Check if teacher profile already exists
+      let teacherProfileId: string | undefined
       if (!hasTeacherRole) {
         // Create teacher profile
-        const { error: profileError } = await supabase
+        const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .insert({
-            id: user!.id,
+            user_id: user!.id,
             email: user!.email,
             role: 'teacher',
             full_name: user!.user_metadata.full_name || user!.email
           })
+          .select()
+          .single()
 
         if (profileError) throw profileError
+        teacherProfileId = profileData.id
+      } else {
+        // Get existing teacher profile ID
+        const teacherProfile = profiles.find(p => p.role === 'teacher')
+        teacherProfileId = teacherProfile?.id
+      }
+
+      if (!teacherProfileId) {
+        throw new Error('Failed to get teacher profile ID')
       }
 
       // Create class
       const { error: classError } = await supabase
         .from('classes')
         .insert({
-          teacher_id: user!.id,
+          teacher_profile_id: teacherProfileId,
           class_name: className,
           class_code: classCode,
           school_year: schoolYear || null
@@ -137,25 +149,37 @@ export default function RoleSelection() {
       console.log('✅ Class found! ID:', classData.id);
 
       // Check if parent profile already exists
+      let parentProfileId: string | undefined
       if (!hasParentRole) {
         // Create parent profile
-        const { error: profileError } = await supabase
+        const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .insert({
-            id: user!.id,
+            user_id: user!.id,
             email: user!.email,
             role: 'parent',
             full_name: user!.user_metadata.full_name || user!.email
           })
+          .select()
+          .single()
 
         if (profileError) throw profileError
+        parentProfileId = profileData.id
+      } else {
+        // Get existing parent profile ID
+        const parentProfile = profiles.find(p => p.role === 'parent')
+        parentProfileId = parentProfile?.id
+      }
+
+      if (!parentProfileId) {
+        throw new Error('Failed to get parent profile ID')
       }
 
       // Create or update parent-class enrollment
       const { error: enrollmentError } = await supabase
         .from('parent_class_enrollments')
         .upsert({
-          parent_id: user!.id,
+          parent_profile_id: parentProfileId,
           class_id: classData.id
         })
 

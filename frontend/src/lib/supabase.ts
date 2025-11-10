@@ -31,6 +31,7 @@ export type UserRole = 'teacher' | 'parent'
 
 export interface UserProfile {
   id: string
+  user_id: string
   email: string
   role: UserRole
   full_name: string | null
@@ -39,7 +40,7 @@ export interface UserProfile {
 
 export interface ClassData {
   id: string
-  teacher_id: string
+  teacher_profile_id: string
   class_name: string
   class_code: string
   school_year: string | null

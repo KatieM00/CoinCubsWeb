@@ -345,9 +345,29 @@ export const useGetCurriculumModules = () => {
 };
 
 export const useGetCurrentWeek = () => {
+  const { profile, user } = useAuth();
+  const { isDemoMode } = useDemo();
+  const demoData = isDemoMode ? useDemoData() : null;
+
   return useQuery({
-    queryKey: ['currentWeek'],
-    queryFn: async () => ({ weekNumber: 1 }),
+    queryKey: ['currentWeek', profile?.id, user?.id],
+    queryFn: async () => {
+      if (isDemoMode && demoData) {
+        return { weekNumber: Number(demoData.currentWeek) };
+      }
+
+      const storageKey = profile?.id || user?.id || 'default';
+      const stored = localStorage.getItem(`currentWeek_${storageKey}`);
+
+      if (stored) {
+        return JSON.parse(stored);
+      }
+
+      // Default to week 1
+      const defaultWeek = { weekNumber: 1 };
+      localStorage.setItem(`currentWeek_${storageKey}`, JSON.stringify(defaultWeek));
+      return defaultWeek;
+    },
   });
 };
 
@@ -561,9 +581,20 @@ export const useUpdateLessonNotes = () => {
 
 export const useSkipToWeek = () => {
   const queryClient = useQueryClient();
+  const { profile, user } = useAuth();
+  const { isDemoMode } = useDemo();
+
   return useMutation({
     mutationFn: async (weekNumber: any) => {
-      console.log('Stub: Skip to week', weekNumber);
+      if (isDemoMode) {
+        console.log('Demo mode - week skip not persisted');
+        return { success: true };
+      }
+
+      const storageKey = profile?.id || user?.id || 'default';
+      const newWeek = { weekNumber: Number(weekNumber) };
+      localStorage.setItem(`currentWeek_${storageKey}`, JSON.stringify(newWeek));
+      console.log(`✅ Skipped to week ${weekNumber}`);
       return { success: true };
     },
     onSuccess: () => {
@@ -574,22 +605,61 @@ export const useSkipToWeek = () => {
 
 export const useRestartCurriculum = () => {
   const queryClient = useQueryClient();
+  const { profile, user } = useAuth();
+  const { isDemoMode } = useDemo();
+
   return useMutation({
     mutationFn: async () => {
-      console.log('Stub: Restart curriculum');
+      if (isDemoMode) {
+        console.log('Demo mode - curriculum restart not persisted');
+        return { success: true };
+      }
+
+      const storageKey = profile?.id || user?.id || 'default';
+
+      // Reset current week to 1
+      const defaultWeek = { weekNumber: 1 };
+      localStorage.setItem(`currentWeek_${storageKey}`, JSON.stringify(defaultWeek));
+
+      // Optionally clear lesson completions (uncomment if desired)
+      // localStorage.removeItem(`lessonCompletions_${storageKey}`);
+
+      console.log('✅ Curriculum restarted to week 1');
       return { success: true };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['curriculumModules'] });
       queryClient.invalidateQueries({ queryKey: ['currentWeek'] });
+      queryClient.invalidateQueries({ queryKey: ['lessonCompletions'] });
     },
   });
 };
 
 export const useGetCurriculumProgress = () => {
+  const { profile, user } = useAuth();
+
   return useQuery({
-    queryKey: ['curriculumProgress'],
-    queryFn: async () => ({ completedWeeks: 0, totalWeeks: 36, currentWeek: 1 }),
+    queryKey: ['curriculumProgress', profile?.id, user?.id],
+    queryFn: async () => {
+      const storageKey = profile?.id || user?.id || 'default';
+
+      // Get current week
+      const weekStored = localStorage.getItem(`currentWeek_${storageKey}`);
+      const currentWeek = weekStored ? JSON.parse(weekStored).weekNumber : 1;
+
+      // Get completed lessons
+      const completionsStored = localStorage.getItem(`lessonCompletions_${storageKey}`);
+      const completions = completionsStored ? JSON.parse(completionsStored) : [];
+
+      // Count unique completed weeks
+      const completedWeeks = new Set(completions.map((c: any) => c.weekNumber)).size;
+
+      return {
+        completedWeeks,
+        totalWeeks: 36, // Total curriculum weeks
+        currentWeek
+      };
+    },
   });
 };
 
@@ -783,45 +853,53 @@ export const useDeleteReason = () => {
 export const useGetStudents = () => {
   const { isDemoMode } = useDemo();
   const demoData = isDemoMode ? useDemoData() : null;
-  const { profile, user } = useAuth();
+  const { data: teacherClass } = useGetTeacherClass();
 
   return useQuery({
-    queryKey: ['students', profile?.id, user?.id],
+    queryKey: ['students', teacherClass?.id],
     queryFn: async () => {
       if (isDemoMode && demoData) {
         return demoData.students;
       }
 
-      // For non-demo mode, use localStorage
-      const storageKey = profile?.id || user?.id || 'default';
-      const stored = localStorage.getItem(`students_${storageKey}`);
-
-      if (stored) {
-        return JSON.parse(stored);
+      if (!teacherClass?.id) {
+        console.log('❌ No class found - returning empty students list');
+        return [];
       }
 
-      // Initialize with mock students from QuickAwardPage
-      const defaultStudents = [
-        { id: '1', name: 'Emma Johnson', personalBalance: 0, classContribution: 0, isActive: true, notes: '' },
-        { id: '2', name: 'Liam Smith', personalBalance: 0, classContribution: 0, isActive: true, notes: '' },
-        { id: '3', name: 'Olivia Brown', personalBalance: 0, classContribution: 0, isActive: true, notes: '' },
-        { id: '4', name: 'Noah Davis', personalBalance: 0, classContribution: 0, isActive: true, notes: '' },
-        { id: '5', name: 'Ava Wilson', personalBalance: 0, classContribution: 0, isActive: true, notes: '' },
-        { id: '6', name: 'Ethan Martinez', personalBalance: 0, classContribution: 0, isActive: true, notes: '' },
-        { id: '7', name: 'Sophia Anderson', personalBalance: 0, classContribution: 0, isActive: true, notes: '' },
-        { id: '8', name: 'Mason Taylor', personalBalance: 0, classContribution: 0, isActive: true, notes: '' },
-      ];
+      console.log('📡 Querying Supabase for students in class:', teacherClass.id);
+      const { data, error } = await supabase
+        .from('students')
+        .select('*')
+        .eq('class_id', teacherClass.id)
+        .eq('is_active', true)
+        .order('student_name');
 
-      localStorage.setItem(`students_${storageKey}`, JSON.stringify(defaultStudents));
-      return defaultStudents;
+      if (error) {
+        console.error('⚠️ Error loading students:', error);
+        return [];
+      }
+
+      console.log('✅ Loaded students from database:', data);
+
+      // Transform to match expected format
+      return (data || []).map(student => ({
+        id: student.id,
+        name: student.student_name,
+        personalBalance: student.personal_balance,
+        classContribution: student.class_contribution,
+        isActive: student.is_active,
+        notes: student.notes || ''
+      }));
     },
+    enabled: !!teacherClass?.id,
   });
 };
 
 export const useAddStudent = () => {
   const queryClient = useQueryClient();
-  const { profile, user } = useAuth();
   const { isDemoMode } = useDemo();
+  const { data: teacherClass } = useGetTeacherClass();
 
   return useMutation({
     mutationFn: async (params: { name: string; balance?: number }) => {
@@ -830,24 +908,30 @@ export const useAddStudent = () => {
         return { success: true };
       }
 
-      const storageKey = profile?.id || user?.id || 'default';
-      const stored = localStorage.getItem(`students_${storageKey}`);
-      const students = stored ? JSON.parse(stored) : [];
+      if (!teacherClass?.id) {
+        throw new Error('No class found');
+      }
 
-      const newStudent = {
-        id: Date.now().toString(),
-        name: params.name,
-        personalBalance: params.balance || 0,
-        classContribution: 0,
-        isActive: true,
-        notes: ''
-      };
+      const { data, error } = await supabase
+        .from('students')
+        .insert({
+          class_id: teacherClass.id,
+          student_name: params.name,
+          personal_balance: params.balance || 0,
+          class_contribution: 0,
+          is_active: true,
+          notes: ''
+        })
+        .select()
+        .single();
 
-      students.push(newStudent);
-      localStorage.setItem(`students_${storageKey}`, JSON.stringify(students));
-      console.log('✅ Added student:', newStudent);
+      if (error) {
+        console.error('⚠️ Error adding student:', error);
+        throw error;
+      }
 
-      return { success: true, student: newStudent };
+      console.log('✅ Added student to database:', data);
+      return { success: true, student: data };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
@@ -872,7 +956,6 @@ export const useGetLastAwardedStudents = () => {
 
 export const useUpdateStudent = () => {
   const queryClient = useQueryClient();
-  const { profile, user } = useAuth();
   const { isDemoMode } = useDemo();
 
   return useMutation({
@@ -882,26 +965,28 @@ export const useUpdateStudent = () => {
         return { success: true };
       }
 
-      const storageKey = profile?.id || user?.id || 'default';
-      const stored = localStorage.getItem(`students_${storageKey}`);
-      const students = stored ? JSON.parse(stored) : [];
+      // Build update object with only provided fields
+      const updateData: any = {};
+      if (params.name !== undefined) updateData.student_name = params.name;
+      if (params.personalBalance !== undefined) updateData.personal_balance = params.personalBalance;
+      if (params.classContribution !== undefined) updateData.class_contribution = params.classContribution;
+      if (params.notes !== undefined) updateData.notes = params.notes;
+      if (params.isActive !== undefined) updateData.is_active = params.isActive;
 
-      const studentIndex = students.findIndex((s: any) => s.id === params.studentId);
-      if (studentIndex === -1) {
-        throw new Error('Student not found');
+      const { data, error } = await supabase
+        .from('students')
+        .update(updateData)
+        .eq('id', params.studentId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('⚠️ Error updating student:', error);
+        throw error;
       }
 
-      // Update only the fields that are provided
-      if (params.name !== undefined) students[studentIndex].name = params.name;
-      if (params.personalBalance !== undefined) students[studentIndex].personalBalance = params.personalBalance;
-      if (params.classContribution !== undefined) students[studentIndex].classContribution = params.classContribution;
-      if (params.notes !== undefined) students[studentIndex].notes = params.notes;
-      if (params.isActive !== undefined) students[studentIndex].isActive = params.isActive;
-
-      localStorage.setItem(`students_${storageKey}`, JSON.stringify(students));
-      console.log('✅ Updated student:', students[studentIndex]);
-
-      return { success: true, student: students[studentIndex] };
+      console.log('✅ Updated student in database:', data);
+      return { success: true, student: data };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
@@ -994,23 +1079,23 @@ export const useListApprovals = () => {
 
 // Teacher's Class Query
 export const useGetTeacherClass = () => {
-  const { user } = useAuth();
+  const { profile } = useAuth();
   const { isDemoMode } = useDemo();
   const demoData = isDemoMode ? useDemoData() : null;
 
   return useQuery({
-    queryKey: ['teacherClass', user?.id],
+    queryKey: ['teacherClass', profile?.id],
     retry: false, // Don't retry on error, just return placeholder
     throwOnError: false, // Don't throw, return placeholder instead
     queryFn: async () => {
-      console.log('🔍 useGetTeacherClass - Starting query', { isDemoMode, hasUser: !!user });
+      console.log('🔍 useGetTeacherClass - Starting query', { isDemoMode, hasProfile: !!profile });
 
       // Return demo data in demo mode
       if (isDemoMode && demoData) {
         console.log('🎭 Returning demo class data');
         return {
           id: 'demo-class-id',
-          teacher_id: user?.id || 'demo-user-id',
+          teacher_profile_id: profile?.id || 'demo-profile-id',
           class_name: 'Demo Class',
           school_year: '2024-2025',
           class_code: 'LIONS-2025',
@@ -1018,8 +1103,8 @@ export const useGetTeacherClass = () => {
         };
       }
 
-      if (!user) {
-        console.log('❌ No user - returning null');
+      if (!profile || profile.role !== 'teacher') {
+        console.log('❌ No teacher profile - returning null');
         return null;
       }
 
@@ -1027,62 +1112,24 @@ export const useGetTeacherClass = () => {
       const { data, error } = await supabase
         .from('classes')
         .select('*')
-        .eq('teacher_id', user.id)
+        .eq('teacher_profile_id', profile.id)
         .maybeSingle();
 
       console.log('📊 Supabase response:', { hasData: !!data, hasError: !!error, data, error });
 
-      // If there's an error OR no data, create a real class in the database
+      // If there's an error OR no data, return null (user should create class via RoleSelection)
       if (error || !data) {
         if (error) {
-          console.error('⚠️ Error loading teacher class (will create new class):', error);
+          console.error('⚠️ Error loading teacher class:', error);
         } else {
-          console.log('📭 No class found - creating new class in database');
+          console.log('📭 No class found - user should create one via RoleSelection');
         }
-
-        // Generate a consistent class code based on user ID
-        const animals = ['LIONS', 'TIGERS', 'BEARS', 'EAGLES', 'SHARKS', 'WOLVES', 'PANDAS', 'DRAGONS'];
-        // Use user ID to pick a consistent animal (same user = same animal)
-        const userIdHash = user.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        const animalIndex = userIdHash % animals.length;
-        const selectedAnimal = animals[animalIndex];
-        const currentYear = new Date().getFullYear();
-        const classCode = `${selectedAnimal}-${currentYear}`;
-
-        console.log('✨ Creating class with code:', classCode);
-
-        // Try to insert the class into the database
-        const { data: newClass, error: insertError } = await supabase
-          .from('classes')
-          .insert({
-            teacher_id: user.id,
-            class_name: 'My Class',
-            school_year: `${currentYear}-${currentYear + 1}`,
-            class_code: classCode
-          })
-          .select()
-          .single();
-
-        if (insertError) {
-          console.error('⚠️ Failed to create class in database:', insertError);
-          // Return placeholder if insert fails
-          return {
-            id: 'placeholder',
-            teacher_id: user.id,
-            class_name: 'My Class',
-            school_year: `${currentYear}-${currentYear + 1}`,
-            class_code: classCode,
-            created_at: new Date().toISOString()
-          };
-        }
-
-        console.log('✅ Class created successfully:', newClass);
-        return newClass;
+        return null;
       }
 
       console.log('✅ Returning class data from database:', data);
       return data;
     },
-    enabled: !!user,
+    enabled: !!profile && profile.role === 'teacher',
   });
 };

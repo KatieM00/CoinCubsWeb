@@ -46,7 +46,8 @@ function useAuthLogic(): UseAuthReturn {
   // Create demo profile when in demo mode
   const demoProfile: UserProfile | null = useMemo(() =>
     isDemoMode && demoRole ? {
-      id: 'demo-user-id',
+      id: 'demo-profile-id',
+      user_id: 'demo-user-id',
       email: demoRole === 'teacher' ? 'demo.teacher@coincubs.com' : 'demo.parent@coincubs.com',
       role: demoRole,
       full_name: demoRole === 'teacher' ? 'Demo Teacher' : 'Demo Parent',
@@ -118,7 +119,7 @@ function useAuthLogic(): UseAuthReturn {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', userId)
+        .eq('user_id', userId)
 
       if (error) {
         console.error('Error loading profiles:', error)

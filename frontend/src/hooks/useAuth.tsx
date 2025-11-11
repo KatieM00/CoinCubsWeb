@@ -192,13 +192,24 @@ function useAuthLogic(): UseAuthReturn {
   }
 
   const logout = async () => {
-    const { error } = await supabase.auth.signOut()
-    if (error) {
-      console.error('Logout error:', error)
+    console.log('🚪 Logout initiated')
+    try {
+      const { error } = await supabase.auth.signOut()
+      if (error) {
+        console.error('Logout error:', error)
+        throw error
+      }
+      console.log('✅ Logout successful')
+      // Clear saved role on logout
+      localStorage.removeItem('activeRole')
+      // Clear state immediately
+      setUser(null)
+      setProfiles([])
+      setActiveRole(null)
+    } catch (error) {
+      console.error('❌ Logout failed:', error)
       throw error
     }
-    // Clear saved role on logout
-    localStorage.removeItem('activeRole')
   }
 
   const refreshProfile = async () => {

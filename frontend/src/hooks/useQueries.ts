@@ -852,12 +852,16 @@ export const useDeleteReason = () => {
 // Create Teacher Class Mutation
 export const useCreateTeacherClass = () => {
   const queryClient = useQueryClient();
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
 
   return useMutation({
     mutationFn: async ({ className, schoolYear }: { className: string; schoolYear: string }) => {
       if (!profile || profile.role !== 'teacher') {
         throw new Error('Only teachers can create classes');
+      }
+
+      if (!user) {
+        throw new Error('No authenticated user');
       }
 
       // Generate class code
@@ -866,11 +870,12 @@ export const useCreateTeacherClass = () => {
       const random = adjectives[Math.floor(Math.random() * adjectives.length)];
       const classCode = `${random}-${year}`;
 
-      console.log('📝 Creating class:', { className, schoolYear, classCode, profileId: profile.id });
+      console.log('📝 Creating class:', { className, schoolYear, classCode, profileId: profile.id, userId: user.id });
 
       const { data, error } = await supabase
         .from('classes')
         .insert({
+          user_id: user.id,
           teacher_profile_id: profile.id,
           class_name: className,
           class_code: classCode,

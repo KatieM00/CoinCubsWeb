@@ -154,16 +154,9 @@ function useAuthLogic(): UseAuthReturn {
           console.log('🔄 Restoring saved role:', savedRole)
           setActiveRole(savedRole)
         } else {
-          // Auto-set activeRole if user only has one role
-          if (data.length === 1) {
-            console.log('✨ Auto-setting role:', data[0].role)
-            setActiveRole(data[0].role)
-            localStorage.setItem('activeRole', data[0].role)
-          } else {
-            // Multiple roles, no saved role - user needs to choose
-            console.log('🔍 Multiple roles, no saved role - user needs to choose')
-            setActiveRole(null)
-          }
+          // User needs to select a role via RoleSelection
+          console.log('🔍 No saved role - user needs to choose')
+          setActiveRole(null)
         }
       } else {
         setProfiles([])

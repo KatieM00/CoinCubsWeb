@@ -882,12 +882,12 @@ export const useGetStudents = () => {
 
       console.log('✅ Loaded students from database:', data);
 
-      // Transform to match expected format
+      // Transform to match expected format and convert BigInt to Number
       return (data || []).map(student => ({
         id: student.id,
         name: student.student_name,
-        personalBalance: student.personal_balance,
-        classContribution: student.class_contribution,
+        personalBalance: Number(student.personal_balance),
+        classContribution: Number(student.class_contribution),
         isActive: student.is_active,
         notes: student.notes || ''
       }));
@@ -931,7 +931,13 @@ export const useAddStudent = () => {
       }
 
       console.log('✅ Added student to database:', data);
-      return { success: true, student: data };
+      // Convert BigInt to Number
+      const studentData = data ? {
+        ...data,
+        personal_balance: Number(data.personal_balance),
+        class_contribution: Number(data.class_contribution)
+      } : data;
+      return { success: true, student: studentData };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
@@ -986,7 +992,13 @@ export const useUpdateStudent = () => {
       }
 
       console.log('✅ Updated student in database:', data);
-      return { success: true, student: data };
+      // Convert BigInt to Number
+      const studentData = data ? {
+        ...data,
+        personal_balance: Number(data.personal_balance),
+        class_contribution: Number(data.class_contribution)
+      } : data;
+      return { success: true, student: studentData };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });

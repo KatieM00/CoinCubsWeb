@@ -849,6 +849,88 @@ export const useDeleteReason = () => {
   });
 };
 
+// Create Teacher Class Mutation
+export const useCreateTeacherClass = () => {
+  const queryClient = useQueryClient();
+  const { profile } = useAuth();
+
+  return useMutation({
+    mutationFn: async ({ className, schoolYear }: { className: string; schoolYear: string }) => {
+      if (!profile || profile.role !== 'teacher') {
+        throw new Error('Only teachers can create classes');
+      }
+
+      // Generate class code
+      const adjectives = ['LIONS', 'TIGERS', 'BEARS', 'EAGLES', 'DRAGONS', 'PANDAS', 'WOLVES'];
+      const year = new Date().getFullYear();
+      const random = adjectives[Math.floor(Math.random() * adjectives.length)];
+      const classCode = `${random}-${year}`;
+
+      console.log('📝 Creating class:', { className, schoolYear, classCode, profileId: profile.id });
+
+      const { data, error } = await supabase
+        .from('classes')
+        .insert({
+          teacher_profile_id: profile.id,
+          class_name: className,
+          class_code: classCode,
+          school_year: schoolYear || null
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ Error creating class:', error);
+        throw error;
+      }
+
+      console.log('✅ Class created successfully:', data);
+      return { ...data, classCode }; // Include classCode in return for toast message
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['teacherClass'] });
+    },
+  });
+};
+
+// Update Teacher Class Mutation
+export const useUpdateTeacherClass = () => {
+  const queryClient = useQueryClient();
+  const { profile } = useAuth();
+
+  return useMutation({
+    mutationFn: async ({ classId, className, schoolYear }: { classId: string; className: string; schoolYear: string }) => {
+      if (!profile || profile.role !== 'teacher') {
+        throw new Error('Only teachers can update classes');
+      }
+
+      console.log('📝 Updating class:', { classId, className, schoolYear });
+
+      const { data, error } = await supabase
+        .from('classes')
+        .update({
+          class_name: className,
+          school_year: schoolYear || null
+        })
+        .eq('id', classId)
+        .eq('teacher_profile_id', profile.id) // Ensure teacher owns this class
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ Error updating class:', error);
+        throw error;
+      }
+
+      console.log('✅ Class updated successfully:', data);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['teacherClass'] });
+    },
+  });
+};
+
 // Student Queries
 export const useGetStudents = () => {
   const { isDemoMode } = useDemo();

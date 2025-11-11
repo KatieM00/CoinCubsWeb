@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useState } from 'react';
-import { useIsCallerAdmin, useGetClassFund, useListApprovals, useGetRewardsCatalog, useGetActiveVotingProposals, useUpdateStudentStatus, useUpdateStudentNotes, useAddReward, useUpdateRewardPrice, useBulkUpdateRewardPrices, useFinalizeVote, useAwardClassGems, useCreateClassGoal, useGetPresetAmounts, useUpdatePresetAmounts, useGetPresetReasons, useAddCustomReason, useUpdateReason, useDeleteReason, useUpdateVoteCount, useValidateVoteTotals, useCreateVotingProposal, useGetTeacherClass, useGetStudents, useAddStudent, useUpdateClassBalance, useUpdateStudent } from '../hooks/useQueries';
+import { useIsCallerAdmin, useGetClassFund, useListApprovals, useGetRewardsCatalog, useGetActiveVotingProposals, useUpdateStudentStatus, useUpdateStudentNotes, useAddReward, useUpdateRewardPrice, useBulkUpdateRewardPrices, useFinalizeVote, useAwardClassGems, useCreateClassGoal, useGetPresetAmounts, useUpdatePresetAmounts, useGetPresetReasons, useAddCustomReason, useUpdateReason, useDeleteReason, useUpdateVoteCount, useValidateVoteTotals, useCreateVotingProposal, useGetTeacherClass, useGetStudents, useAddStudent, useUpdateClassBalance, useUpdateStudent, useCreateTeacherClass, useUpdateTeacherClass } from '../hooks/useQueries';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -55,8 +55,13 @@ export default function SettingsPage() {
   const updateVoteCount = useUpdateVoteCount();
   const validateVoteTotals = useValidateVoteTotals();
   const createVotingProposal = useCreateVotingProposal();
+  const createTeacherClass = useCreateTeacherClass();
+  const updateTeacherClass = useUpdateTeacherClass();
 
   const [activeSection, setActiveSection] = useState<SettingsSection>('students');
+  const [isEditingClass, setIsEditingClass] = useState(false);
+  const [editClassName, setEditClassName] = useState('');
+  const [editSchoolYear, setEditSchoolYear] = useState('');
 
   // Dialog states
   const [editBalanceOpen, setEditBalanceOpen] = useState(false);
@@ -1251,8 +1256,25 @@ export default function SettingsPage() {
               {/* Class Information Card */}
               <Card>
                 <CardHeader className="pb-4">
-                  <CardTitle className="text-xl">Class Information</CardTitle>
-                  <CardDescription className="text-sm">Your classroom details and access code for parents</CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-xl">Class Information</CardTitle>
+                      <CardDescription className="text-sm">Your classroom details and access code for parents</CardDescription>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setEditClassName(teacherClass?.class_name || '');
+                        setEditSchoolYear(teacherClass?.school_year || '');
+                        setIsEditingClass(true);
+                      }}
+                      className="gap-2"
+                    >
+                      <Edit className="w-4 h-4" />
+                      {teacherClass ? 'Edit' : 'Create Class'}
+                    </Button>
+                  </div>
                 </CardHeader>
                 <Separator />
                 <CardContent className="space-y-4 pt-4">
@@ -1271,36 +1293,124 @@ export default function SettingsPage() {
 
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Parent Access Code</Label>
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1 bg-amber-50 border-2 border-amber-200 rounded-lg p-4">
-                        <div className="text-3xl font-bold text-amber-900 tracking-wider text-center font-mono">
-                          {teacherClass?.class_code || 'LOADING...'}
+                    {teacherClass?.class_code ? (
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 bg-amber-50 border-2 border-amber-200 rounded-lg p-4">
+                          <div className="text-3xl font-bold text-amber-900 tracking-wider text-center font-mono">
+                            {teacherClass.class_code}
+                          </div>
                         </div>
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          if (teacherClass?.class_code) {
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
                             navigator.clipboard.writeText(teacherClass.class_code);
                             toast.success('Class code copied to clipboard!');
-                          }
-                        }}
-                        className="gap-2"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
-                          <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
-                        </svg>
-                        Copy
-                      </Button>
-                    </div>
+                          }}
+                          className="gap-2"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                          </svg>
+                          Copy
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="bg-muted border-2 border-dashed rounded-lg p-4">
+                        <p className="text-sm text-muted-foreground text-center">
+                          No class yet - click "Create Class" above to get started
+                        </p>
+                      </div>
+                    )}
                     <p className="text-xs text-muted-foreground">
                       Share this code with parents so they can view their child's progress. Parents enter this code when signing up.
                     </p>
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Class Edit Dialog */}
+              <Dialog open={isEditingClass} onOpenChange={setIsEditingClass}>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>{teacherClass ? 'Edit Class Information' : 'Create Your Class'}</DialogTitle>
+                    <DialogDescription>
+                      {teacherClass
+                        ? 'Update your classroom details. The class code cannot be changed.'
+                        : 'Set up your classroom. A unique class code will be generated for parents to join.'}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="className">Class Name *</Label>
+                      <Input
+                        id="className"
+                        value={editClassName}
+                        onChange={(e) => setEditClassName(e.target.value)}
+                        placeholder="e.g., Mrs. Smith's 3rd Grade"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="schoolYear">School Year</Label>
+                      <Input
+                        id="schoolYear"
+                        value={editSchoolYear}
+                        onChange={(e) => setEditSchoolYear(e.target.value)}
+                        placeholder="e.g., 2024-2025"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsEditingClass(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={async () => {
+                        if (!editClassName.trim()) {
+                          toast.error('Please enter a class name');
+                          return;
+                        }
+
+                        try {
+                          if (teacherClass) {
+                            // Update existing class
+                            await updateTeacherClass.mutateAsync({
+                              classId: teacherClass.id,
+                              className: editClassName,
+                              schoolYear: editSchoolYear,
+                            });
+                            toast.success('Class information updated!');
+                          } else {
+                            // Create new class
+                            const result = await createTeacherClass.mutateAsync({
+                              className: editClassName,
+                              schoolYear: editSchoolYear,
+                            });
+                            toast.success(`Class created! Your class code is: ${result.classCode}`, {
+                              duration: 5000,
+                            });
+                          }
+                          setIsEditingClass(false);
+                        } catch (error) {
+                          console.error('Error saving class:', error);
+                          toast.error('Failed to save class information');
+                        }
+                      }}
+                      disabled={createTeacherClass.isPending || updateTeacherClass.isPending}
+                    >
+                      {createTeacherClass.isPending || updateTeacherClass.isPending
+                        ? 'Saving...'
+                        : teacherClass
+                        ? 'Save Changes'
+                        : 'Create Class'}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
 
               <Card>
                 <CardHeader className="pb-4">
@@ -1478,34 +1588,6 @@ export default function SettingsPage() {
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
-
-              <Card>
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-xl">Classroom Information</CardTitle>
-                  <CardDescription className="text-sm">Basic class details</CardDescription>
-                </CardHeader>
-                <Separator />
-                <CardContent className="space-y-3 pt-4">
-                  <div className="grid md:grid-cols-2 gap-3">
-                    <div className="space-y-1.5">
-                      <Label className="text-sm">Class Name</Label>
-                      <Input placeholder="e.g., Mrs. Smith's 3rd Grade" className="h-9" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-sm">School Year</Label>
-                      <Input placeholder="e.g., 2024-2025" className="h-9" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-sm">Student Count</Label>
-                      <Input value={studentsList.length} disabled className="h-9" />
-                    </div>
-                  </div>
-                  <Button size="sm" className="gap-2 h-9">
-                    <Edit className="w-4 h-4" />
-                    Edit Info
-                  </Button>
-                </CardContent>
-              </Card>
 
               <Card className="border-red-200 shadow-lg">
                 <CardHeader className="pb-4">

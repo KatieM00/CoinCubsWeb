@@ -83,6 +83,18 @@ function useAuthLogic(): UseAuthReturn {
     supabase.auth.getSession()
       .then(({ data: { session } }) => {
         clearTimeout(timeout)
+
+        // If no session, clear any stale data
+        if (!session) {
+          console.log('🧹 No valid session - clearing stale data')
+          localStorage.removeItem('activeRole')
+          setUser(null)
+          setProfiles([])
+          setActiveRole(null)
+          setIsLoading(false)
+          return
+        }
+
         setUser(session?.user ?? null)
         if (session?.user) {
           loadUserProfile(session.user.id)
@@ -92,6 +104,11 @@ function useAuthLogic(): UseAuthReturn {
       .catch((error) => {
         clearTimeout(timeout)
         console.error('Error getting session:', error)
+        // Clear data on error too
+        localStorage.removeItem('activeRole')
+        setUser(null)
+        setProfiles([])
+        setActiveRole(null)
         setIsLoading(false)
       })
 

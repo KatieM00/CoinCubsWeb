@@ -6,14 +6,14 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { GraduationCap, Users, ArrowLeft } from 'lucide-react'
+import { GraduationCap, Users, ArrowLeft, LogOut } from 'lucide-react'
 import { toast } from 'sonner'
 import { useNavigate } from '@tanstack/react-router'
 
 type Step = 'role-select' | 'teacher-setup' | 'parent-setup'
 
 export default function RoleSelection() {
-  const { user, profiles, refreshProfile, switchRole } = useAuth()
+  const { user, profiles, refreshProfile, switchRole, logout } = useAuth()
   const navigate = useNavigate()
   const [step, setStep] = useState<Step>('role-select')
   const [isLoading, setIsLoading] = useState(false)
@@ -265,6 +265,26 @@ export default function RoleSelection() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 p-4">
         <div className="max-w-4xl w-full">
+          {/* Logout button in top-right corner */}
+          <div className="flex justify-end mb-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={async () => {
+                try {
+                  await logout()
+                  toast.success('Signed out successfully')
+                } catch (error) {
+                  toast.error('Failed to sign out')
+                }
+              }}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </Button>
+          </div>
+
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold mb-2">
               {existingRoles.length > 0 ? 'Add Another Role?' : 'Welcome to CoinCubs!'}
@@ -370,15 +390,32 @@ export default function RoleSelection() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 p-4">
         <Card className="w-full max-w-md bg-white/80 backdrop-blur-sm shadow-xl">
           <CardHeader>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setStep('role-select')}
-              className="mb-4 -ml-2"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
+            <div className="flex justify-between items-center mb-4 -ml-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setStep('role-select')}
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={async () => {
+                  try {
+                    await logout()
+                    toast.success('Signed out successfully')
+                  } catch (error) {
+                    toast.error('Failed to sign out')
+                  }
+                }}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </Button>
+            </div>
             <CardTitle className="text-2xl">Set Up Your Class</CardTitle>
             <CardDescription>Create your classroom economy</CardDescription>
           </CardHeader>
@@ -428,15 +465,32 @@ export default function RoleSelection() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
       <Card className="w-full max-w-md bg-white/80 backdrop-blur-sm shadow-xl">
         <CardHeader>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setStep('role-select')}
-            className="mb-4 -ml-2"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
+          <div className="flex justify-between items-center mb-4 -ml-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setStep('role-select')}
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={async () => {
+                try {
+                  await logout()
+                  toast.success('Signed out successfully')
+                } catch (error) {
+                  toast.error('Failed to sign out')
+                }
+              }}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </Button>
+          </div>
           <CardTitle className="text-2xl">Join Your Child's Class</CardTitle>
           <CardDescription>Enter the class code from your child's teacher</CardDescription>
         </CardHeader>

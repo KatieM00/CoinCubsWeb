@@ -27,6 +27,7 @@ export default function QuickAwardPage() {
   const [awardAmount, setAwardAmount] = useState('');
   const [customAmount, setCustomAmount] = useState('');
   const [awardReason, setAwardReason] = useState('');
+  const [customReason, setCustomReason] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [lastAwardedName, setLastAwardedName] = useState('');
   const [showUndoButton, setShowUndoButton] = useState(false);
@@ -69,8 +70,9 @@ export default function QuickAwardPage() {
 
   const handleQuickAward = async () => {
     const finalAmount = customAmount || awardAmount;
-    
-    if ((!selectedStudent && !isWholeClass) || !finalAmount || !awardReason) {
+    const finalReason = awardReason === 'custom' ? customReason : awardReason;
+
+    if ((!selectedStudent && !isWholeClass) || !finalAmount || !finalReason) {
       toast.error('Please fill in all fields');
       return;
     }
@@ -83,7 +85,7 @@ export default function QuickAwardPage() {
         studentId: isWholeClass ? '0' : selectedStudent,
         amount,
         splitType,
-        description: awardReason,
+        description: finalReason,
       });
 
       const awardedName = isWholeClass 
@@ -94,7 +96,10 @@ export default function QuickAwardPage() {
 
       setSelectedStudent('');
       setIsWholeClass(false);
+      setAwardAmount('');
       setCustomAmount('');
+      setAwardReason('');
+      setCustomReason('');
       inputRef.current?.focus();
     } catch (error) {
       toast.error('Failed to award CubCoins');
@@ -119,7 +124,8 @@ export default function QuickAwardPage() {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     const finalAmount = customAmount || awardAmount;
-    if (e.key === 'Enter' && (selectedStudent || isWholeClass) && finalAmount && awardReason) {
+    const finalReason = awardReason === 'custom' ? customReason : awardReason;
+    if (e.key === 'Enter' && (selectedStudent || isWholeClass) && finalAmount && finalReason) {
       e.preventDefault();
       handleQuickAward();
     } else if (e.key === 'Escape') {
@@ -128,6 +134,7 @@ export default function QuickAwardPage() {
       setAwardAmount('');
       setCustomAmount('');
       setAwardReason('');
+      setCustomReason('');
     }
   };
 
@@ -205,126 +212,59 @@ export default function QuickAwardPage() {
 
   return (
     <div className="container mx-auto px-3 md:px-4 lg:px-6 py-4 md:py-6 lg:py-8 max-w-2xl space-y-4 md:space-y-6 pb-8">
-      {/* Header Card */}
-      <Card className="bg-gradient-to-br from-indigo-100 to-purple-100 border-indigo-300 shadow-xl">
-        <CardHeader className="text-center py-4 md:py-6">
-          <CardTitle className="text-2xl md:text-3xl font-bold text-indigo-900">⚡ Quick Award</CardTitle>
-          <CardDescription className="text-base md:text-lg text-indigo-800">
-            Fast, mobile-friendly award interface
-          </CardDescription>
-        </CardHeader>
-      </Card>
-
-      {/* Award Form Card */}
+      {/* Bank Card */}
       <Card className="border-amber-300 shadow-xl">
         <CardHeader className="pb-3 md:pb-4">
           <div className="flex items-center gap-2 md:gap-3">
             <div className="w-10 h-10 md:w-12 md:h-12 bg-amber-100 rounded-full flex items-center justify-center">
-              <Award className="w-5 h-5 md:w-6 md:h-6 text-amber-600" />
+              <Coins className="w-5 h-5 md:w-6 md:h-6 text-amber-600" />
             </div>
             <div>
-              <CardTitle className="text-xl md:text-2xl">Award CubCoins</CardTitle>
-              <CardDescription className="text-sm md:text-base">70% to class fund, 30% to student</CardDescription>
+              <CardTitle className="text-xl md:text-2xl">Bank</CardTitle>
+              <CardDescription className="text-sm md:text-base">Award CubCoins to students</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4 md:space-y-5" onKeyDown={handleKeyDown}>
-          {/* Recently Awarded Students */}
-          {lastAwardedStudents && lastAwardedStudents.length > 0 && (
-            <div className="space-y-2">
-              <Label className="text-base font-semibold">Recently Awarded</Label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                {lastAwardedStudents.slice(0, 5).map((award, idx) => {
-                  const student = mockStudents.find(s => s.id === award.studentId.toString());
-                  return (
-                    <Button
-                      key={idx}
-                      type="button"
-                      variant={selectedStudent === award.studentId.toString() ? 'default' : 'outline'}
-                      size="lg"
-                      onClick={() => handleQuickSelectStudent(award.studentId.toString())}
-                      className="text-sm md:text-base h-14 md:h-16 px-3 md:px-4 w-full"
-                    >
-                      <div className="flex flex-col items-start w-full">
-                        <span className="font-semibold text-xs md:text-sm truncate w-full text-left">
-                          {student?.name || `Student ${Number(award.studentId)}`}
-                        </span>
-                        <span className="text-[10px] md:text-xs opacity-75 truncate w-full text-left">{award.reason}</span>
-                      </div>
-                    </Button>
-                  );
-                })}
-              </div>
+          {/* Section 1: Who? */}
+          <div className="space-y-2">
+            <Label htmlFor="studentSelect" className="text-base font-semibold">Who?</Label>
+            <div className="flex gap-2">
+              <Select
+                value={selectedStudent}
+                onValueChange={(value) => {
+                  setSelectedStudent(value);
+                  setIsWholeClass(false);
+                }}
+                disabled={isWholeClass}
+              >
+                <SelectTrigger className="text-base md:text-lg h-12 md:h-14 flex-1" id="studentSelect">
+                  <SelectValue placeholder="Select a student" />
+                </SelectTrigger>
+                <SelectContent>
+                  {mockStudents.map((student) => (
+                    <SelectItem key={student.id} value={student.id} className="text-sm md:text-base py-3">
+                      {student.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                type="button"
+                variant={isWholeClass ? 'default' : 'outline'}
+                size="lg"
+                onClick={handleWholeClassClick}
+                className="h-12 md:h-14 px-4 md:px-6 font-semibold whitespace-nowrap"
+              >
+                <Trophy className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                Whole Class
+              </Button>
             </div>
-          )}
-
-          {/* Student Selection */}
-          <div className="space-y-2">
-            <Label htmlFor="studentSelect" className="text-base font-semibold">Student Selection</Label>
-            <Select value={selectedStudent} onValueChange={(value) => {
-              setSelectedStudent(value);
-              setIsWholeClass(false);
-            }}>
-              <SelectTrigger className="text-base md:text-lg h-12 md:h-14 w-full" id="studentSelect">
-                <SelectValue placeholder="Select a student" />
-              </SelectTrigger>
-              <SelectContent>
-                {mockStudents.map((student) => (
-                  <SelectItem key={student.id} value={student.id} className="text-sm md:text-base py-3">
-                    {student.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
 
-          {/* Whole Class Button */}
+          {/* Section 2: Why? */}
           <div className="space-y-2">
-            <Button
-              type="button"
-              variant={isWholeClass ? 'default' : 'outline'}
-              size="lg"
-              onClick={handleWholeClassClick}
-              className="w-full text-lg md:text-xl h-14 md:h-16 font-bold bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white border-0"
-            >
-              <Trophy className="w-5 h-5 md:w-6 md:h-6 mr-2" />
-              🏆 AWARD WHOLE CLASS
-            </Button>
-          </div>
-
-          {/* Amount Selection */}
-          <div className="space-y-2">
-            <Label className="text-base font-semibold">Amount</Label>
-            <div className="grid grid-cols-5 gap-2">
-              {[5, 10, 15, 20, 25].map((amount) => (
-                <Button
-                  key={amount}
-                  type="button"
-                  variant={awardAmount === amount.toString() && !customAmount ? 'default' : 'outline'}
-                  size="lg"
-                  onClick={() => setPresetAmount(amount)}
-                  className="text-xl md:text-2xl h-16 md:h-20 font-bold"
-                >
-                  {amount}
-                </Button>
-              ))}
-            </div>
-            <Input
-              type="number"
-              placeholder="Or enter custom amount"
-              value={customAmount}
-              onChange={(e) => {
-                setCustomAmount(e.target.value);
-                setAwardAmount('');
-              }}
-              className="text-base md:text-lg h-12 md:h-14 w-full"
-              min="1"
-            />
-          </div>
-
-          {/* Reason Selection */}
-          <div className="space-y-2">
-            <Label htmlFor="reason" className="text-base font-semibold">Reason</Label>
+            <Label htmlFor="reason" className="text-base font-semibold">Why?</Label>
             <Select value={awardReason} onValueChange={setAwardReason}>
               <SelectTrigger className="text-base md:text-lg h-12 md:h-14 w-full" id="reason">
                 <SelectValue placeholder="Select a reason" />
@@ -335,8 +275,51 @@ export default function QuickAwardPage() {
                     {reason}
                   </SelectItem>
                 ))}
+                <SelectItem value="custom" className="text-sm md:text-base py-3">
+                  Custom
+                </SelectItem>
               </SelectContent>
             </Select>
+            {awardReason === 'custom' && (
+              <Input
+                type="text"
+                placeholder="Enter custom reason"
+                value={customReason}
+                onChange={(e) => setCustomReason(e.target.value)}
+                className="text-base md:text-lg h-12 md:h-14 w-full mt-2"
+              />
+            )}
+          </div>
+
+          {/* Section 3: Amount */}
+          <div className="space-y-2">
+            <Label className="text-base font-semibold">Amount:</Label>
+            <div className="flex gap-2 items-center">
+              {[5, 10, 15, 20, 25].map((amount) => (
+                <Button
+                  key={amount}
+                  type="button"
+                  variant={awardAmount === amount.toString() && !customAmount ? 'default' : 'outline'}
+                  size="lg"
+                  onClick={() => setPresetAmount(amount)}
+                  className="text-xl md:text-2xl h-16 md:h-20 font-bold flex-1"
+                >
+                  {amount}
+                </Button>
+              ))}
+              <Input
+                type="number"
+                placeholder="Custom"
+                value={customAmount}
+                onChange={(e) => {
+                  setCustomAmount(e.target.value);
+                  setAwardAmount('');
+                }}
+                className="text-base md:text-lg h-16 md:h-20 w-24 text-center font-bold"
+                min="1"
+                max="9999"
+              />
+            </div>
           </div>
 
           {/* Preview */}
@@ -361,28 +344,38 @@ export default function QuickAwardPage() {
           )}
 
           {/* Confirmation Message */}
-          {showConfirmation && (
-            <div className="bg-green-50 rounded-xl p-3 md:p-4 border-2 border-green-300 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-              <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-green-600 flex-shrink-0" />
-              <p className="text-base md:text-lg font-semibold text-green-900">
-                ✅ {lastAwardedName} awarded!
-              </p>
+          {showConfirmation && split && (
+            <div className="bg-green-50 rounded-xl p-3 md:p-4 border-2 border-green-300 animate-in fade-in slide-in-from-top-2">
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-green-600 flex-shrink-0 mt-1" />
+                <div>
+                  <p className="text-base md:text-lg font-semibold text-green-900 mb-1">
+                    ✅ Awarded successfully!
+                  </p>
+                  <div className="text-sm md:text-base text-green-800 space-y-0.5">
+                    <p><span className="font-bold">+{split.classAmount} CubCoins</span> added to class fund</p>
+                    {!split.isWholeClass && (
+                      <p><span className="font-bold">+{split.personalAmount} CubCoins</span> given to {split.studentName}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
-          {/* Award Button */}
+          {/* Submit Button */}
           <Button
             onClick={handleQuickAward}
             className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xl md:text-2xl h-16 md:h-20 font-bold shadow-lg"
-            disabled={awardCubCoins.isPending || (!selectedStudent && !isWholeClass) || !(customAmount || awardAmount) || !awardReason}
+            disabled={awardCubCoins.isPending || (!selectedStudent && !isWholeClass) || !(customAmount || awardAmount) || !(awardReason === 'custom' ? customReason : awardReason)}
           >
             {awardCubCoins.isPending ? (
               <>
                 <div className="w-5 h-5 md:w-6 md:h-6 border-3 border-white border-t-transparent rounded-full animate-spin mr-3" />
-                Awarding...
+                Submitting...
               </>
             ) : (
-              'AWARD'
+              'Submit'
             )}
           </Button>
 

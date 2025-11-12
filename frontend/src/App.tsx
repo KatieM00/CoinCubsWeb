@@ -80,34 +80,96 @@ const indexRoute = createRoute({
   component: IndexComponent,
 });
 
+function ProtectedQuickAwardPage() {
+  const { profile, activeRole } = useAuth();
+  const { isDemoMode, demoRole } = useDemo();
+  const navigate = useNavigate();
+
+  // In demo mode, use demo role; otherwise use activeRole
+  const isTeacher = isDemoMode ? demoRole === 'teacher' : activeRole === 'teacher';
+
+  useEffect(() => {
+    // Redirect parents to parent portal
+    if (!isTeacher) {
+      navigate({ to: '/parent-portal', replace: true });
+    }
+  }, [isTeacher, navigate]);
+
+  // Don't render anything while redirecting
+  if (!isTeacher) {
+    return null;
+  }
+
+  return <QuickAwardPage />;
+}
+
 const quickAwardRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/quick-award',
-  component: QuickAwardPage,
+  component: ProtectedQuickAwardPage,
 });
+
+function ProtectedTeacherRoute({ children }: { children: React.ReactNode }) {
+  const { activeRole } = useAuth();
+  const { isDemoMode, demoRole } = useDemo();
+  const navigate = useNavigate();
+
+  // In demo mode, use demo role; otherwise use activeRole
+  const isTeacher = isDemoMode ? demoRole === 'teacher' : activeRole === 'teacher';
+
+  useEffect(() => {
+    // Redirect parents to parent portal
+    if (!isTeacher) {
+      navigate({ to: '/parent-portal', replace: true });
+    }
+  }, [isTeacher, navigate]);
+
+  // Don't render anything while redirecting
+  if (!isTeacher) {
+    return null;
+  }
+
+  return <>{children}</>;
+}
 
 const classDisplayRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/class-display',
-  component: ClassDisplayPage,
+  component: () => (
+    <ProtectedTeacherRoute>
+      <ClassDisplayPage />
+    </ProtectedTeacherRoute>
+  ),
 });
 
 const lessonsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/lessons',
-  component: LessonsPage,
+  component: () => (
+    <ProtectedTeacherRoute>
+      <LessonsPage />
+    </ProtectedTeacherRoute>
+  ),
 });
 
 const lessonNotesRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/lesson-notes',
-  component: LessonNotesPage,
+  component: () => (
+    <ProtectedTeacherRoute>
+      <LessonNotesPage />
+    </ProtectedTeacherRoute>
+  ),
 });
 
 const settingsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/settings',
-  component: SettingsPage,
+  component: () => (
+    <ProtectedTeacherRoute>
+      <SettingsPage />
+    </ProtectedTeacherRoute>
+  ),
 });
 
 const parentPortalRoute = createRoute({

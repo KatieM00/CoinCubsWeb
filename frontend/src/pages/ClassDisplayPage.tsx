@@ -178,7 +178,13 @@ export default function ClassDisplayPage() {
   if (isLessonMode && lessonContent) {
     const isFridayVoting = lessonContent.title.includes('Time to Vote');
     const isMondayIntro = lessonContent.title.includes('Our Class Gets to Decide Together');
-    
+    const isLesson3Monday = lessonContent?.title?.includes('One Marshmallow Now or Two Later');
+    const isLesson3Friday = lessonContent?.title?.includes('Should We Save or Spend');
+    const isLesson4Monday = lessonContent?.title?.includes('What If We Worked Together');
+    const isLesson4Friday = lessonContent?.title?.includes('Should We Collaborate');
+    const activeVote = votingProposals?.[0];
+    const votingFinalized = activeVote?.finalized || false;
+
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#FEF3C7] via-[#FDE68A] to-[#FCD34D] flex flex-col items-center justify-center px-8 py-12 relative overflow-hidden">
         {/* Celebration Effects */}

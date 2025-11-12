@@ -1,15 +1,17 @@
 import { useEffect, useState, useRef } from 'react';
-import { useGetClassFund, useGetClassGoals, useGetActivityTicker } from '../hooks/useQueries';
+import { useGetClassFund, useGetClassGoals, useGetActivityTicker, useGetDisplayMode, useGetActiveLessonContent } from '../hooks/useQueries';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
-import { Coins, Trophy, TrendingUp } from 'lucide-react';
+import { Coins, Trophy, TrendingUp, BookOpen, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ClassDisplayPage() {
   const { data: classFund, isLoading: fundLoading } = useGetClassFund();
   const { data: classGoals, isLoading: goalsLoading } = useGetClassGoals();
   const { data: activityTicker, refetch: refetchActivity } = useGetActivityTicker();
+  const { data: displayMode } = useGetDisplayMode();
+  const { data: activeLessonContent } = useGetActiveLessonContent();
 
   const [displayedTotal, setDisplayedTotal] = useState<number>(0);
   const [showCoinAnimation, setShowCoinAnimation] = useState(false);
@@ -121,6 +123,155 @@ export default function ClassDisplayPage() {
     );
   }
 
+  // If lesson mode is active, show lesson content
+  if (displayMode === 'lessonMode' && activeLessonContent) {
+    const lesson = activeLessonContent as any; // Type assertion since the hook currently returns null but gets set by mutations
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 md:p-6 lg:p-8 relative overflow-hidden">
+        {/* Header Bar */}
+        <div className="mb-6 md:mb-8">
+          <Card className="border-blue-300 bg-white/90 backdrop-blur-sm shadow-lg">
+            <CardContent className="py-4 md:py-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <BookOpen className="w-8 h-8 md:w-10 md:h-10 text-blue-600" />
+                  <div>
+                    <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                      Week {lesson.weekNumber}: {lesson.moduleName}
+                    </h1>
+                    <p className="text-base md:text-xl text-gray-600 mt-1">
+                      {lesson.dayType === 'monday' ? 'Monday' : 'Friday'} Lesson
+                    </p>
+                  </div>
+                </div>
+                <div className="text-xl md:text-3xl lg:text-4xl font-bold text-gray-700">
+                  {currentDate}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Lesson Title */}
+        <Card className="border-indigo-300 bg-white/95 backdrop-blur-sm shadow-xl mb-6">
+          <CardContent className="py-6 md:py-8">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center text-indigo-900">
+              {lesson.title}
+            </h2>
+          </CardContent>
+        </Card>
+
+        {/* Teacher Script */}
+        {lesson.teacherScript && (
+          <Card className="border-green-300 bg-gradient-to-br from-green-50 to-emerald-50 shadow-xl mb-6">
+            <CardContent className="py-6 md:py-8">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center">
+                  <span className="text-2xl">👨‍🏫</span>
+                </div>
+                <h3 className="text-2xl md:text-3xl font-bold text-green-900">Teacher Script</h3>
+              </div>
+              <div className="text-lg md:text-xl lg:text-2xl text-gray-800 leading-relaxed whitespace-pre-wrap">
+                {lesson.teacherScript}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Discussion Questions */}
+        {lesson.discussionQuestions && lesson.discussionQuestions.length > 0 && (
+          <Card className="border-purple-300 bg-gradient-to-br from-purple-50 to-pink-50 shadow-xl mb-6">
+            <CardContent className="py-6 md:py-8">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center">
+                  <span className="text-2xl">💭</span>
+                </div>
+                <h3 className="text-2xl md:text-3xl font-bold text-purple-900">Discussion Questions</h3>
+              </div>
+              <div className="space-y-4">
+                {lesson.discussionQuestions.map((question: string, index: number) => (
+                  <div key={index} className="flex gap-4">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-500 text-white flex items-center justify-center font-bold">
+                      {index + 1}
+                    </div>
+                    <p className="text-lg md:text-xl lg:text-2xl text-gray-800 leading-relaxed flex-1">
+                      {question}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Activities */}
+        {lesson.activities && lesson.activities.length > 0 && (
+          <Card className="border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50 shadow-xl mb-6">
+            <CardContent className="py-6 md:py-8">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center">
+                  <span className="text-2xl">✨</span>
+                </div>
+                <h3 className="text-2xl md:text-3xl font-bold text-amber-900">Activities</h3>
+              </div>
+              <div className="space-y-4">
+                {lesson.activities.map((activity: string, index: number) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <Card className="border-amber-200 bg-white shadow-md">
+                      <CardContent className="py-4 md:py-6">
+                        <div className="flex gap-4 items-start">
+                          <CheckCircle2 className="w-6 h-6 md:w-8 md:h-8 text-amber-600 flex-shrink-0 mt-1" />
+                          <p className="text-lg md:text-xl lg:text-2xl text-gray-800 leading-relaxed flex-1">
+                            {activity}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Learning Objectives */}
+        {lesson.learningObjectives && lesson.learningObjectives.length > 0 && (
+          <Card className="border-blue-300 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-xl mb-8">
+            <CardContent className="py-6 md:py-8">
+              <div className="flex items-center gap-3 mb-4">
+                <Trophy className="w-10 h-10 md:w-12 md:h-12 text-blue-600" />
+                <h3 className="text-2xl md:text-3xl font-bold text-blue-900">Learning Objectives</h3>
+              </div>
+              <div className="space-y-3">
+                {lesson.learningObjectives.map((objective: string, index: number) => (
+                  <div key={index} className="flex gap-3 items-start">
+                    <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 mt-3" />
+                    <p className="text-lg md:text-xl text-gray-800 leading-relaxed flex-1">
+                      {objective}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Mascot - Bottom Right Corner */}
+        <div className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-10">
+          <div className="w-24 h-24 md:w-32 md:h-32 lg:w-40 lg:h-40 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center shadow-2xl border-4 border-white">
+            <span className="text-5xl md:text-6xl lg:text-7xl">📚</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Default dashboard view
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 p-4 md:p-6 lg:p-8 relative overflow-hidden">
       {/* Header Bar */}

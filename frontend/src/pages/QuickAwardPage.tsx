@@ -301,7 +301,7 @@ export default function QuickAwardPage() {
           {/* Section 3: Amount */}
           <div className="space-y-2">
             <Label className="text-base font-semibold">Amount:</Label>
-            <div className="flex gap-2 items-center">
+            <div className="flex gap-2">
               {[5, 10, 15, 20, 25].map((amount) => (
                 <Button
                   key={amount}
@@ -314,19 +314,19 @@ export default function QuickAwardPage() {
                   {amount}
                 </Button>
               ))}
-              <Input
-                type="number"
-                placeholder="Custom"
-                value={customAmount}
-                onChange={(e) => {
-                  setCustomAmount(e.target.value);
-                  setAwardAmount('');
-                }}
-                className="text-base md:text-lg h-16 md:h-20 w-24 text-center font-bold"
-                min="1"
-                max="9999"
-              />
             </div>
+            <Input
+              type="number"
+              placeholder="Custom amount"
+              value={customAmount}
+              onChange={(e) => {
+                setCustomAmount(e.target.value);
+                setAwardAmount('');
+              }}
+              className="text-base md:text-lg h-12 md:h-14 w-full text-center font-bold"
+              min="1"
+              max="9999"
+            />
           </div>
 
           {/* Submit Button */}

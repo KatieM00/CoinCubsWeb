@@ -220,7 +220,7 @@ export default function QuickAwardPage() {
               <Coins className="w-5 h-5 md:w-6 md:h-6 text-amber-600" />
             </div>
             <div>
-              <CardTitle className="text-xl md:text-2xl">Bank</CardTitle>
+              <CardTitle className="text-xl md:text-2xl">Award</CardTitle>
               <CardDescription className="text-sm md:text-base">Award CubCoins to students</CardDescription>
             </div>
           </div>
@@ -322,26 +322,21 @@ export default function QuickAwardPage() {
             </div>
           </div>
 
-          {/* Preview */}
-          {split && (
-            <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-3 md:p-4 border-2 border-amber-200">
-              <p className="text-xs md:text-sm font-medium text-amber-900 mb-2">Preview:</p>
-              <div className="space-y-1">
-                <p className="text-sm md:text-base text-amber-800">
-                  <span className="font-bold">+{split.classAmount} CubCoins</span> to class fund
-                </p>
-                {split.isWholeClass ? (
-                  <p className="text-sm md:text-base text-amber-800 font-semibold">
-                    All students benefit together!
-                  </p>
-                ) : (
-                  <p className="text-sm md:text-base text-amber-800">
-                    <span className="font-bold">+{split.personalAmount} CubCoins</span> to {split.studentName}
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
+          {/* Submit Button */}
+          <Button
+            onClick={handleQuickAward}
+            className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xl md:text-2xl h-16 md:h-20 font-bold shadow-lg"
+            disabled={awardCubCoins.isPending || (!selectedStudent && !isWholeClass) || !(customAmount || awardAmount) || !(awardReason === 'custom' ? customReason : awardReason)}
+          >
+            {awardCubCoins.isPending ? (
+              <>
+                <div className="w-5 h-5 md:w-6 md:h-6 border-3 border-white border-t-transparent rounded-full animate-spin mr-3" />
+                Submitting...
+              </>
+            ) : (
+              'Submit'
+            )}
+          </Button>
 
           {/* Confirmation Message */}
           {showConfirmation && split && (
@@ -362,22 +357,6 @@ export default function QuickAwardPage() {
               </div>
             </div>
           )}
-
-          {/* Submit Button */}
-          <Button
-            onClick={handleQuickAward}
-            className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xl md:text-2xl h-16 md:h-20 font-bold shadow-lg"
-            disabled={awardCubCoins.isPending || (!selectedStudent && !isWholeClass) || !(customAmount || awardAmount) || !(awardReason === 'custom' ? customReason : awardReason)}
-          >
-            {awardCubCoins.isPending ? (
-              <>
-                <div className="w-5 h-5 md:w-6 md:h-6 border-3 border-white border-t-transparent rounded-full animate-spin mr-3" />
-                Submitting...
-              </>
-            ) : (
-              'Submit'
-            )}
-          </Button>
 
           {/* Undo Button */}
           {showUndoButton && undoTransaction && (

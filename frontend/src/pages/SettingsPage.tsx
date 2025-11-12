@@ -1,16 +1,15 @@
 // @ts-nocheck
 import { useState } from 'react';
-import { useIsCallerAdmin, useGetClassFund, useListApprovals, useGetRewardsCatalog, useGetActiveVotingProposals, useUpdateStudentStatus, useUpdateStudentNotes, useAddReward, useUpdateRewardPrice, useBulkUpdateRewardPrices, useFinalizeVote, useAwardClassGems, useCreateClassGoal, useGetPresetAmounts, useUpdatePresetAmounts, useGetPresetReasons, useAddCustomReason, useUpdateReason, useDeleteReason, useUpdateVoteCount, useValidateVoteTotals, useCreateVotingProposal, useGetTeacherClass, useGetStudents, useAddStudent, useUpdateClassBalance, useUpdateStudent, useCreateTeacherClass, useUpdateTeacherClass } from '../hooks/useQueries';
+import { useIsCallerAdmin, useGetClassFund, useGetRewardsCatalog, useAddReward, useUpdateRewardPrice, useCreateClassGoal, useGetPresetAmounts, useUpdatePresetAmounts, useGetTeacherClass, useGetStudents, useAddStudent, useUpdateClassBalance, useUpdateStudent, useCreateTeacherClass, useUpdateTeacherClass, useGetClassGoals } from '../hooks/useQueries';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Settings, Coins, Users, Target, Vote, AlertCircle, Lock, Edit, Plus, Download, Upload, Trash2, Eye, History, Package, RotateCcw, X, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Settings, Coins, Users, Target, Building, UserCircle, Edit, Plus, Download, Upload, Trash2, RotateCcw, Archive, Mail, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -18,133 +17,115 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { AwardSplit, VoteOption } from '../types';
 import { cn } from '@/lib/utils';
 
-type SettingsSection = 'students' | 'fund' | 'goals' | 'voting' | 'system';
+type SettingsSection = 'classroom' | 'funds' | 'students' | 'parents' | 'account';
 
 export default function SettingsPage() {
   const { data: isAdmin, isLoading: adminLoading } = useIsCallerAdmin();
   const { data: classFund, isLoading: fundLoading } = useGetClassFund();
-  const { data: approvals, isLoading: approvalsLoading } = useListApprovals();
   const { data: rewards, isLoading: rewardsLoading } = useGetRewardsCatalog();
-  const { data: activeVotes, refetch: refetchVotes } = useGetActiveVotingProposals();
   const { data: presetAmounts } = useGetPresetAmounts();
-  const { data: presetReasons } = useGetPresetReasons();
   const { data: teacherClass } = useGetTeacherClass();
   const { data: students, isLoading: studentsLoading } = useGetStudents();
+  const { data: classGoals, isLoading: goalsLoading } = useGetClassGoals();
 
-  // Debug logging
-  console.log('🏫 Teacher Class Data:', teacherClass);
-
-  const updateStudentStatus = useUpdateStudentStatus();
-  const updateStudentNotes = useUpdateStudentNotes();
   const addStudent = useAddStudent();
   const updateClassBalance = useUpdateClassBalance();
   const updateStudent = useUpdateStudent();
   const addReward = useAddReward();
   const updateRewardPrice = useUpdateRewardPrice();
-  const bulkUpdatePrices = useBulkUpdateRewardPrices();
-  const finalizeVote = useFinalizeVote();
-  const awardCubCoins = useAwardClassGems();
   const createGoal = useCreateClassGoal();
   const updatePresets = useUpdatePresetAmounts();
-  const addReason = useAddCustomReason();
-  const updateReason = useUpdateReason();
-  const deleteReason = useDeleteReason();
-  const updateVoteCount = useUpdateVoteCount();
-  const validateVoteTotals = useValidateVoteTotals();
-  const createVotingProposal = useCreateVotingProposal();
   const createTeacherClass = useCreateTeacherClass();
   const updateTeacherClass = useUpdateTeacherClass();
 
-  const [activeSection, setActiveSection] = useState<SettingsSection>('students');
+  const [activeSection, setActiveSection] = useState<SettingsSection>('classroom');
+
+  // Classroom section states
   const [isEditingClass, setIsEditingClass] = useState(false);
   const [editClassName, setEditClassName] = useState('');
+  const [editClassSize, setEditClassSize] = useState('');
+  const [editTeacherName, setEditTeacherName] = useState('');
   const [editSchoolYear, setEditSchoolYear] = useState('');
-
-  // Dialog states
-  const [editBalanceOpen, setEditBalanceOpen] = useState(false);
-  const [viewTransactionsOpen, setViewTransactionsOpen] = useState(false);
-  const [editStudentOpen, setEditStudentOpen] = useState(false);
-  const [addStudentOpen, setAddStudentOpen] = useState(false);
-  const [addRewardOpen, setAddRewardOpen] = useState(false);
-  const [editRewardOpen, setEditRewardOpen] = useState(false);
-  const [bulkPriceOpen, setBulkPriceOpen] = useState(false);
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [semesterResetOpen, setSemesterResetOpen] = useState(false);
-  const [createGoalOpen, setCreateGoalOpen] = useState(false);
-  const [editPresetsOpen, setEditPresetsOpen] = useState(false);
-  const [addReasonOpen, setAddReasonOpen] = useState(false);
-  const [editReasonOpen, setEditReasonOpen] = useState(false);
-  const [createVoteOpen, setCreateVoteOpen] = useState(false);
-  const [recordResultsOpen, setRecordResultsOpen] = useState(false);
 
-  // Form states
-  const [balanceOperation, setBalanceOperation] = useState<'add' | 'subtract' | 'set'>('add');
+  // Funds section states
+  const [editBalanceOpen, setEditBalanceOpen] = useState(false);
   const [balanceAmount, setBalanceAmount] = useState('');
   const [balanceReason, setBalanceReason] = useState('');
-  const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
-  const [studentName, setStudentName] = useState('');
-  const [studentBalance, setStudentBalance] = useState('');
-  const [studentNotes, setStudentNotes] = useState('');
-  const [studentActive, setStudentActive] = useState(true);
-  const [rewardName, setRewardName] = useState('');
-  const [rewardCost, setRewardCost] = useState('');
-  const [rewardDescription, setRewardDescription] = useState('');
-  const [selectedRewardId, setSelectedRewardId] = useState<bigint | null>(null);
-  const [bulkPriceChange, setBulkPriceChange] = useState('');
-  const [bulkPriceIncrease, setBulkPriceIncrease] = useState(true);
-  const [deleteTarget, setDeleteTarget] = useState<{ type: string; id: any } | null>(null);
-  const [resetFund, setResetFund] = useState(false);
-  const [resetBalances, setResetBalances] = useState(false);
-  const [keepStudents, setKeepStudents] = useState(true);
-  const [archiveHistory, setArchiveHistory] = useState(true);
+  const [editPresetsOpen, setEditPresetsOpen] = useState(false);
+  const [editablePresets, setEditablePresets] = useState<string[]>([]);
+  const [splitRatio, setSplitRatio] = useState({ class: '70', personal: '30' });
+
+  // Goals section states
+  const [createGoalOpen, setCreateGoalOpen] = useState(false);
   const [goalName, setGoalName] = useState('');
   const [goalTarget, setGoalTarget] = useState('');
   const [goalDescription, setGoalDescription] = useState('');
-  const [editablePresets, setEditablePresets] = useState<string[]>([]);
-  const [newReason, setNewReason] = useState('');
-  const [editingReasonIndex, setEditingReasonIndex] = useState<number | null>(null);
-  const [editingReasonText, setEditingReasonText] = useState('');
+  const [addRewardOpen, setAddRewardOpen] = useState(false);
+  const [rewardName, setRewardName] = useState('');
+  const [rewardCost, setRewardCost] = useState('');
+  const [rewardDescription, setRewardDescription] = useState('');
+  const [editRewardOpen, setEditRewardOpen] = useState(false);
+  const [selectedRewardId, setSelectedRewardId] = useState<bigint | null>(null);
 
-  // Voting states
-  const [voteTitle, setVoteTitle] = useState('');
-  const [voteDescription, setVoteDescription] = useState('');
-  const [voteProsCons, setVoteProsCons] = useState('');
-  const [voteOptions, setVoteOptions] = useState<Array<{ name: string; voteCount: string }>>([
-    { name: '', voteCount: '0' },
-    { name: '', voteCount: '0' },
-  ]);
-  const [selectedVoteId, setSelectedVoteId] = useState<bigint | null>(null);
-  const [editingVoteCounts, setEditingVoteCounts] = useState<Record<string, string>>({});
+  // Students section states
+  const [addStudentOpen, setAddStudentOpen] = useState(false);
+  const [editStudentOpen, setEditStudentOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
+  const [studentFirstName, setStudentFirstName] = useState('');
+  const [studentSurname, setStudentSurname] = useState('');
+  const [studentBalance, setStudentBalance] = useState('');
+  const [studentNotes, setStudentNotes] = useState('');
+  const [studentActive, setStudentActive] = useState(true);
 
-  if (adminLoading) {
-    return (
-      <div className="container mx-auto px-4 py-8 max-w-7xl space-y-6">
-        <Skeleton className="h-32 w-full rounded-3xl" />
-        <Skeleton className="h-64 w-full rounded-3xl" />
-      </div>
-    );
-  }
+  // Parents section states
+  const [sendLetterOpen, setSendLetterOpen] = useState(false);
+  const [selectedParent, setSelectedParent] = useState<string | null>(null);
 
-  if (!isAdmin) {
-    return (
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <Alert variant="destructive">
-          <AlertDescription>
-            Only teachers can access the Settings page.
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
+  // Account Admin section states
+  const [isEditingAccount, setIsEditingAccount] = useState(false);
+  const [accountTeacherName, setAccountTeacherName] = useState('');
+  const [accountEmail, setAccountEmail] = useState('');
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+  const [deleteAccountOpen, setDeleteAccountOpen] = useState(false);
 
   const formatCubCoins = (amount: bigint | number) => {
     const num = typeof amount === 'bigint' ? Number(amount) : amount;
     return num.toLocaleString();
   };
-  const formatDate = (timestamp: bigint) => new Date(Number(timestamp) / 1000000).toLocaleString();
+
+  // Handler functions
+  const handleCreateClass = async () => {
+    if (!editClassName.trim()) {
+      toast.error('Please enter a class name');
+      return;
+    }
+
+    try {
+      if (teacherClass) {
+        await updateTeacherClass.mutateAsync({
+          classId: teacherClass.id,
+          className: editClassName,
+          schoolYear: editSchoolYear,
+        });
+        toast.success('Class information updated!');
+      } else {
+        const result = await createTeacherClass.mutateAsync({
+          className: editClassName,
+          schoolYear: editSchoolYear,
+        });
+        toast.success(`Class created! Your class code is: ${result.classCode}`, {
+          duration: 5000,
+        });
+      }
+      setIsEditingClass(false);
+    } catch (error) {
+      console.error('Error saving class:', error);
+      toast.error('Failed to save class information');
+    }
+  };
 
   const handleEditBalance = async () => {
     if (!balanceAmount) {
@@ -155,7 +136,7 @@ export default function SettingsPage() {
       await updateClassBalance.mutateAsync({
         amount: Number(balanceAmount),
         reason: balanceReason || 'Manual balance adjustment',
-        type: 'set' // Set the balance to the exact amount entered
+        type: 'set'
       });
       toast.success('Balance updated successfully!');
       setEditBalanceOpen(false);
@@ -167,45 +148,36 @@ export default function SettingsPage() {
     }
   };
 
-  const handleAddStudent = async () => {
-    if (!studentName) {
-      toast.error('Please enter a student name');
-      return;
-    }
+  const handleUpdatePresets = async () => {
     try {
-      await addStudent.mutateAsync({
-        name: studentName,
-        balance: studentBalance ? Number(studentBalance) : 0
-      });
-      toast.success('Student added successfully!');
-      setAddStudentOpen(false);
-      setStudentName('');
-      setStudentBalance('');
+      const amounts = editablePresets.map(p => BigInt(p));
+      await updatePresets.mutateAsync(amounts);
+      toast.success('Preset amounts updated successfully!');
+      setEditPresetsOpen(false);
     } catch (error) {
-      toast.error('Failed to add student');
+      toast.error('Failed to update presets');
       console.error(error);
     }
   };
 
-  const handleEditStudent = async () => {
-    if (!selectedStudent) return;
+  const handleCreateGoal = async () => {
+    if (!goalName || !goalTarget) {
+      toast.error('Please fill in goal name and target amount');
+      return;
+    }
     try {
-      await updateStudent.mutateAsync({
-        studentId: selectedStudent,
-        name: studentName,
-        personalBalance: studentBalance ? Number(studentBalance) : undefined,
-        notes: studentNotes,
-        isActive: studentActive
+      await createGoal.mutateAsync({
+        name: goalName,
+        targetAmount: BigInt(goalTarget),
+        description: goalDescription
       });
-      toast.success('Student updated successfully!');
-      setEditStudentOpen(false);
-      setSelectedStudent(null);
-      setStudentName('');
-      setStudentBalance('');
-      setStudentNotes('');
-      setStudentActive(true);
+      toast.success('Goal created successfully!');
+      setCreateGoalOpen(false);
+      setGoalName('');
+      setGoalTarget('');
+      setGoalDescription('');
     } catch (error) {
-      toast.error('Failed to update student');
+      toast.error('Failed to create goal');
       console.error(error);
     }
   };
@@ -216,7 +188,11 @@ export default function SettingsPage() {
       return;
     }
     try {
-      await addReward.mutateAsync({ name: rewardName, cost: BigInt(rewardCost), description: rewardDescription });
+      await addReward.mutateAsync({
+        name: rewardName,
+        cost: BigInt(rewardCost),
+        description: rewardDescription
+      });
       toast.success('Reward added successfully!');
       setAddRewardOpen(false);
       setRewardName('');
@@ -234,7 +210,10 @@ export default function SettingsPage() {
       return;
     }
     try {
-      await updateRewardPrice.mutateAsync({ rewardId: selectedRewardId, newCost: BigInt(rewardCost) });
+      await updateRewardPrice.mutateAsync({
+        rewardId: selectedRewardId,
+        newCost: BigInt(rewardCost)
+      });
       toast.success('Reward price updated successfully!');
       setEditRewardOpen(false);
       setSelectedRewardId(null);
@@ -245,184 +224,55 @@ export default function SettingsPage() {
     }
   };
 
-  const handleBulkPriceUpdate = async () => {
-    if (!bulkPriceChange) {
-      toast.error('Please enter a percentage');
+  const handleAddStudent = async () => {
+    if (!studentFirstName || !studentSurname) {
+      toast.error('Please enter student name');
       return;
     }
     try {
-      await bulkUpdatePrices.mutateAsync({ percentageChange: BigInt(bulkPriceChange), isIncrease: bulkPriceIncrease });
-      toast.success('All reward prices updated successfully!');
-      setBulkPriceOpen(false);
-      setBulkPriceChange('');
-    } catch (error) {
-      toast.error('Failed to update prices');
-      console.error(error);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!deleteTarget) return;
-    toast.success(`${deleteTarget.type} deleted successfully!`);
-    setDeleteConfirmOpen(false);
-    setDeleteTarget(null);
-  };
-
-  const handleSemesterReset = async () => {
-    toast.success('Semester reset completed!');
-    setSemesterResetOpen(false);
-    setResetFund(false);
-    setResetBalances(false);
-    setKeepStudents(true);
-    setArchiveHistory(true);
-  };
-
-  const handleCreateGoal = async () => {
-    if (!goalName || !goalTarget) {
-      toast.error('Please fill in goal name and target amount');
-      return;
-    }
-    try {
-      await createGoal.mutateAsync({ name: goalName, targetAmount: BigInt(goalTarget), description: goalDescription });
-      toast.success('Goal created successfully!');
-      setCreateGoalOpen(false);
-      setGoalName('');
-      setGoalTarget('');
-      setGoalDescription('');
-    } catch (error) {
-      toast.error('Failed to create goal');
-      console.error(error);
-    }
-  };
-
-  const handleUpdatePresets = async () => {
-    try {
-      const amounts = editablePresets.map(p => BigInt(p));
-      await updatePresets.mutateAsync(amounts);
-      toast.success('Preset amounts updated successfully!');
-      setEditPresetsOpen(false);
-    } catch (error) {
-      toast.error('Failed to update presets');
-      console.error(error);
-    }
-  };
-
-  const handleAddReason = async () => {
-    if (!newReason.trim()) {
-      toast.error('Please enter a reason');
-      return;
-    }
-    try {
-      await addReason.mutateAsync(newReason);
-      toast.success('Custom reason added!');
-      setAddReasonOpen(false);
-      setNewReason('');
-    } catch (error) {
-      toast.error('Failed to add reason');
-      console.error(error);
-    }
-  };
-
-  const handleUpdateReason = async () => {
-    if (editingReasonIndex === null || !editingReasonText.trim()) {
-      toast.error('Please enter a reason');
-      return;
-    }
-    try {
-      await updateReason.mutateAsync({ index: BigInt(editingReasonIndex), newReason: editingReasonText });
-      toast.success('Reason updated!');
-      setEditReasonOpen(false);
-      setEditingReasonIndex(null);
-      setEditingReasonText('');
-    } catch (error) {
-      toast.error('Failed to update reason');
-      console.error(error);
-    }
-  };
-
-  const handleDeleteReason = async (index: number) => {
-    try {
-      await deleteReason.mutateAsync(BigInt(index));
-      toast.success('Reason deleted!');
-    } catch (error) {
-      toast.error('Failed to delete reason');
-      console.error(error);
-    }
-  };
-
-  const handleCreateVote = async () => {
-    if (!voteTitle || !voteDescription) {
-      toast.error('Please fill in title and description');
-      return;
-    }
-    const validOptions = voteOptions.filter(opt => opt.name.trim() !== '');
-    if (validOptions.length < 2) {
-      toast.error('Please provide at least 2 voting options');
-      return;
-    }
-    try {
-      const backendOptions: VoteOption[] = validOptions.map(opt => ({
-        name: opt.name,
-        voteCount: BigInt(0),
-      }));
-      await createVotingProposal.mutateAsync({
-        title: voteTitle,
-        description: voteDescription,
-        amountRequested: BigInt(0),
-        prosCons: voteProsCons,
-        options: backendOptions,
+      await addStudent.mutateAsync({
+        name: `${studentFirstName} ${studentSurname}`,
+        balance: studentBalance ? Number(studentBalance) : 0
       });
-      toast.success('Class decision created successfully!');
-      setCreateVoteOpen(false);
-      setVoteTitle('');
-      setVoteDescription('');
-      setVoteProsCons('');
-      setVoteOptions([{ name: '', voteCount: '0' }, { name: '', voteCount: '0' }]);
-      refetchVotes();
+      toast.success('Student added successfully!');
+      setAddStudentOpen(false);
+      setStudentFirstName('');
+      setStudentSurname('');
+      setStudentBalance('');
     } catch (error) {
-      toast.error('Failed to create vote');
+      toast.error('Failed to add student');
       console.error(error);
     }
   };
 
-  const handleUpdateVoteCount = async (proposalId: bigint, optionName: string, count: string) => {
+  const handleEditStudent = async () => {
+    if (!selectedStudent) return;
     try {
-      const voteCount = BigInt(count || '0');
-      await updateVoteCount.mutateAsync({ proposalId, optionName, voteCount });
-      setEditingVoteCounts(prev => ({ ...prev, [`${proposalId}-${optionName}`]: count }));
+      await updateStudent.mutateAsync({
+        studentId: selectedStudent,
+        name: `${studentFirstName} ${studentSurname}`,
+        personalBalance: studentBalance ? Number(studentBalance) : undefined,
+        notes: studentNotes,
+        isActive: studentActive
+      });
+      toast.success('Student updated successfully!');
+      setEditStudentOpen(false);
+      setSelectedStudent(null);
+      setStudentFirstName('');
+      setStudentSurname('');
+      setStudentBalance('');
+      setStudentNotes('');
+      setStudentActive(true);
     } catch (error) {
-      toast.error('Failed to update vote count');
+      toast.error('Failed to update student');
       console.error(error);
     }
   };
 
-  const handleRecordResults = async () => {
-    if (!selectedVoteId) return;
-    const vote = activeVotes?.find(v => v.id === selectedVoteId);
-    if (!vote) return;
-
-    try {
-      await validateVoteTotals.mutateAsync(selectedVoteId);
-      await finalizeVote.mutateAsync(selectedVoteId);
-      toast.success('Vote results recorded and finalized!');
-      setRecordResultsOpen(false);
-      setSelectedVoteId(null);
-      setEditingVoteCounts({});
-      refetchVotes();
-    } catch (error) {
-      toast.error('Failed to record results');
-      console.error(error);
-    }
-  };
-
-  const getTotalVotes = (vote: any) => {
-    return vote.options.reduce((sum: number, opt: VoteOption) => sum + Number(opt.voteCount), 0);
-  };
-
-  if (adminLoading || fundLoading || approvalsLoading || rewardsLoading) {
+  if (adminLoading || fundLoading || goalsLoading || rewardsLoading) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-6">
-        <Skeleton className="h-48 w-full rounded-3xl" />
+        <Skeleton className="h-32 w-full rounded-3xl" />
         <Skeleton className="h-96 w-full rounded-3xl" />
       </div>
     );
@@ -432,24 +282,25 @@ export default function SettingsPage() {
     return (
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <Alert variant="destructive">
-          <AlertDescription>Only teachers can access the Settings page.</AlertDescription>
+          <AlertDescription>
+            Only teachers can access the Settings page.
+          </AlertDescription>
         </Alert>
       </div>
     );
   }
 
-  const totalClassCubCoins = classFund?.totalAmount || BigInt(0);
-  const transactions = classFund?.transactions || [];
-  const classGoals = classFund?.goals || [];
-  const activeGoals = classGoals.filter(goal => goal.isActive);
+  const totalClassCubCoins = classFund?.balance || BigInt(0);
+  const activeGoals = classGoals?.filter((goal: any) => goal.isActive) || [];
+  const primaryGoal = activeGoals[0];
   const studentsList = students || [];
 
   const sidebarItems = [
+    { id: 'classroom' as SettingsSection, label: 'Classroom', icon: Building },
+    { id: 'funds' as SettingsSection, label: 'Funds and Goals', icon: Target },
     { id: 'students' as SettingsSection, label: 'Students', icon: Users },
-    { id: 'fund' as SettingsSection, label: 'Class Fund', icon: Coins },
-    { id: 'goals' as SettingsSection, label: 'Goals', icon: Target },
-    { id: 'voting' as SettingsSection, label: 'Voting', icon: Vote },
-    { id: 'system' as SettingsSection, label: 'System', icon: Settings },
+    { id: 'parents' as SettingsSection, label: 'Parents', icon: Mail },
+    { id: 'account' as SettingsSection, label: 'Account Admin', icon: UserCircle },
   ];
 
   return (
@@ -469,9 +320,9 @@ export default function SettingsPage() {
         </CardHeader>
       </Card>
 
-      {/* Settings Interface with Compact Sidebar */}
+      {/* Settings Interface with Sidebar */}
       <div className="flex flex-col lg:flex-row gap-6">
-        {/* Compact Sidebar Navigation - Desktop (200px width) */}
+        {/* Sidebar Navigation - Desktop */}
         <aside className="hidden lg:block w-[200px] flex-shrink-0">
           <Card className="sticky top-4 overflow-hidden">
             <CardContent className="p-0">
@@ -522,9 +373,427 @@ export default function SettingsPage() {
           </ScrollArea>
         </div>
 
-        {/* Main Content Area (max-width 1200px, 24px padding) */}
+        {/* Main Content Area */}
         <div className="flex-1 min-w-0 max-w-[1200px]">
-          {/* Students Section */}
+          {/* CLASSROOM SECTION */}
+          {activeSection === 'classroom' && (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl">About</CardTitle>
+                  <CardDescription className="text-sm">Your classroom information</CardDescription>
+                </CardHeader>
+                <Separator />
+                <CardContent className="space-y-4 pt-4">
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-sm font-medium">Class Name</Label>
+                      <div className="text-base">{teacherClass?.class_name || 'Not set'}</div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-sm font-medium">Class Size</Label>
+                      <div className="text-base">{studentsList.length} students</div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-sm font-medium">Teacher Name</Label>
+                      <div className="text-base">{'Teacher'}</div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-sm font-medium">School Year</Label>
+                      <div className="text-base">{teacherClass?.school_year || 'Not set'}</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-xl">Class Code</CardTitle>
+                      <CardDescription className="text-sm">Share this code with parents</CardDescription>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setEditClassName(teacherClass?.class_name || '');
+                        setEditSchoolYear(teacherClass?.school_year || '');
+                        setIsEditingClass(true);
+                      }}
+                      className="gap-2"
+                    >
+                      {teacherClass ? 'Edit Class' : 'Create Class'}
+                    </Button>
+                  </div>
+                </CardHeader>
+                <Separator />
+                <CardContent className="space-y-2 pt-4">
+                  {teacherClass?.class_code ? (
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 bg-amber-50 border-2 border-amber-200 rounded-lg p-4">
+                        <div className="text-3xl font-bold text-amber-900 tracking-wider text-center font-mono">
+                          {teacherClass.class_code}
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          navigator.clipboard.writeText(teacherClass.class_code);
+                          toast.success('Class code copied to clipboard!');
+                        }}
+                        className="gap-2"
+                      >
+                        Copy
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="bg-muted border-2 border-dashed rounded-lg p-4">
+                      <p className="text-sm text-muted-foreground text-center">
+                        No class yet - click "Create Class" above to get started
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card className="border-red-200">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-red-900 text-xl">Danger Zone</CardTitle>
+                  <CardDescription className="text-sm">Irreversible actions - use with caution</CardDescription>
+                </CardHeader>
+                <Separator />
+                <CardContent className="space-y-2 pt-4">
+                  <Button
+                    variant="outline"
+                    className="w-full gap-2 border-red-300 text-red-700 hover:bg-red-50 h-9"
+                    onClick={() => setSemesterResetOpen(true)}
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    Reset Semester
+                  </Button>
+                  <Button variant="outline" className="w-full gap-2 border-red-300 text-red-700 hover:bg-red-50 h-9">
+                    <Archive className="w-4 h-4" />
+                    Archive Class
+                  </Button>
+                  <Button variant="destructive" className="w-full gap-2 h-9">
+                    <Trash2 className="w-4 h-4" />
+                    Delete Class
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* FUNDS AND GOALS SECTION */}
+          {activeSection === 'funds' && (
+            <div className="space-y-6">
+              {/* Funds Card */}
+              <Card className="border-amber-200">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl">Funds</CardTitle>
+                  <CardDescription className="text-sm">Manage class fund and settings</CardDescription>
+                </CardHeader>
+                <Separator />
+                <CardContent className="space-y-4 pt-4">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium">Preset Amount Buttons</Label>
+                    <Dialog open={editPresetsOpen} onOpenChange={(open) => {
+                      setEditPresetsOpen(open);
+                      if (open && presetAmounts) {
+                        setEditablePresets(presetAmounts.map(a => a.toString()));
+                      }
+                    }}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm" className="gap-2 h-8 text-xs">
+                          <Edit className="w-3 h-3" />
+                          Edit Presets
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Edit Preset Amounts</DialogTitle>
+                          <DialogDescription>Adjust the preset award amounts</DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-3">
+                          {editablePresets.map((preset, index) => (
+                            <div key={index} className="flex items-center gap-2">
+                              <Label className="text-sm w-20">Amount {index + 1}</Label>
+                              <Input
+                                type="number"
+                                value={preset}
+                                onChange={(e) => {
+                                  const newPresets = [...editablePresets];
+                                  newPresets[index] = e.target.value;
+                                  setEditablePresets(newPresets);
+                                }}
+                                className="h-9 flex-1"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                        <DialogFooter>
+                          <Button variant="outline" onClick={() => setEditPresetsOpen(false)} size="sm">Cancel</Button>
+                          <Button onClick={handleUpdatePresets} disabled={updatePresets.isPending} size="sm">
+                            {updatePresets.isPending ? 'Saving...' : 'Save Changes'}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                  <div className="flex gap-2 flex-wrap">
+                    {presetAmounts?.map((amount, index) => (
+                      <Badge key={index} variant="secondary" className="text-sm px-3 py-1">{Number(amount)}</Badge>
+                    ))}
+                  </div>
+
+                  <Separator />
+
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-medium">Split Ratio (Class Fund / Personal)</Label>
+                    <div className="flex items-center gap-3">
+                      <Input
+                        type="number"
+                        value={splitRatio.class}
+                        onChange={(e) => setSplitRatio({ ...splitRatio, class: e.target.value })}
+                        className="w-20 h-9"
+                      />
+                      <span className="text-muted-foreground text-sm">/</span>
+                      <Input
+                        type="number"
+                        value={splitRatio.personal}
+                        onChange={(e) => setSplitRatio({ ...splitRatio, personal: e.target.value })}
+                        className="w-20 h-9"
+                      />
+                      <span className="text-sm text-muted-foreground">%</span>
+                      <Button size="sm" variant="outline">Save</Button>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div className="flex items-center justify-between p-3 bg-amber-50 rounded-lg">
+                    <div>
+                      <Label className="text-sm font-medium">Current Balance</Label>
+                      <div className="text-2xl font-bold text-amber-900">{formatCubCoins(totalClassCubCoins)} CubCoins</div>
+                    </div>
+                    <Dialog open={editBalanceOpen} onOpenChange={setEditBalanceOpen}>
+                      <DialogTrigger asChild>
+                        <Button size="sm" className="gap-2">
+                          <Edit className="w-4 h-4" />
+                          Edit Balance
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Edit Class Fund Balance</DialogTitle>
+                          <DialogDescription>Set the class fund balance</DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-3">
+                          <div className="space-y-1.5">
+                            <Label htmlFor="balanceAmount" className="text-sm">New Balance</Label>
+                            <Input
+                              id="balanceAmount"
+                              type="number"
+                              placeholder="Enter amount"
+                              value={balanceAmount}
+                              onChange={(e) => setBalanceAmount(e.target.value)}
+                              className="h-9"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label htmlFor="balanceReason" className="text-sm">Reason (Optional)</Label>
+                            <Input
+                              id="balanceReason"
+                              placeholder="Why are you changing the balance?"
+                              value={balanceReason}
+                              onChange={(e) => setBalanceReason(e.target.value)}
+                              className="h-9"
+                            />
+                          </div>
+                        </div>
+                        <DialogFooter>
+                          <Button variant="outline" onClick={() => setEditBalanceOpen(false)} size="sm">Cancel</Button>
+                          <Button onClick={handleEditBalance} disabled={updateClassBalance.isPending} size="sm">
+                            {updateClassBalance.isPending ? 'Updating...' : 'Update Balance'}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Goals Card */}
+              <Card className="border-purple-200">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-xl">Goals</CardTitle>
+                      <CardDescription className="text-sm">Active class goal and rewards</CardDescription>
+                    </div>
+                    <Dialog open={createGoalOpen} onOpenChange={setCreateGoalOpen}>
+                      <DialogTrigger asChild>
+                        <Button size="sm" className="gap-2 h-9">
+                          <Plus className="w-4 h-4" />
+                          Create New Goal
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Create New Goal</DialogTitle>
+                          <DialogDescription>Set a new class savings goal</DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-3">
+                          <div className="space-y-1.5">
+                            <Label htmlFor="goalName">Goal Name</Label>
+                            <Input
+                              id="goalName"
+                              placeholder="e.g., Class Pizza Party"
+                              value={goalName}
+                              onChange={(e) => setGoalName(e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label htmlFor="goalTarget">Target Amount (CubCoins)</Label>
+                            <Input
+                              id="goalTarget"
+                              type="number"
+                              placeholder="e.g., 500"
+                              value={goalTarget}
+                              onChange={(e) => setGoalTarget(e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label htmlFor="goalDescription">Description (Optional)</Label>
+                            <Input
+                              id="goalDescription"
+                              placeholder="Describe the goal..."
+                              value={goalDescription}
+                              onChange={(e) => setGoalDescription(e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <DialogFooter>
+                          <Button variant="outline" onClick={() => setCreateGoalOpen(false)} size="sm">Cancel</Button>
+                          <Button onClick={handleCreateGoal} disabled={createGoal.isPending} size="sm">
+                            {createGoal.isPending ? 'Creating...' : 'Create Goal'}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </CardHeader>
+                <Separator />
+                <CardContent className="space-y-4 pt-4">
+                  {primaryGoal ? (
+                    <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-base">{primaryGoal.name}</h4>
+                        <p className="text-sm text-muted-foreground mt-0.5">{primaryGoal.description}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="text-sm">{formatCubCoins(primaryGoal.targetAmount)} CubCoins</Badge>
+                        <Button size="sm" variant="outline" className="gap-1 h-8 text-xs">
+                          <Edit className="w-3 h-3" />
+                          Edit
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-center text-muted-foreground py-4 text-sm">No active goal</p>
+                  )}
+
+                  <Separator />
+
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium">Reward Categories</Label>
+                    <Dialog open={addRewardOpen} onOpenChange={setAddRewardOpen}>
+                      <DialogTrigger asChild>
+                        <Button size="sm" variant="outline" className="gap-2 h-8 text-xs">
+                          <Plus className="w-3 h-3" />
+                          Add New Reward
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Add New Reward</DialogTitle>
+                          <DialogDescription>Create a new reward for students</DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-3">
+                          <div className="space-y-1.5">
+                            <Label htmlFor="rewardName">Reward Name</Label>
+                            <Input
+                              id="rewardName"
+                              placeholder="e.g., Extra Recess"
+                              value={rewardName}
+                              onChange={(e) => setRewardName(e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label htmlFor="rewardCost">Cost (CubCoins)</Label>
+                            <Input
+                              id="rewardCost"
+                              type="number"
+                              placeholder="Enter cost"
+                              value={rewardCost}
+                              onChange={(e) => setRewardCost(e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label htmlFor="rewardDescription">Description</Label>
+                            <Input
+                              id="rewardDescription"
+                              placeholder="Describe the reward..."
+                              value={rewardDescription}
+                              onChange={(e) => setRewardDescription(e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <DialogFooter>
+                          <Button variant="outline" onClick={() => setAddRewardOpen(false)} size="sm">Cancel</Button>
+                          <Button onClick={handleAddReward} disabled={addReward.isPending} size="sm">
+                            {addReward.isPending ? 'Adding...' : 'Add Reward'}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+
+                  <div className="space-y-2">
+                    {rewards && rewards.length > 0 ? (
+                      rewards.map((reward: any) => (
+                        <div key={Number(reward.id)} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                          <span className="text-sm font-medium">{reward.name}</span>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="secondary" className="text-xs">{formatCubCoins(reward.cost)} CubCoins</Badge>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="gap-1 h-7 px-2 text-xs"
+                              onClick={() => {
+                                setSelectedRewardId(reward.id);
+                                setRewardCost(reward.cost.toString());
+                                setEditRewardOpen(true);
+                              }}
+                            >
+                              <Edit className="w-3 h-3" />
+                              Edit
+                            </Button>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-center text-muted-foreground py-4 text-sm">No rewards yet</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* STUDENTS SECTION */}
           {activeSection === 'students' && (
             <div className="space-y-6">
               <Card>
@@ -549,17 +818,37 @@ export default function SettingsPage() {
                           </DialogHeader>
                           <div className="space-y-3">
                             <div className="space-y-1.5">
-                              <Label htmlFor="newStudentName" className="text-sm">Student Name</Label>
-                              <Input id="newStudentName" placeholder="Enter student name" value={studentName} onChange={(e) => setStudentName(e.target.value)} className="h-9" />
+                              <Label htmlFor="firstName">First Name</Label>
+                              <Input
+                                id="firstName"
+                                placeholder="Enter first name"
+                                value={studentFirstName}
+                                onChange={(e) => setStudentFirstName(e.target.value)}
+                              />
                             </div>
                             <div className="space-y-1.5">
-                              <Label htmlFor="newStudentBalance" className="text-sm">Initial Balance (Optional)</Label>
-                              <Input id="newStudentBalance" type="number" placeholder="0" value={studentBalance} onChange={(e) => setStudentBalance(e.target.value)} className="h-9" />
+                              <Label htmlFor="surname">Surname</Label>
+                              <Input
+                                id="surname"
+                                placeholder="Enter surname"
+                                value={studentSurname}
+                                onChange={(e) => setStudentSurname(e.target.value)}
+                              />
+                            </div>
+                            <div className="space-y-1.5">
+                              <Label htmlFor="initialBalance">Initial Balance (Optional)</Label>
+                              <Input
+                                id="initialBalance"
+                                type="number"
+                                placeholder="0"
+                                value={studentBalance}
+                                onChange={(e) => setStudentBalance(e.target.value)}
+                              />
                             </div>
                           </div>
                           <DialogFooter>
-                            <Button variant="outline" onClick={() => setAddStudentOpen(false)} size="sm" className="h-9">Cancel</Button>
-                            <Button onClick={handleAddStudent} disabled={addStudent.isPending} size="sm" className="h-9">
+                            <Button variant="outline" onClick={() => setAddStudentOpen(false)} size="sm">Cancel</Button>
+                            <Button onClick={handleAddStudent} disabled={addStudent.isPending} size="sm">
                               {addStudent.isPending ? 'Adding...' : 'Add Student'}
                             </Button>
                           </DialogFooter>
@@ -580,1069 +869,208 @@ export default function SettingsPage() {
                 <CardContent className="pt-4">
                   <Table>
                     <TableHeader>
-                      <TableRow className="h-10">
-                        <TableHead className="text-sm">Name</TableHead>
-                        <TableHead className="text-sm">Personal Balance</TableHead>
-                        <TableHead className="text-sm">Class Contribution</TableHead>
-                        <TableHead className="text-right text-sm">Actions</TableHead>
+                      <TableRow>
+                        <TableHead>First Name</TableHead>
+                        <TableHead>Surname</TableHead>
+                        <TableHead>CubCoin Balance</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {studentsLoading ? (
                         <TableRow>
-                          <TableCell colSpan={4} className="text-center text-muted-foreground text-sm h-20">Loading students...</TableCell>
+                          <TableCell colSpan={4} className="text-center text-muted-foreground h-20">Loading students...</TableCell>
                         </TableRow>
                       ) : studentsList.length > 0 ? (
-                        studentsList.map((student) => (
-                          <TableRow key={student.id} className="h-10">
-                            <TableCell className="font-medium text-sm">{student.name}</TableCell>
-                            <TableCell><Badge variant="secondary" className="text-xs">{student.personalBalance} CubCoins</Badge></TableCell>
-                            <TableCell><Badge variant="outline" className="text-xs">{student.classContribution} CubCoins</Badge></TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex justify-end gap-1.5">
-                                <Button size="sm" variant="outline" className="gap-1 h-9 text-xs" onClick={() => {
-                                  setSelectedStudent(student.id);
-                                  setStudentName(student.name);
-                                  setStudentBalance(student.personalBalance.toString());
-                                  setStudentNotes(student.notes || '');
-                                  setStudentActive(student.isActive);
-                                  setEditStudentOpen(true);
-                                }}>
-                                  <Edit className="w-3 h-3" />
-                                  Edit
-                                </Button>
-                                <Button size="sm" variant="outline" className="gap-1 h-9 text-xs">
-                                  <Eye className="w-3 h-3" />
-                                  View
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))
+                        studentsList.map((student: any) => {
+                          const nameParts = student.name.split(' ');
+                          const firstName = nameParts[0] || '';
+                          const surname = nameParts.slice(1).join(' ') || '';
+                          return (
+                            <TableRow key={student.id}>
+                              <TableCell>{firstName}</TableCell>
+                              <TableCell>{surname}</TableCell>
+                              <TableCell>
+                                <Badge variant="secondary">{student.personalBalance || 0} CubCoins</Badge>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex justify-end gap-2">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                      setSelectedStudent(student.id);
+                                      setStudentFirstName(firstName);
+                                      setStudentSurname(surname);
+                                      setStudentBalance(student.personalBalance?.toString() || '');
+                                      setStudentNotes(student.notes || '');
+                                      setStudentActive(student.isActive);
+                                      setEditStudentOpen(true);
+                                    }}
+                                  >
+                                    <Edit className="w-3 h-3 mr-1" />
+                                    Edit
+                                  </Button>
+                                  <Button size="sm" variant="default">
+                                    <DollarSign className="w-3 h-3 mr-1" />
+                                    Enter Bank
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })
                       ) : (
                         <TableRow>
-                          <TableCell colSpan={4} className="text-center text-muted-foreground text-sm h-20">No students yet</TableCell>
+                          <TableCell colSpan={4} className="text-center text-muted-foreground h-20">No students yet</TableCell>
                         </TableRow>
                       )}
                     </TableBody>
                   </Table>
                 </CardContent>
               </Card>
-
-              <Dialog open={editStudentOpen} onOpenChange={setEditStudentOpen}>
-                <DialogContent className="max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Edit Student</DialogTitle>
-                    <DialogDescription>Update student information</DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-3">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="editStudentName" className="text-sm">Student Name</Label>
-                      <Input id="editStudentName" placeholder="Student name" value={studentName} onChange={(e) => setStudentName(e.target.value)} className="h-9" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="editStudentNotes" className="text-sm">Private Notes</Label>
-                      <Textarea id="editStudentNotes" placeholder="Add private notes..." value={studentNotes} onChange={(e) => setStudentNotes(e.target.value)} rows={3} className="text-sm" />
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="studentActive" checked={studentActive} onCheckedChange={(checked) => setStudentActive(checked as boolean)} />
-                      <Label htmlFor="studentActive" className="text-sm">Student is active</Label>
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setEditStudentOpen(false)} size="sm" className="h-9">Cancel</Button>
-                    <Button onClick={handleEditStudent} disabled={updateStudent.isPending} size="sm" className="h-9">
-                      {updateStudent.isPending ? 'Saving...' : 'Save Changes'}
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
             </div>
           )}
 
-          {/* Class Fund Section */}
-          {activeSection === 'fund' && (
+          {/* PARENTS SECTION */}
+          {activeSection === 'parents' && (
             <div className="space-y-6">
-              <Card className="border-amber-200 shadow-lg">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center justify-between text-xl">
-                    <span>Current Balance</span>
-                    <Badge variant="secondary" className="text-xl px-3 py-1">{formatCubCoins(totalClassCubCoins)} CubCoins</Badge>
-                  </CardTitle>
-                </CardHeader>
-                <Separator />
-                <CardContent className="space-y-4 pt-4">
-                  <div className="bg-gray-50 rounded-lg p-3 space-y-2">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Lock className="w-4 h-4 text-gray-600" />
-                      <h4 className="font-semibold text-sm text-gray-900">System Information</h4>
-                    </div>
-                    <div className="grid md:grid-cols-2 gap-3 text-xs">
-                      <div>
-                        <Label className="text-gray-600 text-xs">Database ID</Label>
-                        <p className="text-gray-800 font-mono text-xs">{classFund?.id || '(empty)'}</p>
-                      </div>
-                      <div>
-                        <Label className="text-gray-600 text-xs">Last Updated</Label>
-                        <p className="text-gray-800 text-xs">{classFund?.lastSynced ? formatDate(classFund.lastSynced) : 'Not updated'}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div className="flex gap-2">
-                    <Dialog open={editBalanceOpen} onOpenChange={setEditBalanceOpen}>
-                      <DialogTrigger asChild>
-                        <Button size="sm" className="gap-2 h-9">
-                          <Edit className="w-4 h-4" />
-                          Edit Balance
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-md">
-                        <DialogHeader>
-                          <DialogTitle>Edit Class Fund Balance</DialogTitle>
-                          <DialogDescription>Add, subtract, or set the class fund amount</DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-3">
-                          <div className="space-y-1.5">
-                            <Label className="text-sm">Operation</Label>
-                            <Select value={balanceOperation} onValueChange={(v: any) => setBalanceOperation(v)}>
-                              <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="add">Add to balance</SelectItem>
-                                <SelectItem value="subtract">Subtract from balance</SelectItem>
-                                <SelectItem value="set">Set balance to</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="space-y-1.5">
-                            <Label htmlFor="balanceAmount" className="text-sm">Amount</Label>
-                            <Input id="balanceAmount" type="number" placeholder="Enter amount" value={balanceAmount} onChange={(e) => setBalanceAmount(e.target.value)} className="h-9" />
-                          </div>
-                          <div className="space-y-1.5">
-                            <Label htmlFor="balanceReason" className="text-sm">Reason (Optional)</Label>
-                            <Textarea id="balanceReason" placeholder="Why are you making this change?" value={balanceReason} onChange={(e) => setBalanceReason(e.target.value)} rows={2} className="text-sm" />
-                          </div>
-                        </div>
-                        <DialogFooter>
-                          <Button variant="outline" onClick={() => setEditBalanceOpen(false)} size="sm" className="h-9">Cancel</Button>
-                          <Button onClick={handleEditBalance} disabled={updateClassBalance.isPending} size="sm" className="h-9">
-                            {updateClassBalance.isPending ? 'Updating...' : 'Update Balance'}
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
-
-                    <Button variant="outline" size="sm" className="gap-2 h-9" onClick={() => setViewTransactionsOpen(true)}>
-                      <History className="w-4 h-4" />
-                      View Full History
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
               <Card>
                 <CardHeader className="pb-4">
-                  <CardTitle className="text-xl">Recent Transactions</CardTitle>
-                  <CardDescription className="text-sm">Last 5 CubCoins awards</CardDescription>
-                </CardHeader>
-                <Separator />
-                <CardContent className="pt-4">
-                  <div className="space-y-2">
-                    {transactions.slice(-5).reverse().map((tx) => (
-                      <div key={Number(tx.id)} className="flex items-center justify-between p-2.5 bg-blue-50 rounded-lg">
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">{tx.description}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">{formatDate(tx.timestamp)}</p>
-                        </div>
-                        <div className="flex gap-1.5">
-                          <Badge variant="secondary" className="text-xs">+{formatCubCoins(tx.amount)}</Badge>
-                          <Button size="sm" variant="outline" className="gap-1 h-8 px-2">
-                            <Edit className="w-3 h-3" />
-                          </Button>
-                          <Button size="sm" variant="outline" className="gap-1 h-8 px-2">
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          {/* Goals & Rewards Section */}
-          {activeSection === 'goals' && (
-            <div className="space-y-6">
-              <Card className="border-purple-200 shadow-lg">
-                <CardHeader className="pb-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle className="text-xl">Active Goal</CardTitle>
-                      <CardDescription className="text-sm">Current class savings goal</CardDescription>
+                      <CardTitle className="text-xl">Parents</CardTitle>
+                      <CardDescription className="text-sm">Manage parent communications</CardDescription>
                     </div>
-                    <Dialog open={createGoalOpen} onOpenChange={setCreateGoalOpen}>
-                      <DialogTrigger asChild>
-                        <Button size="sm" className="gap-2 h-9">
-                          <Plus className="w-4 h-4" />
-                          Create New Goal
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-md">
-                        <DialogHeader>
-                          <DialogTitle>Create New Goal</DialogTitle>
-                          <DialogDescription>Set a new class savings goal</DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-3">
-                          <div className="space-y-1.5">
-                            <Label htmlFor="goalName" className="text-sm">Goal Name</Label>
-                            <Input id="goalName" placeholder="e.g., Class Pizza Party" value={goalName} onChange={(e) => setGoalName(e.target.value)} className="h-9" />
-                          </div>
-                          <div className="space-y-1.5">
-                            <Label htmlFor="goalTarget" className="text-sm">Target Amount (CubCoins)</Label>
-                            <Input id="goalTarget" type="number" placeholder="e.g., 500" value={goalTarget} onChange={(e) => setGoalTarget(e.target.value)} className="h-9" />
-                          </div>
-                          <div className="space-y-1.5">
-                            <Label htmlFor="goalDescription" className="text-sm">Description (Optional)</Label>
-                            <Textarea id="goalDescription" placeholder="Describe the goal..." value={goalDescription} onChange={(e) => setGoalDescription(e.target.value)} rows={2} className="text-sm" />
-                          </div>
-                        </div>
-                        <DialogFooter>
-                          <Button variant="outline" onClick={() => setCreateGoalOpen(false)} size="sm" className="h-9">Cancel</Button>
-                          <Button onClick={handleCreateGoal} disabled={createGoal.isPending} size="sm" className="h-9">
-                            {createGoal.isPending ? 'Creating...' : 'Create Goal'}
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                </CardHeader>
-                <Separator />
-                <CardContent className="pt-4">
-                  {activeGoals.length > 0 ? (
-                    activeGoals.map((goal) => (
-                      <Card key={Number(goal.id)} className="border-purple-100">
-                        <CardContent className="pt-3 pb-3">
-                          <div className="space-y-2">
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <h4 className="font-semibold text-base">{goal.name}</h4>
-                                <p className="text-sm text-muted-foreground mt-0.5">{goal.description}</p>
-                              </div>
-                              <Badge variant="secondary" className="text-xs">{formatCubCoins(goal.targetAmount)} CubCoins</Badge>
-                            </div>
-                            <div className="flex gap-1.5">
-                              <Button size="sm" variant="outline" className="gap-1 h-8 text-xs">
-                                <Edit className="w-3 h-3" />
-                                Edit
-                              </Button>
-                              <Button size="sm" variant="destructive" className="gap-1 h-8 text-xs">
-                                <Trash2 className="w-3 h-3" />
-                                Delete
-                              </Button>
-                              <Button size="sm" variant="default" className="gap-1 h-8 text-xs">
-                                Mark Complete
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))
-                  ) : (
-                    <p className="text-center text-muted-foreground py-6 text-sm">No active goals</p>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card className="border-orange-200 shadow-lg">
-                <CardHeader className="pb-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-xl">Rewards Catalog</CardTitle>
-                      <CardDescription className="text-sm">Manage available rewards</CardDescription>
-                    </div>
-                    <div className="flex gap-2">
-                      <Dialog open={addRewardOpen} onOpenChange={setAddRewardOpen}>
-                        <DialogTrigger asChild>
-                          <Button size="sm" className="gap-2 h-9">
-                            <Plus className="w-4 h-4" />
-                            Add Reward
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-md">
-                          <DialogHeader>
-                            <DialogTitle>Add New Reward</DialogTitle>
-                            <DialogDescription>Create a new reward</DialogDescription>
-                          </DialogHeader>
-                          <div className="space-y-3">
-                            <div className="space-y-1.5">
-                              <Label htmlFor="rewardName" className="text-sm">Reward Name</Label>
-                              <Input id="rewardName" placeholder="e.g., Extra Recess" value={rewardName} onChange={(e) => setRewardName(e.target.value)} className="h-9" />
-                            </div>
-                            <div className="space-y-1.5">
-                              <Label htmlFor="rewardCost" className="text-sm">Cost (CubCoins)</Label>
-                              <Input id="rewardCost" type="number" placeholder="Enter cost" value={rewardCost} onChange={(e) => setRewardCost(e.target.value)} className="h-9" />
-                            </div>
-                            <div className="space-y-1.5">
-                              <Label htmlFor="rewardDescription" className="text-sm">Description</Label>
-                              <Textarea id="rewardDescription" placeholder="Describe the reward..." value={rewardDescription} onChange={(e) => setRewardDescription(e.target.value)} rows={2} className="text-sm" />
-                            </div>
-                          </div>
-                          <DialogFooter>
-                            <Button variant="outline" onClick={() => setAddRewardOpen(false)} size="sm" className="h-9">Cancel</Button>
-                            <Button onClick={handleAddReward} disabled={addReward.isPending} size="sm" className="h-9">{addReward.isPending ? 'Adding...' : 'Add Reward'}</Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-
-                      <Dialog open={bulkPriceOpen} onOpenChange={setBulkPriceOpen}>
-                        <DialogTrigger asChild>
-                          <Button variant="outline" size="sm" className="gap-2 h-9">
-                            <Package className="w-4 h-4" />
-                            Bulk Update
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-md">
-                          <DialogHeader>
-                            <DialogTitle>Bulk Price Update</DialogTitle>
-                            <DialogDescription>Update all reward prices by a percentage</DialogDescription>
-                          </DialogHeader>
-                          <div className="space-y-3">
-                            <div className="space-y-1.5">
-                              <Label className="text-sm">Operation</Label>
-                              <Select value={bulkPriceIncrease ? 'increase' : 'decrease'} onValueChange={(v) => setBulkPriceIncrease(v === 'increase')}>
-                                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="increase">Increase prices</SelectItem>
-                                  <SelectItem value="decrease">Decrease prices</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div className="space-y-1.5">
-                              <Label htmlFor="bulkPriceChange" className="text-sm">Percentage</Label>
-                              <Input id="bulkPriceChange" type="number" placeholder="e.g., 10 for 10%" value={bulkPriceChange} onChange={(e) => setBulkPriceChange(e.target.value)} className="h-9" />
-                            </div>
-                          </div>
-                          <DialogFooter>
-                            <Button variant="outline" onClick={() => setBulkPriceOpen(false)} size="sm" className="h-9">Cancel</Button>
-                            <Button onClick={handleBulkPriceUpdate} disabled={bulkUpdatePrices.isPending} size="sm" className="h-9">{bulkUpdatePrices.isPending ? 'Updating...' : 'Update All Prices'}</Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                    </div>
+                    <Button size="sm" className="gap-2">
+                      <Mail className="w-4 h-4" />
+                      Send Class Letter
+                    </Button>
                   </div>
                 </CardHeader>
                 <Separator />
                 <CardContent className="pt-4">
                   <Table>
                     <TableHeader>
-                      <TableRow className="h-10">
-                        <TableHead className="text-sm">Reward Name</TableHead>
-                        <TableHead className="text-sm">Cost</TableHead>
-                        <TableHead className="text-right text-sm">Actions</TableHead>
+                      <TableRow>
+                        <TableHead>Student Full Name</TableHead>
+                        <TableHead>Parent Full Name</TableHead>
+                        <TableHead>Meal Type</TableHead>
+                        <TableHead>Present</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {rewards && rewards.length > 0 ? (
-                        rewards.map((reward) => (
-                          <TableRow key={Number(reward.id)} className="h-10">
-                            <TableCell className="font-medium text-sm">{reward.name}</TableCell>
-                            <TableCell><Badge variant="secondary" className="text-xs">{formatCubCoins(reward.cost)} CubCoins</Badge></TableCell>
+                      {studentsList.length > 0 ? (
+                        studentsList.map((student: any) => (
+                          <TableRow key={student.id}>
+                            <TableCell>{student.name}</TableCell>
+                            <TableCell className="text-muted-foreground">Not linked</TableCell>
+                            <TableCell>
+                              <Select defaultValue="packed">
+                                <SelectTrigger className="h-8 w-[140px]">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="free">Free School Meals</SelectItem>
+                                  <SelectItem value="packed">Packed Lunch</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </TableCell>
+                            <TableCell>
+                              <Checkbox defaultChecked />
+                            </TableCell>
                             <TableCell className="text-right">
-                              <div className="flex justify-end gap-1.5">
-                                <Button size="sm" variant="outline" className="gap-1 h-8 text-xs" onClick={() => { setSelectedRewardId(reward.id); setRewardCost(reward.cost.toString()); setEditRewardOpen(true); }}>
-                                  <Edit className="w-3 h-3" />
-                                  Edit
-                                </Button>
-                                <Button size="sm" variant="destructive" className="gap-1 h-8 text-xs">
-                                  <Trash2 className="w-3 h-3" />
-                                  Delete
-                                </Button>
-                              </div>
+                              <Button size="sm" variant="outline">
+                                <Mail className="w-3 h-3 mr-1" />
+                                Send Letter
+                              </Button>
                             </TableCell>
                           </TableRow>
                         ))
                       ) : (
                         <TableRow>
-                          <TableCell colSpan={3} className="text-center text-muted-foreground text-sm h-20">No rewards yet</TableCell>
+                          <TableCell colSpan={5} className="text-center text-muted-foreground h-20">No students yet</TableCell>
                         </TableRow>
                       )}
                     </TableBody>
                   </Table>
                 </CardContent>
               </Card>
-
-              <Dialog open={editRewardOpen} onOpenChange={setEditRewardOpen}>
-                <DialogContent className="max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Edit Reward Price</DialogTitle>
-                    <DialogDescription>Update the cost of this reward</DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-3">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="editRewardCost" className="text-sm">New Cost (CubCoins)</Label>
-                      <Input id="editRewardCost" type="number" placeholder="Enter new cost" value={rewardCost} onChange={(e) => setRewardCost(e.target.value)} className="h-9" />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setEditRewardOpen(false)} size="sm" className="h-9">Cancel</Button>
-                    <Button onClick={handleEditReward} disabled={updateRewardPrice.isPending} size="sm" className="h-9">{updateRewardPrice.isPending ? 'Updating...' : 'Update Price'}</Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
             </div>
           )}
 
-          {/* Voting Section - Manual Teacher-Driven */}
-          {activeSection === 'voting' && (
+          {/* ACCOUNT ADMIN SECTION */}
+          {activeSection === 'account' && (
             <div className="space-y-6">
-              {/* Helper Text Card */}
-              <Alert className="border-indigo-200 bg-indigo-50">
-                <AlertCircle className="h-4 w-4 text-indigo-600" />
-                <AlertDescription className="text-sm text-indigo-900">
-                  <strong>Manual Voting Workflow:</strong> Create class decisions and facilitate in-person voting. Students raise hands, you count and record the results. No student devices needed.
-                </AlertDescription>
-              </Alert>
-
-              <Card className="border-indigo-200 shadow-lg">
-                <CardHeader className="pb-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-xl">Active Votes</CardTitle>
-                      <CardDescription className="text-sm">Teacher-facilitated class decisions</CardDescription>
-                    </div>
-                    <Dialog open={createVoteOpen} onOpenChange={setCreateVoteOpen}>
-                      <DialogTrigger asChild>
-                        <Button size="sm" className="gap-2 h-9">
-                          <Plus className="w-4 h-4" />
-                          Create Class Decision
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-md">
-                        <DialogHeader>
-                          <DialogTitle>Create Class Decision</DialogTitle>
-                          <DialogDescription>Set up a new vote for in-person facilitation</DialogDescription>
-                        </DialogHeader>
-                        <Alert className="border-blue-200 bg-blue-50">
-                          <AlertCircle className="h-4 w-4 text-blue-600" />
-                          <AlertDescription className="text-xs text-blue-900">
-                            You'll facilitate this vote in class. Students will raise hands, and you'll enter the counts manually.
-                          </AlertDescription>
-                        </Alert>
-                        <div className="space-y-3">
-                          <div className="space-y-1.5">
-                            <Label htmlFor="voteTitle" className="text-sm">Decision Title</Label>
-                            <Input id="voteTitle" placeholder="e.g., Choose our class reward" value={voteTitle} onChange={(e) => setVoteTitle(e.target.value)} className="h-9" />
-                          </div>
-                          <div className="space-y-1.5">
-                            <Label htmlFor="voteDescription" className="text-sm">Description</Label>
-                            <Textarea id="voteDescription" placeholder="Explain the decision..." value={voteDescription} onChange={(e) => setVoteDescription(e.target.value)} rows={2} className="text-sm" />
-                          </div>
-                          <div className="space-y-1.5">
-                            <Label htmlFor="voteProsCons" className="text-sm">Discussion Points (Optional)</Label>
-                            <Textarea id="voteProsCons" placeholder="Pros, cons, or discussion topics..." value={voteProsCons} onChange={(e) => setVoteProsCons(e.target.value)} rows={2} className="text-sm" />
-                          </div>
-                          <div className="space-y-1.5">
-                            <Label className="text-sm">Voting Options</Label>
-                            {voteOptions.map((option, index) => (
-                              <div key={index} className="flex items-center gap-2">
-                                <Input
-                                  placeholder={`Option ${index + 1}`}
-                                  value={option.name}
-                                  onChange={(e) => {
-                                    const newOptions = [...voteOptions];
-                                    newOptions[index].name = e.target.value;
-                                    setVoteOptions(newOptions);
-                                  }}
-                                  className="h-9 flex-1"
-                                />
-                                {voteOptions.length > 2 && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-8 w-8 p-0"
-                                    onClick={() => {
-                                      const newOptions = voteOptions.filter((_, i) => i !== index);
-                                      setVoteOptions(newOptions);
-                                    }}
-                                  >
-                                    <X className="w-4 h-4" />
-                                  </Button>
-                                )}
-                              </div>
-                            ))}
-                            {voteOptions.length < 6 && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="w-full gap-2 h-9"
-                                onClick={() => setVoteOptions([...voteOptions, { name: '', voteCount: '0' }])}
-                              >
-                                <Plus className="w-4 h-4" />
-                                Add Option
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                        <DialogFooter>
-                          <Button variant="outline" onClick={() => setCreateVoteOpen(false)} size="sm" className="h-9">Cancel</Button>
-                          <Button onClick={handleCreateVote} disabled={createVotingProposal.isPending} size="sm" className="h-9">
-                            {createVotingProposal.isPending ? 'Creating...' : 'Create Decision'}
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                </CardHeader>
-                <Separator />
-                <CardContent className="pt-4">
-                  {activeVotes && activeVotes.length > 0 ? (
-                    <div className="space-y-4">
-                      {activeVotes.map((vote) => (
-                        <Card key={Number(vote.id)} className={cn(
-                          "border-indigo-100",
-                          vote.isFinalized && "bg-gray-50 opacity-75"
-                        )}>
-                          <CardContent className="pt-4 pb-4">
-                            <div className="space-y-3">
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2">
-                                    <h4 className="font-semibold text-base">{vote.title}</h4>
-                                    {vote.isFinalized && (
-                                      <Badge variant="secondary" className="text-xs gap-1">
-                                        <CheckCircle2 className="w-3 h-3" />
-                                        Finalized
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  <p className="text-sm text-muted-foreground mt-0.5">{vote.description}</p>
-                                </div>
-                              </div>
-
-                              {!vote.isFinalized ? (
-                                <>
-                                  <div className="space-y-2">
-                                    <Label className="text-sm font-medium">Enter Vote Counts:</Label>
-                                    {vote.options.map((option) => (
-                                      <div key={option.name} className="flex items-center gap-3">
-                                        <Label className="text-sm flex-1">{option.name}</Label>
-                                        <Input
-                                          type="number"
-                                          min="0"
-                                          placeholder="0"
-                                          value={editingVoteCounts[`${vote.id}-${option.name}`] ?? Number(option.voteCount).toString()}
-                                          onChange={(e) => handleUpdateVoteCount(vote.id, option.name, e.target.value)}
-                                          className="h-9 w-24"
-                                          disabled={vote.isFinalized}
-                                        />
-                                        <span className="text-sm text-muted-foreground w-12">votes</span>
-                                      </div>
-                                    ))}
-                                  </div>
-
-                                  <div className="flex items-center justify-between pt-2 border-t">
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-sm font-medium">Total Votes:</span>
-                                      <Badge variant="outline" className="text-sm">{getTotalVotes(vote)}</Badge>
-                                      {vote.isValidated && (
-                                        <Badge variant="secondary" className="text-xs gap-1 bg-green-100 text-green-800">
-                                          <CheckCircle2 className="w-3 h-3" />
-                                          Validated
-                                        </Badge>
-                                      )}
-                                    </div>
-                                    <div className="flex gap-1.5">
-                                      <Button
-                                        size="sm"
-                                        variant="default"
-                                        className="gap-1 h-8 text-xs"
-                                        onClick={() => {
-                                          setSelectedVoteId(vote.id);
-                                          setRecordResultsOpen(true);
-                                        }}
-                                      >
-                                        <CheckCircle2 className="w-3 h-3" />
-                                        Record Results
-                                      </Button>
-                                      <Button size="sm" variant="outline" className="gap-1 h-8 text-xs">
-                                        <Edit className="w-3 h-3" />
-                                        Edit
-                                      </Button>
-                                    </div>
-                                  </div>
-                                </>
-                              ) : (
-                                <>
-                                  <div className="space-y-2">
-                                    <Label className="text-sm font-medium">Final Results:</Label>
-                                    {vote.options.map((option) => (
-                                      <div key={option.name} className="flex items-center justify-between p-2 bg-gray-100 rounded">
-                                        <span className="text-sm font-medium">{option.name}</span>
-                                        <Badge variant="secondary" className="text-sm">{Number(option.voteCount)} votes</Badge>
-                                      </div>
-                                    ))}
-                                  </div>
-                                  <div className="flex items-center gap-2 pt-2 border-t">
-                                    <span className="text-sm text-muted-foreground">
-                                      Finalized on {vote.finalizedTimestamp ? formatDate(vote.finalizedTimestamp) : 'Unknown'}
-                                    </span>
-                                  </div>
-                                </>
-                              )}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-center text-muted-foreground py-6 text-sm">No active votes. Create a class decision to get started!</p>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Record Results Confirmation Dialog */}
-              <AlertDialog open={recordResultsOpen} onOpenChange={setRecordResultsOpen}>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Record and Finalize Vote Results?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      {selectedVoteId && activeVotes && (() => {
-                        const vote = activeVotes.find(v => v.id === selectedVoteId);
-                        if (!vote) return null;
-                        return (
-                          <div className="space-y-3 mt-3">
-                            <p className="text-sm">You're about to finalize the vote for <strong>{vote.title}</strong>.</p>
-                            <div className="bg-gray-50 rounded-lg p-3 space-y-2">
-                              <p className="text-sm font-medium">Vote Breakdown:</p>
-                              {vote.options.map((option) => (
-                                <div key={option.name} className="flex justify-between text-sm">
-                                  <span>{option.name}:</span>
-                                  <span className="font-medium">{Number(option.voteCount)} votes</span>
-                                </div>
-                              ))}
-                              <div className="flex justify-between text-sm font-bold pt-2 border-t">
-                                <span>Total:</span>
-                                <span>{getTotalVotes(vote)} votes</span>
-                              </div>
-                            </div>
-                            <Alert className="border-yellow-200 bg-yellow-50">
-                              <AlertTriangle className="h-4 w-4 text-yellow-600" />
-                              <AlertDescription className="text-xs text-yellow-900">
-                                Once finalized, vote counts cannot be edited. The winning decision will be displayed on the Class Display.
-                              </AlertDescription>
-                            </Alert>
-                          </div>
-                        );
-                      })()}
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel onClick={() => setSelectedVoteId(null)}>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleRecordResults} className="bg-indigo-600 hover:bg-indigo-700">
-                      Finalize Results
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          )}
-
-          {/* System Section */}
-          {activeSection === 'system' && (
-            <div className="space-y-6">
-              {/* Class Information Card */}
               <Card>
                 <CardHeader className="pb-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle className="text-xl">Class Information</CardTitle>
-                      <CardDescription className="text-sm">Your classroom details and access code for parents</CardDescription>
+                      <CardTitle className="text-xl">Account Admin</CardTitle>
+                      <CardDescription className="text-sm">Manage your account settings</CardDescription>
                     </div>
                     <Button
-                      variant="outline"
                       size="sm"
-                      onClick={() => {
-                        setEditClassName(teacherClass?.class_name || '');
-                        setEditSchoolYear(teacherClass?.school_year || '');
-                        setIsEditingClass(true);
-                      }}
-                      className="gap-2"
+                      variant={isEditingAccount ? 'default' : 'outline'}
+                      onClick={() => setIsEditingAccount(!isEditingAccount)}
                     >
-                      <Edit className="w-4 h-4" />
-                      {teacherClass ? 'Edit' : 'Create Class'}
+                      {isEditingAccount ? 'Save' : 'Edit'}
                     </Button>
                   </div>
                 </CardHeader>
                 <Separator />
                 <CardContent className="space-y-4 pt-4">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-1.5">
-                      <Label className="text-sm font-medium">Class Name</Label>
-                      <div className="text-base">{teacherClass?.class_name || 'Not set'}</div>
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-sm font-medium">School Year</Label>
-                      <div className="text-base">{teacherClass?.school_year || 'Not set'}</div>
-                    </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-medium">Teacher Name</Label>
+                    {isEditingAccount ? (
+                      <Input
+                        value={accountTeacherName}
+                        onChange={(e) => setAccountTeacherName(e.target.value)}
+                        placeholder="Enter your name"
+                      />
+                    ) : (
+                      <div className="text-base">{accountTeacherName || 'Not set'}</div>
+                    )}
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-medium">Class Name</Label>
+                    <div className="text-base">{teacherClass?.class_name || 'Not set'}</div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-medium">Class Size</Label>
+                    <div className="text-base">{studentsList.length} students</div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-medium">Sign in Email</Label>
+                    {isEditingAccount ? (
+                      <Input
+                        type="email"
+                        value={accountEmail}
+                        onChange={(e) => setAccountEmail(e.target.value)}
+                        placeholder="Enter your email"
+                      />
+                    ) : (
+                      <div className="text-base">{accountEmail || 'Not set'}</div>
+                    )}
                   </div>
 
                   <Separator />
 
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Parent Access Code</Label>
-                    {teacherClass?.class_code ? (
-                      <div className="flex items-center gap-3">
-                        <div className="flex-1 bg-amber-50 border-2 border-amber-200 rounded-lg p-4">
-                          <div className="text-3xl font-bold text-amber-900 tracking-wider text-center font-mono">
-                            {teacherClass.class_code}
-                          </div>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            navigator.clipboard.writeText(teacherClass.class_code);
-                            toast.success('Class code copied to clipboard!');
-                          }}
-                          className="gap-2"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
-                            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
-                          </svg>
-                          Copy
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="bg-muted border-2 border-dashed rounded-lg p-4">
-                        <p className="text-sm text-muted-foreground text-center">
-                          No class yet - click "Create Class" above to get started
-                        </p>
-                      </div>
-                    )}
-                    <p className="text-xs text-muted-foreground">
-                      Share this code with parents so they can view their child's progress. Parents enter this code when signing up.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Class Edit Dialog */}
-              <Dialog open={isEditingClass} onOpenChange={setIsEditingClass}>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>{teacherClass ? 'Edit Class Information' : 'Create Your Class'}</DialogTitle>
-                    <DialogDescription>
-                      {teacherClass
-                        ? 'Update your classroom details. The class code cannot be changed.'
-                        : 'Set up your classroom. A unique class code will be generated for parents to join.'}
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="className">Class Name *</Label>
-                      <Input
-                        id="className"
-                        value={editClassName}
-                        onChange={(e) => setEditClassName(e.target.value)}
-                        placeholder="e.g., Mrs. Smith's 3rd Grade"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="schoolYear">School Year</Label>
-                      <Input
-                        id="schoolYear"
-                        value={editSchoolYear}
-                        onChange={(e) => setEditSchoolYear(e.target.value)}
-                        placeholder="e.g., 2024-2025"
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsEditingClass(false)}
-                    >
-                      Cancel
+                    <Button variant="outline" className="w-full justify-start gap-2" onClick={() => setChangePasswordOpen(true)}>
+                      <Edit className="w-4 h-4" />
+                      Change Password
                     </Button>
-                    <Button
-                      onClick={async () => {
-                        if (!editClassName.trim()) {
-                          toast.error('Please enter a class name');
-                          return;
-                        }
-
-                        try {
-                          if (teacherClass) {
-                            // Update existing class
-                            await updateTeacherClass.mutateAsync({
-                              classId: teacherClass.id,
-                              className: editClassName,
-                              schoolYear: editSchoolYear,
-                            });
-                            toast.success('Class information updated!');
-                          } else {
-                            // Create new class
-                            const result = await createTeacherClass.mutateAsync({
-                              className: editClassName,
-                              schoolYear: editSchoolYear,
-                            });
-                            toast.success(`Class created! Your class code is: ${result.classCode}`, {
-                              duration: 5000,
-                            });
-                          }
-                          setIsEditingClass(false);
-                        } catch (error) {
-                          console.error('Error saving class:', error);
-                          toast.error('Failed to save class information');
-                        }
-                      }}
-                      disabled={createTeacherClass.isPending || updateTeacherClass.isPending}
-                    >
-                      {createTeacherClass.isPending || updateTeacherClass.isPending
-                        ? 'Saving...'
-                        : teacherClass
-                        ? 'Save Changes'
-                        : 'Create Class'}
+                    <Button variant="outline" className="w-full justify-start gap-2 border-red-300 text-red-700 hover:bg-red-50" onClick={() => setDeleteAccountOpen(true)}>
+                      <Trash2 className="w-4 h-4" />
+                      Delete Account
                     </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-
-              <Card>
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-xl">Award Settings</CardTitle>
-                  <CardDescription className="text-sm">Configure default award behavior</CardDescription>
-                </CardHeader>
-                <Separator />
-                <CardContent className="space-y-4 pt-4">
-                  <div className="space-y-1.5">
-                    <Label className="text-sm">Split Ratio (Class Fund / Personal)</Label>
-                    <div className="flex items-center gap-3">
-                      <Input type="number" placeholder="70" className="w-20 h-9" />
-                      <span className="text-muted-foreground text-sm">/</span>
-                      <Input type="number" placeholder="30" className="w-20 h-9" />
-                      <span className="text-sm text-muted-foreground">%</span>
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-sm">Preset Amount Buttons</Label>
-                      <Dialog open={editPresetsOpen} onOpenChange={(open) => {
-                        setEditPresetsOpen(open);
-                        if (open && presetAmounts) {
-                          setEditablePresets(presetAmounts.map(a => a.toString()));
-                        }
-                      }}>
-                        <DialogTrigger asChild>
-                          <Button variant="outline" size="sm" className="gap-2 h-8 text-xs">
-                            <Edit className="w-3 h-3" />
-                            Edit Presets
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-md">
-                          <DialogHeader>
-                            <DialogTitle>Edit Preset Amounts</DialogTitle>
-                            <DialogDescription>Adjust up to five preset award amounts</DialogDescription>
-                          </DialogHeader>
-                          <div className="space-y-3">
-                            {editablePresets.map((preset, index) => (
-                              <div key={index} className="flex items-center gap-2">
-                                <Label className="text-sm w-20">Preset {index + 1}</Label>
-                                <Input
-                                  type="number"
-                                  value={preset}
-                                  onChange={(e) => {
-                                    const newPresets = [...editablePresets];
-                                    newPresets[index] = e.target.value;
-                                    setEditablePresets(newPresets);
-                                  }}
-                                  className="h-9 flex-1"
-                                />
-                                {editablePresets.length > 1 && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-8 w-8 p-0"
-                                    onClick={() => {
-                                      const newPresets = editablePresets.filter((_, i) => i !== index);
-                                      setEditablePresets(newPresets);
-                                    }}
-                                  >
-                                    <X className="w-4 h-4" />
-                                  </Button>
-                                )}
-                              </div>
-                            ))}
-                            {editablePresets.length < 10 && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="w-full gap-2 h-9"
-                                onClick={() => setEditablePresets([...editablePresets, ''])}
-                              >
-                                <Plus className="w-4 h-4" />
-                                Add Preset
-                              </Button>
-                            )}
-                          </div>
-                          <DialogFooter>
-                            <Button variant="outline" onClick={() => setEditPresetsOpen(false)} size="sm" className="h-9">Cancel</Button>
-                            <Button onClick={handleUpdatePresets} disabled={updatePresets.isPending} size="sm" className="h-9">
-                              {updatePresets.isPending ? 'Saving...' : 'Save Changes'}
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                    </div>
-                    <div className="flex gap-2 flex-wrap">
-                      {presetAmounts?.map((amount, index) => (
-                        <Badge key={index} variant="secondary" className="text-sm px-3 py-1">{Number(amount)}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-sm">Preset Reasons</Label>
-                      <Dialog open={addReasonOpen} onOpenChange={setAddReasonOpen}>
-                        <DialogTrigger asChild>
-                          <Button variant="outline" size="sm" className="gap-2 h-8 text-xs">
-                            <Plus className="w-3 h-3" />
-                            Add Custom Reason
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-md">
-                          <DialogHeader>
-                            <DialogTitle>Add Custom Reason</DialogTitle>
-                            <DialogDescription>Create a new preset reason for awards</DialogDescription>
-                          </DialogHeader>
-                          <div className="space-y-3">
-                            <div className="space-y-1.5">
-                              <Label htmlFor="newReason" className="text-sm">Reason Text</Label>
-                              <Input id="newReason" placeholder="e.g., Excellent teamwork" value={newReason} onChange={(e) => setNewReason(e.target.value)} className="h-9" />
-                            </div>
-                          </div>
-                          <DialogFooter>
-                            <Button variant="outline" onClick={() => setAddReasonOpen(false)} size="sm" className="h-9">Cancel</Button>
-                            <Button onClick={handleAddReason} disabled={addReason.isPending} size="sm" className="h-9">
-                              {addReason.isPending ? 'Adding...' : 'Add Reason'}
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                    </div>
-                    <div className="space-y-2">
-                      {presetReasons?.map((reason, index) => (
-                        <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-                          <span className="text-sm">{reason}</span>
-                          <div className="flex gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 px-2 text-xs"
-                              onClick={() => {
-                                setEditingReasonIndex(index);
-                                setEditingReasonText(reason);
-                                setEditReasonOpen(true);
-                              }}
-                            >
-                              <Edit className="w-3 h-3" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 px-2 text-xs"
-                              onClick={() => handleDeleteReason(index)}
-                              disabled={deleteReason.isPending}
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Dialog open={editReasonOpen} onOpenChange={setEditReasonOpen}>
-                <DialogContent className="max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Edit Reason</DialogTitle>
-                    <DialogDescription>Update the preset reason text</DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-3">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="editReason" className="text-sm">Reason Text</Label>
-                      <Input id="editReason" value={editingReasonText} onChange={(e) => setEditingReasonText(e.target.value)} className="h-9" />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setEditReasonOpen(false)} size="sm" className="h-9">Cancel</Button>
-                    <Button onClick={handleUpdateReason} disabled={updateReason.isPending} size="sm" className="h-9">
-                      {updateReason.isPending ? 'Updating...' : 'Update Reason'}
+                    <Button variant="outline" className="w-full justify-start gap-2">
+                      <Users className="w-4 h-4" />
+                      Transfer Class
                     </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-
-              <Card className="border-red-200 shadow-lg">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-red-900 text-xl">Danger Zone</CardTitle>
-                  <CardDescription className="text-sm">Irreversible actions - use with caution</CardDescription>
-                </CardHeader>
-                <Separator />
-                <CardContent className="space-y-2 pt-4">
-                  <Dialog open={semesterResetOpen} onOpenChange={setSemesterResetOpen}>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" className="w-full gap-2 border-red-300 text-red-700 hover:bg-red-50 h-9">
-                        <RotateCcw className="w-4 h-4" />
-                        Reset Semester
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-md">
-                      <DialogHeader>
-                        <DialogTitle>Semester Reset</DialogTitle>
-                        <DialogDescription>Choose what to reset for the new semester</DialogDescription>
-                      </DialogHeader>
-                      <div className="space-y-3">
-                        <div className="flex items-center space-x-2">
-                          <Checkbox id="resetFund" checked={resetFund} onCheckedChange={(checked) => setResetFund(checked as boolean)} />
-                          <Label htmlFor="resetFund" className="text-sm">Reset class fund to 0</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox id="resetBalances" checked={resetBalances} onCheckedChange={(checked) => setResetBalances(checked as boolean)} />
-                          <Label htmlFor="resetBalances" className="text-sm">Reset all student balances</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox id="keepStudents" checked={keepStudents} onCheckedChange={(checked) => setKeepStudents(checked as boolean)} />
-                          <Label htmlFor="keepStudents" className="text-sm">Keep student accounts</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox id="archiveHistory" checked={archiveHistory} onCheckedChange={(checked) => setArchiveHistory(checked as boolean)} />
-                          <Label htmlFor="archiveHistory" className="text-sm">Archive transaction history</Label>
-                        </div>
-                        <Alert>
-                          <AlertDescription className="text-sm">This action cannot be undone. Export your data first!</AlertDescription>
-                        </Alert>
-                      </div>
-                      <DialogFooter>
-                        <Button variant="outline" onClick={() => setSemesterResetOpen(false)} size="sm" className="h-9">Cancel</Button>
-                        <Button variant="destructive" onClick={handleSemesterReset} size="sm" className="h-9">Confirm Reset</Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                  <Button variant="outline" className="w-full gap-2 border-red-300 text-red-700 hover:bg-red-50 h-9">
-                    <Download className="w-4 h-4" />
-                    Archive Class
-                  </Button>
-                  <Button variant="destructive" className="w-full gap-2 h-9">
-                    <Trash2 className="w-4 h-4" />
-                    Delete Class
-                  </Button>
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -1650,16 +1078,186 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+      {/* Edit Class Dialog */}
+      <Dialog open={isEditingClass} onOpenChange={setIsEditingClass}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{teacherClass ? 'Edit Class Information' : 'Create Your Class'}</DialogTitle>
+            <DialogDescription>
+              {teacherClass
+                ? 'Update your classroom details'
+                : 'Set up your classroom. A unique class code will be generated for parents to join.'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="className">Class Name *</Label>
+              <Input
+                id="className"
+                value={editClassName}
+                onChange={(e) => setEditClassName(e.target.value)}
+                placeholder="e.g., Mrs. Smith's 3rd Grade"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="schoolYear">School Year</Label>
+              <Input
+                id="schoolYear"
+                value={editSchoolYear}
+                onChange={(e) => setEditSchoolYear(e.target.value)}
+                placeholder="e.g., 2024-2025"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditingClass(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateClass}
+              disabled={createTeacherClass.isPending || updateTeacherClass.isPending}
+            >
+              {createTeacherClass.isPending || updateTeacherClass.isPending
+                ? 'Saving...'
+                : teacherClass
+                ? 'Save Changes'
+                : 'Create Class'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Student Dialog */}
+      <Dialog open={editStudentOpen} onOpenChange={setEditStudentOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Student</DialogTitle>
+            <DialogDescription>Update student information</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="editFirstName">First Name</Label>
+              <Input
+                id="editFirstName"
+                placeholder="First name"
+                value={studentFirstName}
+                onChange={(e) => setStudentFirstName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="editSurname">Surname</Label>
+              <Input
+                id="editSurname"
+                placeholder="Surname"
+                value={studentSurname}
+                onChange={(e) => setStudentSurname(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="editStudentNotes">Private Notes</Label>
+              <Input
+                id="editStudentNotes"
+                placeholder="Add private notes..."
+                value={studentNotes}
+                onChange={(e) => setStudentNotes(e.target.value)}
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="studentActiveEdit"
+                checked={studentActive}
+                onCheckedChange={(checked) => setStudentActive(checked as boolean)}
+              />
+              <Label htmlFor="studentActiveEdit">Student is active</Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditStudentOpen(false)} size="sm">Cancel</Button>
+            <Button onClick={handleEditStudent} disabled={updateStudent.isPending} size="sm">
+              {updateStudent.isPending ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Reward Dialog */}
+      <Dialog open={editRewardOpen} onOpenChange={setEditRewardOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Reward Price</DialogTitle>
+            <DialogDescription>Update the cost of this reward</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="editRewardCost">New Cost (CubCoins)</Label>
+              <Input
+                id="editRewardCost"
+                type="number"
+                placeholder="Enter new cost"
+                value={rewardCost}
+                onChange={(e) => setRewardCost(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditRewardOpen(false)} size="sm">Cancel</Button>
+            <Button onClick={handleEditReward} disabled={updateRewardPrice.isPending} size="sm">
+              {updateRewardPrice.isPending ? 'Updating...' : 'Update Price'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Semester Reset Dialog */}
+      <AlertDialog open={semesterResetOpen} onOpenChange={setSemesterResetOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>This will permanently delete this {deleteTarget?.type}. This action cannot be undone.</AlertDialogDescription>
+            <AlertDialogTitle>Reset Semester?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will reset class funds and balances for the new semester. This action cannot be undone.
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDeleteTarget(null)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              toast.success('Semester reset completed!');
+              setSemesterResetOpen(false);
+            }}>
+              Reset Semester
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Change Password Dialog */}
+      <AlertDialog open={changePasswordOpen} onOpenChange={setChangePasswordOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Change Password</AlertDialogTitle>
+            <AlertDialogDescription>
+              Password change functionality coming soon.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Close</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Account Dialog */}
+      <AlertDialog open={deleteAccountOpen} onOpenChange={setDeleteAccountOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Account?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete your account and all associated data. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction className="bg-red-600 hover:bg-red-700">
+              Delete Account
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

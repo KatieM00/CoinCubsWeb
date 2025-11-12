@@ -57,3 +57,4 @@ coverage
 .supabase/
 supabase/.branches/
 supabase/.temp/
+.DS_Store

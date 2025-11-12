@@ -31,8 +31,8 @@ export default function ClassDisplayPage() {
     return `${days} day${days > 1 ? 's' : ''} ago`;
   };
 
-  const totalCubCoins = classFund?.totalAmount || BigInt(0);
-  const activeGoals = classGoals?.filter(goal => goal.isActive) || [];
+  const totalCubCoins = classFund?.balance || BigInt(0);
+  const activeGoals = classGoals?.filter((goal: any) => goal.isActive) || [];
   const primaryGoal = activeGoals[0];
   const recentActivities = activityTicker?.slice(0, 3) || [];
 
@@ -215,7 +215,7 @@ export default function ClassDisplayPage() {
                     />
                     <div className="flex items-center justify-between text-lg md:text-xl font-semibold text-green-700">
                       <span>{goalProgress}% Complete</span>
-                      <span>{formatCubCoins(primaryGoal.targetAmount - primaryGoal.currentAmount)} to go!</span>
+                      <span>{(Number(primaryGoal.targetAmount) - Number(primaryGoal.currentAmount)).toLocaleString()} to go!</span>
                     </div>
                   </div>
                 </>
@@ -276,7 +276,7 @@ export default function ClassDisplayPage() {
                               You were awarded <span className="font-bold text-amber-600">{amount} CubCoins</span> for <span className="font-semibold">{reason}</span>
                             </p>
                             <p className="text-sm md:text-base text-gray-500 mt-2">
-                              {formatTimestamp(activity.timestamp || BigInt(Date.now()))}
+                              {formatTimestamp(BigInt(Date.now()))}
                             </p>
                           </div>
                         </div>

@@ -30,6 +30,7 @@ export default function QuickAwardPage() {
   const [customReason, setCustomReason] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [lastAwardedName, setLastAwardedName] = useState('');
+  const [lastAwardSplit, setLastAwardSplit] = useState<{ classAmount: number; personalAmount: number; studentName: string; isWholeClass: boolean } | null>(null);
   const [showUndoButton, setShowUndoButton] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -81,6 +82,12 @@ export default function QuickAwardPage() {
       const amount = BigInt(finalAmount);
       const splitType = isWholeClass ? 'allToClassFund' : 'defaultSplit';
 
+      // Calculate and store split before clearing form
+      const currentSplit = calculateSplit();
+      if (currentSplit) {
+        setLastAwardSplit(currentSplit);
+      }
+
       await awardCubCoins.mutateAsync({
         studentId: isWholeClass ? '0' : selectedStudent,
         amount,
@@ -88,8 +95,8 @@ export default function QuickAwardPage() {
         description: finalReason,
       });
 
-      const awardedName = isWholeClass 
-        ? 'Whole class' 
+      const awardedName = isWholeClass
+        ? 'Whole class'
         : mockStudents.find(s => s.id === selectedStudent)?.name || 'Student';
       setLastAwardedName(awardedName);
       setShowConfirmation(true);
@@ -339,7 +346,7 @@ export default function QuickAwardPage() {
           </Button>
 
           {/* Confirmation Message */}
-          {showConfirmation && split && (
+          {showConfirmation && lastAwardSplit && (
             <div className="bg-green-50 rounded-xl p-3 md:p-4 border-2 border-green-300 animate-in fade-in slide-in-from-top-2">
               <div className="flex items-start gap-3">
                 <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-green-600 flex-shrink-0 mt-1" />
@@ -348,9 +355,9 @@ export default function QuickAwardPage() {
                     ✅ Awarded successfully!
                   </p>
                   <div className="text-sm md:text-base text-green-800 space-y-0.5">
-                    <p><span className="font-bold">+{split.classAmount} CubCoins</span> added to class fund</p>
-                    {!split.isWholeClass && (
-                      <p><span className="font-bold">+{split.personalAmount} CubCoins</span> given to {split.studentName}</p>
+                    <p><span className="font-bold">+{lastAwardSplit.classAmount} CubCoins</span> added to class fund</p>
+                    {!lastAwardSplit.isWholeClass && (
+                      <p><span className="font-bold">+{lastAwardSplit.personalAmount} CubCoins</span> given to {lastAwardSplit.studentName}</p>
                     )}
                   </div>
                 </div>

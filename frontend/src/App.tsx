@@ -81,7 +81,7 @@ const indexRoute = createRoute({
 });
 
 function ProtectedQuickAwardPage() {
-  const { profile, activeRole } = useAuth();
+  const { activeRole } = useAuth();
   const { isDemoMode, demoRole } = useDemo();
   const navigate = useNavigate();
 

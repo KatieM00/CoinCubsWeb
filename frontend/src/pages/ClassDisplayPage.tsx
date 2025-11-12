@@ -1012,7 +1012,7 @@ export default function ClassDisplayPage() {
               </Button>
               <Button
                 type="button"
-                onClick={handleMarkComplete}
+                onClick={handleMarkLessonComplete}
                 disabled={markLessonComplete.isPending || endLesson.isPending}
                 className="bg-green-600 hover:bg-green-700"
               >

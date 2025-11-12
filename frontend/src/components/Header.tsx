@@ -73,7 +73,7 @@ export default function Header() {
               className="gap-2 h-9"
             >
               <Zap className="w-4 h-4" />
-              Quick Award
+              Award
             </Button>
             <Button
               variant={currentPath === '/class-display' ? 'default' : 'ghost'}
@@ -106,16 +106,6 @@ export default function Header() {
 
           {/* Right Side */}
           <div className="flex items-center gap-2 md:gap-4">
-            {/* User Info - Hidden on mobile */}
-            {(isDemoMode || profile) && (
-              <div className="text-right hidden md:block">
-                <p className="text-sm font-medium text-foreground">
-                  {isDemoMode ? 'Demo Teacher' : profile?.full_name}
-                </p>
-                <p className="text-xs text-muted-foreground">Teacher</p>
-              </div>
-            )}
-
             {/* Logout/Exit Demo Button */}
             <Button
               onClick={() => {
@@ -155,7 +145,7 @@ export default function Header() {
                       className="justify-start gap-3 h-12"
                     >
                       <Zap className="w-5 h-5" />
-                      Quick Award
+                      Award
                     </Button>
                     <Button
                       variant={currentPath === '/class-display' ? 'default' : 'ghost'}

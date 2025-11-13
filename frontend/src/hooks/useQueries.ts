@@ -1379,7 +1379,8 @@ export const useAddChildEnrollment = () => {
 };
 
 // Update parent profile
-export const useUpdateParentProfile = () => {
+// Generic profile update hook - works for both teachers and parents
+export const useUpdateProfile = () => {
   const queryClient = useQueryClient();
   const { profile, refreshProfile } = useAuth();
 
@@ -1408,7 +1409,7 @@ export const useUpdateParentProfile = () => {
         .single();
 
       if (error) {
-        console.error('Error updating parent profile:', error);
+        console.error('Error updating profile:', error);
         throw error;
       }
 
@@ -1420,6 +1421,9 @@ export const useUpdateParentProfile = () => {
     },
   });
 };
+
+// Deprecated: Use useUpdateProfile instead
+export const useUpdateParentProfile = useUpdateProfile;
 
 // Notification Preferences (stored in profiles table or separate notification_preferences table)
 export const useGetNotificationPreferences = () => {

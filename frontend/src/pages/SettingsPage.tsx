@@ -1,6 +1,7 @@
 // @ts-nocheck
-import { useState } from 'react';
-import { useIsCallerAdmin, useGetClassFund, useGetRewardsCatalog, useAddReward, useUpdateRewardPrice, useCreateClassGoal, useGetPresetAmounts, useUpdatePresetAmounts, useGetTeacherClass, useGetStudents, useAddStudent, useUpdateClassBalance, useUpdateStudent, useCreateTeacherClass, useUpdateTeacherClass, useGetClassGoals } from '../hooks/useQueries';
+import { useState, useEffect } from 'react';
+import { useIsCallerAdmin, useGetClassFund, useGetRewardsCatalog, useAddReward, useUpdateRewardPrice, useCreateClassGoal, useGetPresetAmounts, useUpdatePresetAmounts, useGetTeacherClass, useGetStudents, useAddStudent, useUpdateClassBalance, useUpdateStudent, useCreateTeacherClass, useUpdateTeacherClass, useGetClassGoals, useUpdateProfile } from '../hooks/useQueries';
+import { useAuth } from '../hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,12 +23,13 @@ import { cn } from '@/lib/utils';
 type SettingsSection = 'classroom' | 'funds' | 'students' | 'parents' | 'account';
 
 export default function SettingsPage() {
+  const { profile, user } = useAuth();
   const { data: isAdmin, isLoading: adminLoading } = useIsCallerAdmin();
   const { data: classFund, isLoading: fundLoading } = useGetClassFund();
   const { data: rewards, isLoading: rewardsLoading } = useGetRewardsCatalog();
   const { data: presetAmounts } = useGetPresetAmounts();
   const { data: teacherClass } = useGetTeacherClass();
-  const { data: students, isLoading: studentsLoading } = useGetStudents();
+  const { data: students, isLoading: studentsLoading } = useGetStudents(teacherClass?.id);
   const { data: classGoals, isLoading: goalsLoading } = useGetClassGoals();
 
   const addStudent = useAddStudent();
@@ -39,6 +41,7 @@ export default function SettingsPage() {
   const updatePresets = useUpdatePresetAmounts();
   const createTeacherClass = useCreateTeacherClass();
   const updateTeacherClass = useUpdateTeacherClass();
+  const updateProfile = useUpdateProfile();
 
   const [activeSection, setActiveSection] = useState<SettingsSection>('classroom');
 
@@ -90,6 +93,14 @@ export default function SettingsPage() {
   const [accountEmail, setAccountEmail] = useState('');
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [deleteAccountOpen, setDeleteAccountOpen] = useState(false);
+
+  // Populate account fields from profile on load
+  useEffect(() => {
+    if (profile) {
+      setAccountTeacherName(profile.full_name || '');
+      setAccountEmail(profile.email || '');
+    }
+  }, [profile]);
 
   const formatCubCoins = (amount: bigint | number) => {
     const num = typeof amount === 'bigint' ? Number(amount) : amount;
@@ -269,6 +280,19 @@ export default function SettingsPage() {
     }
   };
 
+  const handleSaveAccountInfo = async () => {
+    try {
+      await updateProfile.mutateAsync({
+        fullName: accountTeacherName,
+      });
+      toast.success('Account information updated!');
+      setIsEditingAccount(false);
+    } catch (error) {
+      toast.error('Failed to update account information');
+      console.error(error);
+    }
+  };
+
   if (adminLoading || fundLoading || goalsLoading || rewardsLoading) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-6">
@@ -396,7 +420,7 @@ export default function SettingsPage() {
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-sm font-medium">Teacher Name</Label>
-                      <div className="text-base">{'Teacher'}</div>
+                      <div className="text-base">{profile?.full_name || 'Not set'}</div>
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-sm font-medium">School Year</Label>
@@ -1013,9 +1037,16 @@ export default function SettingsPage() {
                     <Button
                       size="sm"
                       variant={isEditingAccount ? 'default' : 'outline'}
-                      onClick={() => setIsEditingAccount(!isEditingAccount)}
+                      onClick={() => {
+                        if (isEditingAccount) {
+                          handleSaveAccountInfo();
+                        } else {
+                          setIsEditingAccount(true);
+                        }
+                      }}
+                      disabled={updateProfile.isPending}
                     >
-                      {isEditingAccount ? 'Save' : 'Edit'}
+                      {updateProfile.isPending ? 'Saving...' : isEditingAccount ? 'Save' : 'Edit'}
                     </Button>
                   </div>
                 </CardHeader>

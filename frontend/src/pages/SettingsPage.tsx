@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useIsCallerAdmin, useGetClassFund, useGetRewardsCatalog, useAddReward, useUpdateRewardPrice, useCreateClassGoal, useGetPresetAmounts, useUpdatePresetAmounts, useGetTeacherClass, useGetStudents, useAddStudent, useUpdateClassBalance, useUpdateStudent, useCreateTeacherClass, useUpdateTeacherClass, useGetClassGoals, useUpdateProfile } from '../hooks/useQueries';
 import { useAuth } from '../hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Settings, Coins, Users, Target, Building, UserCircle, Edit, Plus, Download, Upload, Trash2, RotateCcw, Archive, Mail, DollarSign } from 'lucide-react';
+import { Settings, Coins, Users, Target, Building, UserCircle, Edit, Plus, Download, Upload, Trash2, RotateCcw, Archive, Mail, DollarSign, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -82,6 +82,9 @@ export default function SettingsPage() {
   const [studentBalance, setStudentBalance] = useState('');
   const [studentNotes, setStudentNotes] = useState('');
   const [studentActive, setStudentActive] = useState(true);
+  const [showAllBalances, setShowAllBalances] = useState(false);
+  const [hiddenBalances, setHiddenBalances] = useState<Set<string>>(new Set());
+  const csvInputRef = useRef<HTMLInputElement>(null);
 
   // Parents section states
   const [sendLetterOpen, setSendLetterOpen] = useState(false);
@@ -277,6 +280,85 @@ export default function SettingsPage() {
     } catch (error) {
       toast.error('Failed to update student');
       console.error(error);
+    }
+  };
+
+  const handleCSVImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const lines = text.split('\n').filter(line => line.trim());
+
+      // Skip header row if it exists
+      const startIndex = lines[0].toLowerCase().includes('first') || lines[0].toLowerCase().includes('name') ? 1 : 0;
+
+      let successCount = 0;
+      let errorCount = 0;
+
+      for (let i = startIndex; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+
+        const parts = line.split(',').map(p => p.trim());
+        if (parts.length < 2) {
+          errorCount++;
+          continue;
+        }
+
+        const firstName = parts[0];
+        const surname = parts[1];
+        const balance = parts[2] ? parseInt(parts[2]) : 0;
+
+        try {
+          await addStudent.mutateAsync({
+            name: `${firstName} ${surname}`,
+            balance: isNaN(balance) ? 0 : balance
+          });
+          successCount++;
+        } catch (error) {
+          console.error(`Failed to add student: ${firstName} ${surname}`, error);
+          errorCount++;
+        }
+      }
+
+      if (successCount > 0) {
+        toast.success(`Successfully imported ${successCount} student(s)!`);
+      }
+      if (errorCount > 0) {
+        toast.error(`Failed to import ${errorCount} student(s)`);
+      }
+
+      // Reset the file input
+      if (csvInputRef.current) {
+        csvInputRef.current.value = '';
+      }
+    } catch (error) {
+      toast.error('Failed to parse CSV file');
+      console.error(error);
+    }
+  };
+
+  const toggleBalance = (studentId: string) => {
+    const newHidden = new Set(hiddenBalances);
+    if (newHidden.has(studentId)) {
+      newHidden.delete(studentId);
+    } else {
+      newHidden.add(studentId);
+    }
+    setHiddenBalances(newHidden);
+  };
+
+  const toggleAllBalances = () => {
+    if (showAllBalances) {
+      // Hide all
+      setHiddenBalances(new Set(studentsList.map(s => s.id)));
+      setShowAllBalances(false);
+    } else {
+      // Show all
+      setHiddenBalances(new Set());
+      setShowAllBalances(true);
     }
   };
 
@@ -878,7 +960,19 @@ export default function SettingsPage() {
                           </DialogFooter>
                         </DialogContent>
                       </Dialog>
-                      <Button variant="outline" size="sm" className="gap-2 h-9">
+                      <input
+                        type="file"
+                        ref={csvInputRef}
+                        accept=".csv"
+                        onChange={handleCSVImport}
+                        style={{ display: 'none' }}
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2 h-9"
+                        onClick={() => csvInputRef.current?.click()}
+                      >
                         <Upload className="w-4 h-4" />
                         Import CSV
                       </Button>
@@ -891,6 +985,16 @@ export default function SettingsPage() {
                 </CardHeader>
                 <Separator />
                 <CardContent className="pt-4">
+                  <div className="flex justify-end mb-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={toggleAllBalances}
+                      className="gap-2 h-8"
+                    >
+                      {showAllBalances ? 'Hide All Balances' : 'Show All Balances'}
+                    </Button>
+                  </div>
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -910,12 +1014,27 @@ export default function SettingsPage() {
                           const nameParts = student.name.split(' ');
                           const firstName = nameParts[0] || '';
                           const surname = nameParts.slice(1).join(' ') || '';
+                          const isBalanceHidden = hiddenBalances.has(student.id);
                           return (
                             <TableRow key={student.id}>
                               <TableCell>{firstName}</TableCell>
                               <TableCell>{surname}</TableCell>
                               <TableCell>
-                                <Badge variant="secondary">{student.personalBalance || 0} CubCoins</Badge>
+                                <div className="flex items-center gap-2">
+                                  {isBalanceHidden ? (
+                                    <span className="text-muted-foreground">•••</span>
+                                  ) : (
+                                    <Badge variant="secondary">{student.personalBalance || 0} CubCoins</Badge>
+                                  )}
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => toggleBalance(student.id)}
+                                    className="h-6 w-6 p-0"
+                                  >
+                                    {isBalanceHidden ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                                  </Button>
+                                </div>
                               </TableCell>
                               <TableCell className="text-right">
                                 <div className="flex justify-end gap-2">

@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useState, useEffect, useRef } from 'react';
-import { useGetClassFund, useAwardClassGems, useGetClassGoals, useIsCallerAdmin, useGetLastAwardedStudents, useGetUndoTransaction, useUndoLastAward, useGetWeeklyStats } from '../hooks/useQueries';
+import { useGetClassFund, useAwardClassGems, useGetClassGoals, useIsCallerAdmin, useGetLastAwardedStudents, useGetUndoTransaction, useUndoLastAward, useGetWeeklyStats, useGetStudents, useGetTeacherClass } from '../hooks/useQueries';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +19,8 @@ export default function QuickAwardPage() {
   const { data: lastAwardedStudents } = useGetLastAwardedStudents();
   const { data: undoTransaction } = useGetUndoTransaction();
   const { data: weeklyStats, isLoading: statsLoading } = useGetWeeklyStats();
+  const { data: teacherClass } = useGetTeacherClass();
+  const { data: students, isLoading: studentsLoading } = useGetStudents(teacherClass?.id);
   const awardCubCoins = useAwardClassGems();
   const undoAward = useUndoLastAward();
 
@@ -34,17 +36,8 @@ export default function QuickAwardPage() {
   const [showUndoButton, setShowUndoButton] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Mock student list
-  const mockStudents = [
-    { id: '1', name: 'Emma Johnson' },
-    { id: '2', name: 'Liam Smith' },
-    { id: '3', name: 'Olivia Brown' },
-    { id: '4', name: 'Noah Davis' },
-    { id: '5', name: 'Ava Wilson' },
-    { id: '6', name: 'Ethan Martinez' },
-    { id: '7', name: 'Sophia Anderson' },
-    { id: '8', name: 'Mason Taylor' },
-  ];
+  // Use real students from database
+  const studentsList = students || [];
 
   useEffect(() => {
     if (undoTransaction) {
@@ -97,7 +90,7 @@ export default function QuickAwardPage() {
 
       const awardedName = isWholeClass
         ? 'Whole class'
-        : mockStudents.find(s => s.id === selectedStudent)?.name || 'Student';
+        : studentsList.find(s => s.id === selectedStudent)?.name || 'Student';
       setLastAwardedName(awardedName);
       setShowConfirmation(true);
 
@@ -177,8 +170,8 @@ export default function QuickAwardPage() {
     
     const classAmount = Math.floor(amount * 0.7);
     const personalAmount = amount - classAmount;
-    const studentName = mockStudents.find(s => s.id === selectedStudent)?.name || 'student';
-    
+    const studentName = studentsList.find(s => s.id === selectedStudent)?.name || 'student';
+
     return { classAmount, personalAmount, studentName, isWholeClass: false };
   };
 
@@ -243,13 +236,13 @@ export default function QuickAwardPage() {
                   setSelectedStudent(value);
                   setIsWholeClass(false);
                 }}
-                disabled={isWholeClass}
+                disabled={isWholeClass || studentsLoading || studentsList.length === 0}
               >
                 <SelectTrigger className="text-base md:text-lg h-12 md:h-14 flex-1" id="studentSelect">
-                  <SelectValue placeholder="Select a student" />
+                  <SelectValue placeholder={studentsLoading ? "Loading students..." : studentsList.length === 0 ? "No students yet - add in Settings" : "Select a student"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {mockStudents.map((student) => (
+                  {studentsList.map((student) => (
                     <SelectItem key={student.id} value={student.id} className="text-sm md:text-base py-3">
                       {student.name}
                     </SelectItem>

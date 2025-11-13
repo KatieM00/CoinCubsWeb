@@ -90,21 +90,25 @@ export const useAwardClassGems = () => {
         return { success: true };
       }
 
-      // For non-demo mode, update localStorage
+      // Convert BigInt to number if needed
+      const amountNumber = typeof params.amount === 'bigint' ? Number(params.amount) : params.amount;
+
+      // Calculate split (70% to class fund, 30% to personal balance)
+      const classAmount = Math.floor(amountNumber * 0.7);
+      const personalAmount = amountNumber - classAmount;
+
+      // Update class fund in localStorage
       const storageKey = profile?.id || user?.id || 'default';
       const stored = localStorage.getItem(`classFund_${storageKey}`);
       const data = stored ? JSON.parse(stored) : { balance: 0, transactions: [], goals: [] };
 
-      // Convert BigInt to number if needed
-      const amountNumber = typeof params.amount === 'bigint' ? Number(params.amount) : params.amount;
-
-      // Update balance
-      const newBalance = Number(data.balance || 0) + amountNumber;
+      // Update class fund balance
+      const newBalance = Number(data.balance || 0) + classAmount;
 
       // Add transaction
       const transaction = {
         id: Date.now(),
-        amount: amountNumber,
+        amount: classAmount,
         reason: params.description || params.reason || 'Award',
         timestamp: new Date().toISOString(),
         type: 'award'
@@ -116,11 +120,51 @@ export const useAwardClassGems = () => {
       localStorage.setItem(`classFund_${storageKey}`, JSON.stringify(data));
       console.log('💾 Updated class fund:', data);
 
+      // Update student's personal balance in database if studentId provided and not whole class
+      if (params.studentId && params.studentId !== '0' && personalAmount > 0) {
+        console.log(`💰 Updating student ${params.studentId} balance by +${personalAmount}`);
+
+        // Get current student data
+        const { data: studentData, error: fetchError } = await supabase
+          .from('students')
+          .select('personal_balance, class_contribution')
+          .eq('id', params.studentId)
+          .single();
+
+        if (fetchError) {
+          console.error('⚠️ Error fetching student:', fetchError);
+          throw fetchError;
+        }
+
+        // Update student balance
+        const newPersonalBalance = Number(studentData.personal_balance || 0) + personalAmount;
+        const newClassContribution = Number(studentData.class_contribution || 0) + classAmount;
+
+        const { error: updateError } = await supabase
+          .from('students')
+          .update({
+            personal_balance: newPersonalBalance,
+            class_contribution: newClassContribution
+          })
+          .eq('id', params.studentId);
+
+        if (updateError) {
+          console.error('⚠️ Error updating student balance:', updateError);
+          throw updateError;
+        }
+
+        console.log('✅ Updated student balance:', {
+          personalBalance: newPersonalBalance,
+          classContribution: newClassContribution
+        });
+      }
+
       return { success: true, newBalance };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['classFund'] });
       queryClient.invalidateQueries({ queryKey: ['weeklyStats'] });
+      queryClient.invalidateQueries({ queryKey: ['students'] });
     },
   });
 };

@@ -1232,3 +1232,289 @@ export const useGetTeacherClass = () => {
     enabled: !!profile && profile.role === 'teacher',
   });
 };
+
+// Parent Enrollment Queries
+
+// Get parent's enrolled children
+export const useGetParentChildren = () => {
+  const { profile } = useAuth();
+  const { isDemoMode } = useDemo();
+
+  return useQuery({
+    queryKey: ['parentChildren', profile?.id],
+    queryFn: async () => {
+      if (isDemoMode) {
+        return [
+          {
+            id: 'demo-enrollment-1',
+            parent_profile_id: profile?.id || 'demo-profile-id',
+            class_id: 'demo-class-id',
+            child_first_name: 'Emma',
+            child_last_name: 'Johnson',
+            child_dob: '2015-03-15',
+            class_name: 'Mrs. Smith\'s Class',
+            class_code: 'LIONS-2025',
+            created_at: new Date().toISOString()
+          },
+          {
+            id: 'demo-enrollment-2',
+            parent_profile_id: profile?.id || 'demo-profile-id',
+            class_id: 'demo-class-id-2',
+            child_first_name: 'Liam',
+            child_last_name: 'Johnson',
+            child_dob: '2017-08-22',
+            class_name: 'Mr. Davis\'s Class',
+            class_code: 'TIGERS-2025',
+            created_at: new Date().toISOString()
+          }
+        ];
+      }
+
+      if (!profile || profile.role !== 'parent') {
+        return [];
+      }
+
+      const { data, error } = await supabase
+        .from('parent_class_enrollments')
+        .select(`
+          *,
+          classes:class_id (
+            class_name,
+            class_code
+          )
+        `)
+        .eq('parent_profile_id', profile.id);
+
+      if (error) {
+        console.error('Error loading parent children:', error);
+        throw error;
+      }
+
+      return data?.map(enrollment => ({
+        id: enrollment.id,
+        parent_profile_id: enrollment.parent_profile_id,
+        class_id: enrollment.class_id,
+        child_first_name: enrollment.child_first_name,
+        child_last_name: enrollment.child_last_name,
+        child_dob: enrollment.child_dob,
+        class_name: enrollment.classes?.class_name || 'Unknown Class',
+        class_code: enrollment.classes?.class_code || '',
+        created_at: enrollment.created_at
+      })) || [];
+    },
+    enabled: !!profile && profile.role === 'parent',
+  });
+};
+
+// Validate class code
+export const useValidateClassCode = () => {
+  return useMutation({
+    mutationFn: async (classCode: string) => {
+      const { data, error } = await supabase
+        .from('classes')
+        .select('id, class_name, class_code')
+        .eq('class_code', classCode.toUpperCase())
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error validating class code:', error);
+        throw new Error('Failed to validate class code');
+      }
+
+      if (!data) {
+        throw new Error('Invalid class code');
+      }
+
+      return data;
+    },
+  });
+};
+
+// Add child enrollment
+export const useAddChildEnrollment = () => {
+  const queryClient = useQueryClient();
+  const { profile } = useAuth();
+
+  return useMutation({
+    mutationFn: async ({
+      classId,
+      firstName,
+      lastName,
+      dateOfBirth
+    }: {
+      classId: string;
+      firstName: string;
+      lastName: string;
+      dateOfBirth: string;
+    }) => {
+      if (!profile || profile.role !== 'parent') {
+        throw new Error('Must be logged in as parent');
+      }
+
+      const { data, error } = await supabase
+        .from('parent_class_enrollments')
+        .insert({
+          parent_profile_id: profile.id,
+          parent_id: profile.user_id,
+          class_id: classId,
+          child_first_name: firstName,
+          child_last_name: lastName,
+          child_dob: dateOfBirth,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error adding child enrollment:', error);
+        throw error;
+      }
+
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['parentChildren'] });
+    },
+  });
+};
+
+// Update parent profile
+export const useUpdateParentProfile = () => {
+  const queryClient = useQueryClient();
+  const { profile, refreshProfile } = useAuth();
+
+  return useMutation({
+    mutationFn: async ({
+      fullName,
+      phone
+    }: {
+      fullName?: string;
+      phone?: string;
+    }) => {
+      if (!profile) {
+        throw new Error('Must be logged in');
+      }
+
+      const updates: any = {};
+      if (fullName !== undefined) updates.full_name = fullName;
+      if (phone !== undefined) updates.phone = phone;
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', profile.id)
+        .eq('role', profile.role)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating parent profile:', error);
+        throw error;
+      }
+
+      return data;
+    },
+    onSuccess: () => {
+      refreshProfile();
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+    },
+  });
+};
+
+// Notification Preferences (stored in profiles table or separate notification_preferences table)
+export const useGetNotificationPreferences = () => {
+  const { profile } = useAuth();
+  const { isDemoMode } = useDemo();
+
+  return useQuery({
+    queryKey: ['notificationPreferences', profile?.id],
+    queryFn: async () => {
+      if (isDemoMode) {
+        return {
+          email_notifications: true,
+          sms_notifications: true,
+          achievement_notifications: true,
+          form_notifications: true,
+        };
+      }
+
+      if (!profile) {
+        return null;
+      }
+
+      // Try to get from profiles table first (if columns exist)
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('email_notifications, sms_notifications, achievement_notifications, form_notifications')
+        .eq('id', profile.id)
+        .eq('role', profile.role)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error loading notification preferences:', error);
+        // Return defaults if error
+        return {
+          email_notifications: true,
+          sms_notifications: true,
+          achievement_notifications: true,
+          form_notifications: true,
+        };
+      }
+
+      return data || {
+        email_notifications: true,
+        sms_notifications: true,
+        achievement_notifications: true,
+        form_notifications: true,
+      };
+    },
+    enabled: !!profile,
+  });
+};
+
+export const useUpdateNotificationPreferences = () => {
+  const queryClient = useQueryClient();
+  const { profile } = useAuth();
+
+  return useMutation({
+    mutationFn: async ({
+      emailNotifications,
+      smsNotifications,
+      achievementNotifications,
+      formNotifications,
+    }: {
+      emailNotifications?: boolean;
+      smsNotifications?: boolean;
+      achievementNotifications?: boolean;
+      formNotifications?: boolean;
+    }) => {
+      if (!profile) {
+        throw new Error('Must be logged in');
+      }
+
+      const updates: any = {};
+      if (emailNotifications !== undefined) updates.email_notifications = emailNotifications;
+      if (smsNotifications !== undefined) updates.sms_notifications = smsNotifications;
+      if (achievementNotifications !== undefined) updates.achievement_notifications = achievementNotifications;
+      if (formNotifications !== undefined) updates.form_notifications = formNotifications;
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', profile.id)
+        .eq('role', profile.role)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating notification preferences:', error);
+        throw error;
+      }
+
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notificationPreferences'] });
+    },
+  });
+};

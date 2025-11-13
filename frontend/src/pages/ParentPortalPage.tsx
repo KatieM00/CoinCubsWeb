@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,13 +8,14 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { 
-  BookOpen, 
-  CreditCard, 
-  FileText, 
-  User, 
-  Award, 
-  TrendingUp, 
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  BookOpen,
+  CreditCard,
+  FileText,
+  User,
+  Award,
+  TrendingUp,
   Calendar,
   CheckCircle2,
   Clock,
@@ -27,14 +28,208 @@ import {
   Smartphone,
   Lock
 } from 'lucide-react';
-import { useGetCurriculumProgress, useGetClassAchievements } from '../hooks/useQueries';
+import { useGetCurriculumProgress, useGetClassAchievements, useGetParentChildren, useValidateClassCode, useAddChildEnrollment, useUpdateParentProfile, useGetNotificationPreferences, useUpdateNotificationPreferences } from '../hooks/useQueries';
+import { useAuth } from '../hooks/useAuth';
+import { toast } from 'sonner';
+import PDFFormViewer from '../components/PDFFormViewer';
 
 export default function ParentPortalPage() {
+  const { profile } = useAuth();
   const [activeTab, setActiveTab] = useState('learning');
   const [selectedChild] = useState('Emma Johnson');
-  
+
+  // Add Child Dialog State
+  const [addChildDialogOpen, setAddChildDialogOpen] = useState(false);
+  const [childFirstName, setChildFirstName] = useState('');
+  const [childLastName, setChildLastName] = useState('');
+  const [childDOB, setChildDOB] = useState('');
+  const [classCode, setClassCode] = useState('');
+  const [validatedClass, setValidatedClass] = useState<any>(null);
+
+  // Profile Edit State
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [parentName, setParentName] = useState(profile?.full_name || 'Sarah Johnson');
+  const [parentEmail] = useState(profile?.email || 'sarah.johnson@email.com');
+  const [parentPhone, setParentPhone] = useState('(555) 123-4567');
+
+  // PDF Form Viewer State
+  const [pdfViewerOpen, setPdfViewerOpen] = useState(false);
+  const [currentForm, setCurrentForm] = useState<{
+    title: string;
+    description: string;
+    isViewOnly: boolean;
+    formId?: string;
+  } | null>(null);
+
+  // Mock forms data
+  const mockForms = [
+    {
+      id: 'field-trip-2025',
+      title: 'Field Trip Permission Slip',
+      description: 'Science Museum - December 10, 2025',
+      status: 'pending',
+      dueDate: 'December 3, 2025',
+    },
+    {
+      id: 'photo-release-2025',
+      title: 'Photo Release Form',
+      description: 'Annual photo consent for school publications',
+      status: 'pending',
+      dueDate: 'December 15, 2025',
+    },
+  ];
+
+  const mockCompletedForms = [
+    {
+      id: 'emergency-contact-2025',
+      title: 'Emergency Contact Form',
+      signedDate: 'Nov 20, 2025',
+    },
+    {
+      id: 'medical-info-2025',
+      title: 'Medical Information',
+      signedDate: 'Oct 15, 2025',
+    },
+  ];
+
   const { data: curriculumProgress } = useGetCurriculumProgress();
   const { data: achievements } = useGetClassAchievements();
+  const { data: enrolledChildren } = useGetParentChildren();
+  const { data: notificationPrefs } = useGetNotificationPreferences();
+  const validateClassCode = useValidateClassCode();
+  const addChildEnrollment = useAddChildEnrollment();
+  const updateParentProfile = useUpdateParentProfile();
+  const updateNotificationPrefs = useUpdateNotificationPreferences();
+
+  // Notification Preferences State
+  const [emailNotifications, setEmailNotifications] = useState(notificationPrefs?.email_notifications ?? true);
+  const [smsNotifications, setSmsNotifications] = useState(notificationPrefs?.sms_notifications ?? true);
+  const [achievementNotifications, setAchievementNotifications] = useState(notificationPrefs?.achievement_notifications ?? true);
+  const [formNotifications, setFormNotifications] = useState(notificationPrefs?.form_notifications ?? true);
+
+  // Update local state when preferences load from database
+  useEffect(() => {
+    if (notificationPrefs) {
+      setEmailNotifications(notificationPrefs.email_notifications ?? true);
+      setSmsNotifications(notificationPrefs.sms_notifications ?? true);
+      setAchievementNotifications(notificationPrefs.achievement_notifications ?? true);
+      setFormNotifications(notificationPrefs.form_notifications ?? true);
+    }
+  }, [notificationPrefs]);
+
+  // Handle class code validation
+  const handleValidateClassCode = async () => {
+    if (!classCode.trim()) {
+      toast.error('Please enter a class code');
+      return;
+    }
+
+    try {
+      const classData = await validateClassCode.mutateAsync(classCode.trim());
+      setValidatedClass(classData);
+      toast.success(`Found class: ${classData.class_name}`);
+    } catch (error: any) {
+      setValidatedClass(null);
+      toast.error(error.message || 'Invalid class code');
+    }
+  };
+
+  // Handle add child submission
+  const handleAddChild = async () => {
+    if (!childFirstName.trim() || !childLastName.trim() || !childDOB || !validatedClass) {
+      toast.error('Please fill in all fields and validate the class code');
+      return;
+    }
+
+    try {
+      await addChildEnrollment.mutateAsync({
+        classId: validatedClass.id,
+        firstName: childFirstName.trim(),
+        lastName: childLastName.trim(),
+        dateOfBirth: childDOB,
+      });
+
+      toast.success(`${childFirstName} ${childLastName} added successfully!`);
+
+      // Reset form
+      setAddChildDialogOpen(false);
+      setChildFirstName('');
+      setChildLastName('');
+      setChildDOB('');
+      setClassCode('');
+      setValidatedClass(null);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to add child');
+    }
+  };
+
+  // Handle profile save
+  const handleSaveProfile = async () => {
+    try {
+      await updateParentProfile.mutateAsync({
+        fullName: parentName,
+        phone: parentPhone,
+      });
+
+      toast.success('Profile updated successfully!');
+      setIsEditingProfile(false);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to update profile');
+    }
+  };
+
+  // Handle opening form for signature
+  const handleOpenForm = (formId: string, formTitle: string, formDescription: string) => {
+    setCurrentForm({
+      title: formTitle,
+      description: formDescription,
+      isViewOnly: false,
+      formId,
+    });
+    setPdfViewerOpen(true);
+  };
+
+  // Handle viewing completed form
+  const handleViewForm = (formId: string, formTitle: string) => {
+    setCurrentForm({
+      title: formTitle,
+      description: 'Completed form',
+      isViewOnly: true,
+      formId,
+    });
+    setPdfViewerOpen(true);
+  };
+
+  // Handle form signature submission
+  const handleSignForm = async (signatureData: string) => {
+    if (!currentForm?.formId) return;
+
+    // In a real app, this would save to the database
+    console.log('Form signed:', {
+      formId: currentForm.formId,
+      signatureData: signatureData.substring(0, 50) + '...',
+      timestamp: new Date().toISOString(),
+    });
+
+    // Mock delay to simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  };
+
+  // Handle save notification preferences
+  const handleSavePreferences = async () => {
+    try {
+      await updateNotificationPrefs.mutateAsync({
+        emailNotifications,
+        smsNotifications,
+        achievementNotifications,
+        formNotifications,
+      });
+
+      toast.success('Notification preferences saved successfully!');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to save preferences');
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -345,7 +540,10 @@ export default function ParentPortalPage() {
                           </p>
                           <p className="text-xs text-muted-foreground mt-2">Due: December 3, 2025</p>
                         </div>
-                        <Button className="bg-orange-600 hover:bg-orange-700">
+                        <Button
+                          className="bg-orange-600 hover:bg-orange-700"
+                          onClick={() => handleOpenForm('field-trip-2025', 'Field Trip Permission Slip', 'Science Museum - December 10, 2025')}
+                        >
                           Review & Sign
                         </Button>
                       </div>
@@ -368,7 +566,11 @@ export default function ParentPortalPage() {
                           </p>
                           <p className="text-xs text-muted-foreground mt-2">Due: December 15, 2025</p>
                         </div>
-                        <Button variant="outline" className="border-blue-600 text-blue-700">
+                        <Button
+                          variant="outline"
+                          className="border-blue-600 text-blue-700"
+                          onClick={() => handleOpenForm('photo-release-2025', 'Photo Release Form', 'Annual photo consent for school publications')}
+                        >
                           Review & Sign
                         </Button>
                       </div>
@@ -389,7 +591,13 @@ export default function ParentPortalPage() {
                         <p className="text-sm text-muted-foreground">Signed on Nov 20, 2025</p>
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm">View</Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleViewForm('emergency-contact-2025', 'Emergency Contact Form')}
+                    >
+                      View
+                    </Button>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
                     <div className="flex items-center gap-3">
@@ -399,7 +607,13 @@ export default function ParentPortalPage() {
                         <p className="text-sm text-muted-foreground">Signed on Oct 15, 2025</p>
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm">View</Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleViewForm('medical-info-2025', 'Medical Information')}
+                    >
+                      View
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -443,21 +657,55 @@ export default function ParentPortalPage() {
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="parent-name">Full Name</Label>
-                      <Input id="parent-name" defaultValue="Sarah Johnson" />
+                      <Input
+                        id="parent-name"
+                        value={parentName}
+                        onChange={(e) => setParentName(e.target.value)}
+                        disabled={!isEditingProfile}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="parent-email">Email</Label>
-                      <Input id="parent-email" type="email" defaultValue="sarah.johnson@email.com" />
+                      <Input
+                        id="parent-email"
+                        type="email"
+                        value={parentEmail}
+                        disabled
+                      />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="parent-phone">Phone Number</Label>
-                    <Input id="parent-phone" type="tel" defaultValue="(555) 123-4567" />
+                    <Input
+                      id="parent-phone"
+                      type="tel"
+                      value={parentPhone}
+                      onChange={(e) => setParentPhone(e.target.value)}
+                      disabled={!isEditingProfile}
+                    />
                   </div>
-                  <Button variant="outline">
-                    <Edit className="w-4 h-4 mr-2" />
-                    Edit Profile
-                  </Button>
+                  {!isEditingProfile ? (
+                    <Button variant="outline" onClick={() => setIsEditingProfile(true)}>
+                      <Edit className="w-4 h-4 mr-2" />
+                      Edit Profile
+                    </Button>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Button onClick={handleSaveProfile} disabled={updateParentProfile.isPending}>
+                        {updateParentProfile.isPending ? 'Saving...' : 'Save Changes'}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setIsEditingProfile(false);
+                          setParentName(profile?.full_name || 'Sarah Johnson');
+                          setParentPhone('(555) 123-4567');
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -467,42 +715,162 @@ export default function ParentPortalPage() {
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold">My Children</h3>
-                  <Button variant="outline" size="sm">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Child
-                  </Button>
+                  <Dialog open={addChildDialogOpen} onOpenChange={setAddChildDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Child
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[500px]">
+                      <DialogHeader>
+                        <DialogTitle>Add Child</DialogTitle>
+                        <DialogDescription>
+                          Enter your child's information and their class code to connect them to this account.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="child-first-name">First Name</Label>
+                            <Input
+                              id="child-first-name"
+                              placeholder="Emma"
+                              value={childFirstName}
+                              onChange={(e) => setChildFirstName(e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="child-last-name">Last Name</Label>
+                            <Input
+                              id="child-last-name"
+                              placeholder="Johnson"
+                              value={childLastName}
+                              onChange={(e) => setChildLastName(e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="child-dob">Date of Birth</Label>
+                          <Input
+                            id="child-dob"
+                            type="date"
+                            value={childDOB}
+                            onChange={(e) => setChildDOB(e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="class-code">Class Code</Label>
+                          <div className="flex gap-2">
+                            <Input
+                              id="class-code"
+                              placeholder="LIONS-2025"
+                              value={classCode}
+                              onChange={(e) => {
+                                setClassCode(e.target.value.toUpperCase());
+                                setValidatedClass(null);
+                              }}
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={handleValidateClassCode}
+                              disabled={validateClassCode.isPending || !classCode.trim()}
+                            >
+                              {validateClassCode.isPending ? 'Validating...' : 'Validate'}
+                            </Button>
+                          </div>
+                          {validatedClass && (
+                            <div className="flex items-center gap-2 text-sm text-green-600">
+                              <CheckCircle2 className="w-4 h-4" />
+                              <span>Valid class: {validatedClass.class_name}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setAddChildDialogOpen(false);
+                            setChildFirstName('');
+                            setChildLastName('');
+                            setChildDOB('');
+                            setClassCode('');
+                            setValidatedClass(null);
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={handleAddChild}
+                          disabled={
+                            !childFirstName.trim() ||
+                            !childLastName.trim() ||
+                            !childDOB ||
+                            !validatedClass ||
+                            addChildEnrollment.isPending
+                          }
+                        >
+                          {addChildEnrollment.isPending ? 'Adding...' : 'Add Child'}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
                 <div className="space-y-3">
-                  <Card className="border-blue-200 bg-blue-50/50">
-                    <CardContent className="pt-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-semibold">Emma Johnson</p>
-                          <p className="text-sm text-muted-foreground">Grade 4 - Mrs. Smith's Class</p>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button variant="ghost" size="sm">
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-gray-200">
-                    <CardContent className="pt-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-semibold">Liam Johnson</p>
-                          <p className="text-sm text-muted-foreground">Grade 2 - Mr. Davis's Class</p>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button variant="ghost" size="sm">
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  {enrolledChildren && enrolledChildren.length > 0 ? (
+                    enrolledChildren.map((child, index) => (
+                      <Card key={child.id} className={index === 0 ? "border-blue-200 bg-blue-50/50" : "border-gray-200"}>
+                        <CardContent className="pt-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-semibold">{child.child_first_name} {child.child_last_name}</p>
+                              <p className="text-sm text-muted-foreground">{child.class_name}</p>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button variant="ghost" size="sm">
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  ) : (
+                    <>
+                      <Card className="border-blue-200 bg-blue-50/50">
+                        <CardContent className="pt-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-semibold">Emma Johnson</p>
+                              <p className="text-sm text-muted-foreground">Grade 4 - Mrs. Smith's Class</p>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button variant="ghost" size="sm">
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card className="border-gray-200">
+                        <CardContent className="pt-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-semibold">Liam Johnson</p>
+                              <p className="text-sm text-muted-foreground">Grade 2 - Mr. Davis's Class</p>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button variant="ghost" size="sm">
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -557,7 +925,10 @@ export default function ParentPortalPage() {
                         <p className="text-sm text-muted-foreground">Weekly updates and important alerts</p>
                       </div>
                     </div>
-                    <Switch defaultChecked />
+                    <Switch
+                      checked={emailNotifications}
+                      onCheckedChange={setEmailNotifications}
+                    />
                   </div>
                   <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-3">
@@ -567,7 +938,10 @@ export default function ParentPortalPage() {
                         <p className="text-sm text-muted-foreground">Payment reminders and urgent updates</p>
                       </div>
                     </div>
-                    <Switch defaultChecked />
+                    <Switch
+                      checked={smsNotifications}
+                      onCheckedChange={setSmsNotifications}
+                    />
                   </div>
                   <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-3">
@@ -577,7 +951,10 @@ export default function ParentPortalPage() {
                         <p className="text-sm text-muted-foreground">When your child earns recognition</p>
                       </div>
                     </div>
-                    <Switch defaultChecked />
+                    <Switch
+                      checked={achievementNotifications}
+                      onCheckedChange={setAchievementNotifications}
+                    />
                   </div>
                   <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-3">
@@ -587,17 +964,36 @@ export default function ParentPortalPage() {
                         <p className="text-sm text-muted-foreground">New forms requiring signature</p>
                       </div>
                     </div>
-                    <Switch defaultChecked />
+                    <Switch
+                      checked={formNotifications}
+                      onCheckedChange={setFormNotifications}
+                    />
                   </div>
                 </div>
-                <Button className="mt-4">
-                  Save Preferences
+                <Button
+                  className="mt-4"
+                  onClick={handleSavePreferences}
+                  disabled={updateNotificationPrefs.isPending}
+                >
+                  {updateNotificationPrefs.isPending ? 'Saving...' : 'Save Preferences'}
                 </Button>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* PDF Form Viewer */}
+      {currentForm && (
+        <PDFFormViewer
+          open={pdfViewerOpen}
+          onOpenChange={setPdfViewerOpen}
+          formTitle={currentForm.title}
+          formDescription={currentForm.description}
+          isViewOnly={currentForm.isViewOnly}
+          onSign={handleSignForm}
+        />
+      )}
     </div>
   );
 }

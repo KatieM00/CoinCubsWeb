@@ -86,6 +86,7 @@ export default function SettingsPage() {
   const [studentParentName, setStudentParentName] = useState('');
   const [showAllBalances, setShowAllBalances] = useState(false);
   const [hiddenBalances, setHiddenBalances] = useState<Set<string>>(new Set());
+  const [isRemoveMode, setIsRemoveMode] = useState(false);
   const csvInputRef = useRef<HTMLInputElement>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState<{ id: string; name: string } | null>(null);
@@ -108,6 +109,13 @@ export default function SettingsPage() {
       setAccountEmail(profile.email || '');
     }
   }, [profile]);
+
+  // Initialize all student balances as hidden by default
+  useEffect(() => {
+    if (studentsList.length > 0) {
+      setHiddenBalances(new Set(studentsList.map(s => s.id)));
+    }
+  }, [studentsList.length]);
 
   const formatCubCoins = (amount: bigint | number) => {
     const num = typeof amount === 'bigint' ? Number(amount) : amount;
@@ -922,19 +930,20 @@ export default function SettingsPage() {
             <div className="space-y-6">
               <Card>
                 <CardHeader className="pb-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-start justify-between">
                     <div>
                       <CardTitle className="text-xl">Student Management</CardTitle>
                       <CardDescription className="text-sm">{studentsList.length} students in class</CardDescription>
                     </div>
-                    <div className="flex gap-2">
-                      <Dialog open={addStudentOpen} onOpenChange={setAddStudentOpen}>
-                        <DialogTrigger asChild>
-                          <Button size="sm" className="gap-2 h-9">
-                            <Plus className="w-4 h-4" />
-                            Add Student
-                          </Button>
-                        </DialogTrigger>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex gap-2">
+                        <Dialog open={addStudentOpen} onOpenChange={setAddStudentOpen}>
+                          <DialogTrigger asChild>
+                            <Button size="sm" className="gap-2 h-9">
+                              <Plus className="w-4 h-4" />
+                              Add Student
+                            </Button>
+                          </DialogTrigger>
                         <DialogContent className="max-w-md">
                           <DialogHeader>
                             <DialogTitle>Add New Student</DialogTitle>
@@ -998,6 +1007,16 @@ export default function SettingsPage() {
                         <Download className="w-4 h-4" />
                         Export
                       </Button>
+                      </div>
+                      <Button
+                        variant={isRemoveMode ? "default" : "outline"}
+                        size="sm"
+                        className="gap-2 h-7 text-xs"
+                        onClick={() => setIsRemoveMode(!isRemoveMode)}
+                      >
+                        <Minus className="w-3 h-3" />
+                        {isRemoveMode ? 'Done Removing' : 'Remove Student'}
+                      </Button>
                     </div>
                   </div>
                 </CardHeader>
@@ -1016,7 +1035,7 @@ export default function SettingsPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-12"></TableHead>
+                        {isRemoveMode && <TableHead className="w-12"></TableHead>}
                         <TableHead>First Name</TableHead>
                         <TableHead>Surname</TableHead>
                         <TableHead>CubCoin Balance</TableHead>
@@ -1026,7 +1045,7 @@ export default function SettingsPage() {
                     <TableBody>
                       {studentsLoading ? (
                         <TableRow>
-                          <TableCell colSpan={5} className="text-center text-muted-foreground h-20">Loading students...</TableCell>
+                          <TableCell colSpan={isRemoveMode ? 5 : 4} className="text-center text-muted-foreground h-20">Loading students...</TableCell>
                         </TableRow>
                       ) : studentsList.length > 0 ? (
                         studentsList.map((student: any) => {
@@ -1036,19 +1055,21 @@ export default function SettingsPage() {
                           const isBalanceHidden = hiddenBalances.has(student.id);
                           return (
                             <TableRow key={student.id}>
-                              <TableCell>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => {
-                                    setStudentToDelete({ id: student.id, name: student.name });
-                                    setDeleteConfirmOpen(true);
-                                  }}
-                                  className="h-7 w-7 p-0 hover:bg-red-50 hover:text-red-600"
-                                >
-                                  <Minus className="w-4 h-4" />
-                                </Button>
-                              </TableCell>
+                              {isRemoveMode && (
+                                <TableCell>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => {
+                                      setStudentToDelete({ id: student.id, name: student.name });
+                                      setDeleteConfirmOpen(true);
+                                    }}
+                                    className="h-7 w-7 p-0 hover:bg-red-50 hover:text-red-600"
+                                  >
+                                    <Minus className="w-4 h-4" />
+                                  </Button>
+                                </TableCell>
+                              )}
                               <TableCell>{firstName}</TableCell>
                               <TableCell>{surname}</TableCell>
                               <TableCell>
@@ -1098,7 +1119,7 @@ export default function SettingsPage() {
                         })
                       ) : (
                         <TableRow>
-                          <TableCell colSpan={5} className="text-center text-muted-foreground h-20">No students yet</TableCell>
+                          <TableCell colSpan={isRemoveMode ? 5 : 4} className="text-center text-muted-foreground h-20">No students yet</TableCell>
                         </TableRow>
                       )}
                     </TableBody>

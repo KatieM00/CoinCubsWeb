@@ -1161,6 +1161,36 @@ export const useUpdateStudentStatus = () => {
   });
 };
 
+export const useDeleteStudent = () => {
+  const queryClient = useQueryClient();
+  const { isDemoMode } = useDemo();
+
+  return useMutation({
+    mutationFn: async (studentId: string) => {
+      if (isDemoMode) {
+        console.log('Demo mode - student deletion not persisted');
+        return { success: true };
+      }
+
+      const { error } = await supabase
+        .from('students')
+        .delete()
+        .eq('id', studentId);
+
+      if (error) {
+        console.error('⚠️ Error deleting student:', error);
+        throw error;
+      }
+
+      console.log('✅ Deleted student from database');
+      return { success: true };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+    },
+  });
+};
+
 // Undo & Transaction Queries
 export const useGetUndoTransaction = () => {
   return useQuery({

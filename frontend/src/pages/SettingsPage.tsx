@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useState, useEffect, useRef } from 'react';
-import { useIsCallerAdmin, useGetClassFund, useGetRewardsCatalog, useAddReward, useUpdateRewardPrice, useCreateClassGoal, useGetPresetAmounts, useUpdatePresetAmounts, useGetTeacherClass, useGetStudents, useAddStudent, useUpdateClassBalance, useUpdateStudent, useCreateTeacherClass, useUpdateTeacherClass, useGetClassGoals, useUpdateProfile } from '../hooks/useQueries';
+import { useIsCallerAdmin, useGetClassFund, useGetRewardsCatalog, useAddReward, useUpdateRewardPrice, useCreateClassGoal, useGetPresetAmounts, useUpdatePresetAmounts, useGetTeacherClass, useGetStudents, useAddStudent, useUpdateClassBalance, useUpdateStudent, useCreateTeacherClass, useUpdateTeacherClass, useGetClassGoals, useUpdateProfile, useDeleteStudent } from '../hooks/useQueries';
 import { useAuth } from '../hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Settings, Coins, Users, Target, Building, UserCircle, Edit, Plus, Download, Upload, Trash2, RotateCcw, Archive, Mail, DollarSign, Eye, EyeOff } from 'lucide-react';
+import { Settings, Coins, Users, Target, Building, UserCircle, Edit, Plus, Download, Upload, Trash2, RotateCcw, Archive, Mail, DollarSign, Eye, EyeOff, Minus } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -35,6 +35,7 @@ export default function SettingsPage() {
   const addStudent = useAddStudent();
   const updateClassBalance = useUpdateClassBalance();
   const updateStudent = useUpdateStudent();
+  const deleteStudent = useDeleteStudent();
   const addReward = useAddReward();
   const updateRewardPrice = useUpdateRewardPrice();
   const createGoal = useCreateClassGoal();
@@ -82,9 +83,12 @@ export default function SettingsPage() {
   const [studentBalance, setStudentBalance] = useState('');
   const [studentNotes, setStudentNotes] = useState('');
   const [studentActive, setStudentActive] = useState(true);
+  const [studentParentName, setStudentParentName] = useState('');
   const [showAllBalances, setShowAllBalances] = useState(false);
   const [hiddenBalances, setHiddenBalances] = useState<Set<string>>(new Set());
   const csvInputRef = useRef<HTMLInputElement>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [studentToDelete, setStudentToDelete] = useState<{ id: string; name: string } | null>(null);
 
   // Parents section states
   const [sendLetterOpen, setSendLetterOpen] = useState(false);
@@ -359,6 +363,20 @@ export default function SettingsPage() {
       // Show all
       setHiddenBalances(new Set());
       setShowAllBalances(true);
+    }
+  };
+
+  const handleDeleteStudent = async () => {
+    if (!studentToDelete) return;
+
+    try {
+      await deleteStudent.mutateAsync(studentToDelete.id);
+      toast.success(`${studentToDelete.name} has been removed`);
+      setDeleteConfirmOpen(false);
+      setStudentToDelete(null);
+    } catch (error) {
+      toast.error('Failed to delete student');
+      console.error(error);
     }
   };
 
@@ -998,6 +1016,7 @@ export default function SettingsPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead className="w-12"></TableHead>
                         <TableHead>First Name</TableHead>
                         <TableHead>Surname</TableHead>
                         <TableHead>CubCoin Balance</TableHead>
@@ -1007,7 +1026,7 @@ export default function SettingsPage() {
                     <TableBody>
                       {studentsLoading ? (
                         <TableRow>
-                          <TableCell colSpan={4} className="text-center text-muted-foreground h-20">Loading students...</TableCell>
+                          <TableCell colSpan={5} className="text-center text-muted-foreground h-20">Loading students...</TableCell>
                         </TableRow>
                       ) : studentsList.length > 0 ? (
                         studentsList.map((student: any) => {
@@ -1017,6 +1036,19 @@ export default function SettingsPage() {
                           const isBalanceHidden = hiddenBalances.has(student.id);
                           return (
                             <TableRow key={student.id}>
+                              <TableCell>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => {
+                                    setStudentToDelete({ id: student.id, name: student.name });
+                                    setDeleteConfirmOpen(true);
+                                  }}
+                                  className="h-7 w-7 p-0 hover:bg-red-50 hover:text-red-600"
+                                >
+                                  <Minus className="w-4 h-4" />
+                                </Button>
+                              </TableCell>
                               <TableCell>{firstName}</TableCell>
                               <TableCell>{surname}</TableCell>
                               <TableCell>
@@ -1048,6 +1080,7 @@ export default function SettingsPage() {
                                       setStudentBalance(student.personalBalance?.toString() || '');
                                       setStudentNotes(student.notes || '');
                                       setStudentActive(student.isActive);
+                                      setStudentParentName('');
                                       setEditStudentOpen(true);
                                     }}
                                   >
@@ -1065,7 +1098,7 @@ export default function SettingsPage() {
                         })
                       ) : (
                         <TableRow>
-                          <TableCell colSpan={4} className="text-center text-muted-foreground h-20">No students yet</TableCell>
+                          <TableCell colSpan={5} className="text-center text-muted-foreground h-20">No students yet</TableCell>
                         </TableRow>
                       )}
                     </TableBody>
@@ -1304,6 +1337,15 @@ export default function SettingsPage() {
               />
             </div>
             <div className="space-y-1.5">
+              <Label htmlFor="editParentName">Parent Name</Label>
+              <Input
+                id="editParentName"
+                placeholder="Parent full name"
+                value={studentParentName}
+                onChange={(e) => setStudentParentName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
               <Label htmlFor="editStudentNotes">Private Notes</Label>
               <Input
                 id="editStudentNotes"
@@ -1329,6 +1371,28 @@ export default function SettingsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Student Confirmation Dialog */}
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Student?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove <strong>{studentToDelete?.name}</strong> from the class? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteStudent}
+              disabled={deleteStudent.isPending}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleteStudent.isPending ? 'Deleting...' : 'Delete Student'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Edit Reward Dialog */}
       <Dialog open={editRewardOpen} onOpenChange={setEditRewardOpen}>

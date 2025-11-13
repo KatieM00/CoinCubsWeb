@@ -206,20 +206,22 @@ const routeTree = rootRoute.addChildren([
 const router = createRouter({ routeTree });
 
 function AppContent() {
-  const { user, profile, profiles, hasMultipleRoles, activeRole, isLoading } = useAuth();
+  const { user, profile, profiles, hasMultipleRoles, activeRole, isLoading, isLoadingProfiles } = useAuth();
   const { isDemoMode } = useDemo();
 
   // Debug logging
   console.log('🔍 App State:', {
     isLoading,
+    isLoadingProfiles,
     isDemoMode,
     hasUser: !!user,
     hasProfile: !!profile,
+    profilesCount: profiles.length,
     user,
     profile
   });
 
-  if (isLoading) {
+  if (isLoading || isLoadingProfiles) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
         <div className="text-center space-y-4">

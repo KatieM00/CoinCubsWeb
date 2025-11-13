@@ -10,6 +10,7 @@ interface UseAuthReturn {
   activeRole: 'teacher' | 'parent' | null
   hasMultipleRoles: boolean
   isLoading: boolean
+  isLoadingProfiles: boolean
   isAuthenticated: boolean
   loginWithGoogle: () => Promise<void>
   logout: () => Promise<void>
@@ -42,6 +43,7 @@ function useAuthLogic(): UseAuthReturn {
   const [profiles, setProfiles] = useState<UserProfile[]>([])
   const [activeRole, setActiveRole] = useState<'teacher' | 'parent' | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingProfiles, setIsLoadingProfiles] = useState(false)
 
   // Create demo profile when in demo mode
   const demoProfile: UserProfile | null = useMemo(() =>
@@ -81,7 +83,7 @@ function useAuthLogic(): UseAuthReturn {
 
     // Get initial session
     supabase.auth.getSession()
-      .then(({ data: { session } }) => {
+      .then(async ({ data: { session } }) => {
         clearTimeout(timeout)
 
         // If no session, clear any stale data
@@ -97,7 +99,7 @@ function useAuthLogic(): UseAuthReturn {
 
         setUser(session?.user ?? null)
         if (session?.user) {
-          loadUserProfile(session.user.id)
+          await loadUserProfile(session.user.id)
         }
         setIsLoading(false)
       })
@@ -131,6 +133,7 @@ function useAuthLogic(): UseAuthReturn {
   }, [isDemoMode, demoRole])
 
   const loadUserProfile = async (userId: string) => {
+    setIsLoadingProfiles(true)
     try {
       // Load ALL profiles for this user (may have both teacher and parent)
       const { data, error } = await supabase
@@ -168,6 +171,8 @@ function useAuthLogic(): UseAuthReturn {
       setProfiles([])
       setActiveRole(null)
       localStorage.removeItem('activeRole')
+    } finally {
+      setIsLoadingProfiles(false)
     }
   }
 
@@ -240,6 +245,7 @@ function useAuthLogic(): UseAuthReturn {
     activeRole,
     hasMultipleRoles,
     isLoading,
+    isLoadingProfiles,
     isAuthenticated: !!user,
     loginWithGoogle,
     logout,

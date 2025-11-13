@@ -23,6 +23,7 @@ export default function Header() {
     if (isDemoMode) {
       exitDemoMode();
       toast.success('Exited demo mode');
+      navigate({ to: '/login' });
       return;
     }
 
@@ -31,8 +32,10 @@ export default function Header() {
       await logout();
       console.log('✅ Logout successful, clearing query cache...');
       queryClient.clear();
-      console.log('✅ Cache cleared');
+      console.log('✅ Cache cleared, navigating to login...');
       toast.success('Logged out successfully');
+      // Force navigation to login screen
+      window.location.href = '/';
     } catch (error) {
       console.error('❌ Logout error:', error);
       toast.error('Failed to log out');

@@ -10,8 +10,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Settings, Coins, Users, Target, Building, UserCircle, Edit, Plus, Download, Upload, Trash2, RotateCcw, Archive, Mail, DollarSign, Eye, EyeOff, Minus } from 'lucide-react';
 import { toast } from 'sonner';
+import CubCoinIcon from '@/assets/CubCoin.png';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -21,6 +21,11 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 
 type SettingsSection = 'classroom' | 'funds' | 'students' | 'parents' | 'account';
+
+// Simple icon component using CubCoin image
+const Icon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <img src={CubCoinIcon} alt="" className={className} />
+);
 
 export default function SettingsPage() {
   const { profile, user } = useAuth();
@@ -639,7 +644,7 @@ export default function SettingsPage() {
                     }}>
                       <DialogTrigger asChild>
                         <Button variant="outline" size="sm" className="gap-2 h-8 text-xs">
-                          <Edit className="w-3 h-3" />
+                          <Icon className="w-3 h-3" />
                           Edit Presets
                         </Button>
                       </DialogTrigger>
@@ -713,7 +718,7 @@ export default function SettingsPage() {
                     <Dialog open={editBalanceOpen} onOpenChange={setEditBalanceOpen}>
                       <DialogTrigger asChild>
                         <Button size="sm" className="gap-2">
-                          <Edit className="w-4 h-4" />
+                          <Icon className="w-4 h-4" />
                           Edit Balance
                         </Button>
                       </DialogTrigger>
@@ -768,7 +773,7 @@ export default function SettingsPage() {
                     <Dialog open={createGoalOpen} onOpenChange={setCreateGoalOpen}>
                       <DialogTrigger asChild>
                         <Button size="sm" className="gap-2 h-9">
-                          <Plus className="w-4 h-4" />
+                          <Icon className="w-4 h-4" />
                           Create New Goal
                         </Button>
                       </DialogTrigger>
@@ -828,7 +833,7 @@ export default function SettingsPage() {
                       <div className="flex items-center gap-2">
                         <Badge variant="secondary" className="text-sm">{formatCubCoins(primaryGoal.targetAmount)} CubCoins</Badge>
                         <Button size="sm" variant="outline" className="gap-1 h-8 text-xs">
-                          <Edit className="w-3 h-3" />
+                          <Icon className="w-3 h-3" />
                           Edit
                         </Button>
                       </div>
@@ -844,7 +849,7 @@ export default function SettingsPage() {
                     <Dialog open={addRewardOpen} onOpenChange={setAddRewardOpen}>
                       <DialogTrigger asChild>
                         <Button size="sm" variant="outline" className="gap-2 h-8 text-xs">
-                          <Plus className="w-3 h-3" />
+                          <Icon className="w-3 h-3" />
                           Add New Reward
                         </Button>
                       </DialogTrigger>
@@ -910,7 +915,7 @@ export default function SettingsPage() {
                                 setEditRewardOpen(true);
                               }}
                             >
-                              <Edit className="w-3 h-3" />
+                              <Icon className="w-3 h-3" />
                               Edit
                             </Button>
                           </div>
@@ -940,7 +945,7 @@ export default function SettingsPage() {
                         <Dialog open={addStudentOpen} onOpenChange={setAddStudentOpen}>
                           <DialogTrigger asChild>
                             <Button size="sm" className="gap-2 h-9">
-                              <Plus className="w-4 h-4" />
+                              <Icon className="w-4 h-4" />
                               Add Student
                             </Button>
                           </DialogTrigger>
@@ -1000,11 +1005,11 @@ export default function SettingsPage() {
                         className="gap-2 h-9"
                         onClick={() => csvInputRef.current?.click()}
                       >
-                        <Upload className="w-4 h-4" />
+                        <Icon className="w-4 h-4" />
                         Import CSV
                       </Button>
                       <Button variant="outline" size="sm" className="gap-2 h-9">
-                        <Download className="w-4 h-4" />
+                        <Icon className="w-4 h-4" />
                         Export
                       </Button>
                       </div>
@@ -1014,7 +1019,7 @@ export default function SettingsPage() {
                         className="gap-2 h-7 text-xs"
                         onClick={() => setIsRemoveMode(!isRemoveMode)}
                       >
-                        <Minus className="w-3 h-3" />
+                        <Icon className="w-3 h-3" />
                         {isRemoveMode ? 'Done Removing' : 'Remove Student'}
                       </Button>
                     </div>
@@ -1066,7 +1071,7 @@ export default function SettingsPage() {
                                     }}
                                     className="h-7 w-7 p-0 hover:bg-red-50 hover:text-red-600"
                                   >
-                                    <Minus className="w-4 h-4" />
+                                    <Icon className="w-4 h-4" />
                                   </Button>
                                 </TableCell>
                               )}
@@ -1085,7 +1090,7 @@ export default function SettingsPage() {
                                     onClick={() => toggleBalance(student.id)}
                                     className="h-6 w-6 p-0"
                                   >
-                                    {isBalanceHidden ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                                    <Icon className="w-3 h-3" />
                                   </Button>
                                 </div>
                               </TableCell>
@@ -1105,11 +1110,11 @@ export default function SettingsPage() {
                                       setEditStudentOpen(true);
                                     }}
                                   >
-                                    <Edit className="w-3 h-3 mr-1" />
+                                    <Icon className="w-3 h-3 mr-1" />
                                     Edit
                                   </Button>
                                   <Button size="sm" variant="default">
-                                    <DollarSign className="w-3 h-3 mr-1" />
+                                    <Icon className="w-3 h-3 mr-1" />
                                     Enter Bank
                                   </Button>
                                 </div>
@@ -1263,7 +1268,7 @@ export default function SettingsPage() {
 
                   <div className="space-y-2">
                     <Button variant="outline" className="w-full justify-start gap-2" onClick={() => setChangePasswordOpen(true)}>
-                      <Edit className="w-4 h-4" />
+                      <Icon className="w-4 h-4" />
                       Change Password
                     </Button>
                     <Button variant="outline" className="w-full justify-start gap-2 border-red-300 text-red-700 hover:bg-red-50" onClick={() => setDeleteAccountOpen(true)}>

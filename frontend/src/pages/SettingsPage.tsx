@@ -447,7 +447,7 @@ export default function SettingsPage() {
         <CardHeader className="text-center py-6">
           <div className="flex justify-center mb-3">
             <div className="w-16 h-16 bg-slate-600 rounded-full flex items-center justify-center shadow-lg">
-              <Settings className="w-8 h-8 text-white" />
+              <Icon className="w-8 h-8 text-white" />
             </div>
           </div>
           <CardTitle className="text-3xl font-bold text-slate-900">⚙️ Settings</CardTitle>
@@ -607,15 +607,15 @@ export default function SettingsPage() {
                     className="w-full gap-2 border-red-300 text-red-700 hover:bg-red-50 h-9"
                     onClick={() => setSemesterResetOpen(true)}
                   >
-                    <RotateCcw className="w-4 h-4" />
+                    <Icon className="w-4 h-4" />
                     Reset Semester
                   </Button>
                   <Button variant="outline" className="w-full gap-2 border-red-300 text-red-700 hover:bg-red-50 h-9">
-                    <Archive className="w-4 h-4" />
+                    <Icon className="w-4 h-4" />
                     Archive Class
                   </Button>
                   <Button variant="destructive" className="w-full gap-2 h-9">
-                    <Trash2 className="w-4 h-4" />
+                    <Icon className="w-4 h-4" />
                     Delete Class
                   </Button>
                 </CardContent>
@@ -1145,7 +1145,7 @@ export default function SettingsPage() {
                       <CardDescription className="text-sm">Manage parent communications</CardDescription>
                     </div>
                     <Button size="sm" className="gap-2">
-                      <Mail className="w-4 h-4" />
+                      <Icon className="w-4 h-4" />
                       Send Class Letter
                     </Button>
                   </div>
@@ -1184,7 +1184,7 @@ export default function SettingsPage() {
                             </TableCell>
                             <TableCell className="text-right">
                               <Button size="sm" variant="outline">
-                                <Mail className="w-3 h-3 mr-1" />
+                                <Icon className="w-3 h-3 mr-1" />
                                 Send Letter
                               </Button>
                             </TableCell>
@@ -1272,11 +1272,11 @@ export default function SettingsPage() {
                       Change Password
                     </Button>
                     <Button variant="outline" className="w-full justify-start gap-2 border-red-300 text-red-700 hover:bg-red-50" onClick={() => setDeleteAccountOpen(true)}>
-                      <Trash2 className="w-4 h-4" />
+                      <Icon className="w-4 h-4" />
                       Delete Account
                     </Button>
                     <Button variant="outline" className="w-full justify-start gap-2">
-                      <Users className="w-4 h-4" />
+                      <Icon className="w-4 h-4" />
                       Transfer Class
                     </Button>
                   </div>

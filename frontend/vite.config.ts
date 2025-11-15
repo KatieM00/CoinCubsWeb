@@ -14,4 +14,14 @@ export default defineConfig({
     port: 3000,
     open: true,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Force lucide-react into a single chunk to prevent circular dependency issues
+          'lucide': ['lucide-react'],
+        },
+      },
+    },
+  },
 });

@@ -6,8 +6,18 @@ import { supabase } from '@/lib/supabase';
 import { getAllCurriculumModules } from '@/data/curriculumData';
 import { LessonCompletion } from '@/types';
 
-// Re-export user profile queries
-export { useGetUserProfile, useSaveUserProfile } from './useUserQueries';
+// User profile query - uses useAuth context instead of useSupabaseAuth to avoid missing provider
+export const useGetUserProfile = () => {
+  const { profile } = useAuth();
+
+  // Return a query-like object that wraps the auth context profile
+  return useQuery({
+    queryKey: ['userProfile', profile?.id],
+    queryFn: async () => profile,
+    enabled: true,
+    initialData: profile,
+  });
+};
 
 // Authorization check - MUST be in same module as other hooks to prevent initialization issues
 export const useIsCallerAdmin = () => {

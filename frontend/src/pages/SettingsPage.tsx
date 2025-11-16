@@ -1662,8 +1662,8 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
 
       {/* Bank Statement Dialog */}
       <Dialog open={bankStatementOpen} onOpenChange={setBankStatementOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
+        <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle className="text-xl">
               Bank Statement - {selectedBankStudent?.name}
             </DialogTitle>
@@ -1672,37 +1672,39 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
             </DialogDescription>
           </DialogHeader>
           {selectedBankStudent && (
-            <div className="space-y-4">
-              <div className="bg-primary/10 p-4 rounded-lg text-center">
+            <div className="flex flex-col flex-1 min-h-0 space-y-4">
+              <div className="bg-primary/10 p-4 rounded-lg text-center flex-shrink-0">
                 <div className="text-sm text-muted-foreground">Current Balance</div>
                 <div className="text-3xl font-bold text-primary">
                   {selectedBankStudent.balance} CC
                 </div>
               </div>
-              <div className="border rounded-lg overflow-hidden">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Reference</TableHead>
-                      <TableHead className="text-right">Amount</TableHead>
-                      <TableHead className="text-right">Balance</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {getMockTransactions(selectedBankStudent.id, selectedBankStudent.balance).map((tx, i) => (
-                      <TableRow key={i}>
-                        <TableCell className="font-mono text-sm">{tx.date}</TableCell>
-                        <TableCell>{tx.reference}</TableCell>
-                        <TableCell className={`text-right font-medium ${tx.type === 'earned' ? 'text-green-600' : 'text-red-600'}`}>
-                          {tx.type === 'earned' ? '+' : ''}{tx.amount} CC
-                        </TableCell>
-                        <TableCell className="text-right font-mono">{tx.balanceAfter} CC</TableCell>
+              <ScrollArea className="flex-1 min-h-0">
+                <div className="border rounded-lg overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Reference</TableHead>
+                        <TableHead className="text-right">Amount</TableHead>
+                        <TableHead className="text-right">Balance</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+                    </TableHeader>
+                    <TableBody>
+                      {getMockTransactions(selectedBankStudent.id, selectedBankStudent.balance).map((tx, i) => (
+                        <TableRow key={i}>
+                          <TableCell className="font-mono text-sm">{tx.date}</TableCell>
+                          <TableCell>{tx.reference}</TableCell>
+                          <TableCell className={`text-right font-medium ${tx.type === 'earned' ? 'text-green-600' : 'text-red-600'}`}>
+                            {tx.type === 'earned' ? '+' : ''}{tx.amount} CC
+                          </TableCell>
+                          <TableCell className="text-right font-mono">{tx.balanceAfter} CC</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </ScrollArea>
             </div>
           )}
         </DialogContent>
@@ -1717,8 +1719,8 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
           setBasket([]);
         }
       }}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle className="text-xl">
               {shopStep === 1 && 'CubCoin Shop - Who is purchasing?'}
               {shopStep === 2 && 'Browse Shop'}
@@ -1760,36 +1762,38 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
           )}
 
           {shopStep === 2 && (
-            <div className="space-y-4">
-              <div className="bg-primary/10 p-3 rounded-lg flex justify-between items-center">
+            <div className="flex flex-col flex-1 min-h-0 space-y-4">
+              <div className="bg-primary/10 p-3 rounded-lg flex justify-between items-center flex-shrink-0">
                 <span className="font-medium">Available Balance:</span>
                 <span className="text-xl font-bold">{getPurchaserBalance()} CC</span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {getFilteredShopItems().map(item => (
-                  <Card key={item.id} className="p-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl">{item.emoji}</span>
-                        <div>
-                          <div className="font-medium">{item.name}</div>
-                          <div className="text-xs text-muted-foreground">{item.description}</div>
-                          <Badge variant="outline" className="mt-1 text-xs">{item.category}</Badge>
+              <ScrollArea className="flex-1 min-h-0">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pr-4">
+                  {getFilteredShopItems().map(item => (
+                    <Card key={item.id} className="p-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl">{item.emoji}</span>
+                          <div>
+                            <div className="font-medium">{item.name}</div>
+                            <div className="text-xs text-muted-foreground">{item.description}</div>
+                            <Badge variant="outline" className="mt-1 text-xs">{item.category}</Badge>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-bold">{item.price} CC</div>
+                          <Button size="sm" className="mt-1" onClick={() => addToBasket(item)}>
+                            Add
+                          </Button>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="font-bold">{item.price} CC</div>
-                        <Button size="sm" className="mt-1" onClick={() => addToBasket(item)}>
-                          Add
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
+                    </Card>
+                  ))}
+                </div>
+              </ScrollArea>
 
-              <DialogFooter className="flex justify-between">
+              <DialogFooter className="flex justify-between flex-shrink-0">
                 <Button variant="outline" onClick={() => setShopStep(1)}>Back</Button>
                 <div className="flex items-center gap-2">
                   {basket.length > 0 && (

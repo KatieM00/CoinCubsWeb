@@ -1679,7 +1679,7 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
                   {selectedBankStudent.balance} CC
                 </div>
               </div>
-              <ScrollArea className="flex-1 min-h-0">
+              <ScrollArea className="h-[350px]">
                 <div className="border rounded-lg overflow-hidden">
                   <Table>
                     <TableHeader>
@@ -1768,7 +1768,7 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
                 <span className="text-xl font-bold">{getPurchaserBalance()} CC</span>
               </div>
 
-              <ScrollArea className="flex-1 min-h-0">
+              <ScrollArea className="h-[400px]">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pr-4">
                   {getFilteredShopItems().map(item => (
                     <Card key={item.id} className="p-3">

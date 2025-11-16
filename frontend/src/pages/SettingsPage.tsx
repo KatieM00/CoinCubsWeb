@@ -147,23 +147,13 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
     return num.toLocaleString();
   };
 
-  // Mock transaction history for demo
-  const getMockTransactions = (studentId: string, currentBalance: number) => {
-    const transactions = [
-      { date: '15/11/2024', reference: 'Excellent homework', amount: 10, type: 'earned' as const },
-      { date: '14/11/2024', reference: 'Shop purchase: Line leader', amount: -12, type: 'spent' as const },
-      { date: '12/11/2024', reference: 'Helping classmate', amount: 5, type: 'earned' as const },
-      { date: '10/11/2024', reference: 'Good behavior', amount: 8, type: 'earned' as const },
-      { date: '08/11/2024', reference: 'Shop purchase: Stickers + VAT', amount: -6, type: 'spent' as const },
-      { date: '05/11/2024', reference: 'Class participation', amount: 12, type: 'earned' as const },
-      { date: '01/11/2024', reference: 'Initial balance', amount: currentBalance - 17, type: 'earned' as const },
-    ];
-
-    let runningBalance = 0;
-    return transactions.reverse().map(t => {
-      runningBalance += t.amount;
-      return { ...t, balanceAfter: runningBalance };
-    }).reverse();
+  // Transaction history - currently returns empty, will be populated by awards and shop purchases
+  // TODO: Connect to actual transaction storage (localStorage or Supabase)
+  const getStudentTransactions = (studentId: string) => {
+    // For now, return empty array - transactions will be recorded when:
+    // 1. Awards are given from QuickAwardPage
+    // 2. Purchases are made from Shop
+    return [] as { date: string; reference: string; amount: number; type: 'earned' | 'spent'; balanceAfter: number }[];
   };
 
   // Shop items data
@@ -1691,16 +1681,24 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {getMockTransactions(selectedBankStudent.id, selectedBankStudent.balance).map((tx, i) => (
-                        <TableRow key={i}>
-                          <TableCell className="font-mono text-sm">{tx.date}</TableCell>
-                          <TableCell>{tx.reference}</TableCell>
-                          <TableCell className={`text-right font-medium ${tx.type === 'earned' ? 'text-green-600' : 'text-red-600'}`}>
-                            {tx.type === 'earned' ? '+' : ''}{tx.amount} CC
+                      {getStudentTransactions(selectedBankStudent.id).length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                            No transactions yet. Transactions will appear here when CubCoins are awarded or spent in the shop.
                           </TableCell>
-                          <TableCell className="text-right font-mono">{tx.balanceAfter} CC</TableCell>
                         </TableRow>
-                      ))}
+                      ) : (
+                        getStudentTransactions(selectedBankStudent.id).map((tx, i) => (
+                          <TableRow key={i}>
+                            <TableCell className="font-mono text-sm">{tx.date}</TableCell>
+                            <TableCell>{tx.reference}</TableCell>
+                            <TableCell className={`text-right font-medium ${tx.type === 'earned' ? 'text-green-600' : 'text-red-600'}`}>
+                              {tx.type === 'earned' ? '+' : ''}{tx.amount} CC
+                            </TableCell>
+                            <TableCell className="text-right font-mono">{tx.balanceAfter} CC</TableCell>
+                          </TableRow>
+                        ))
+                      )}
                     </TableBody>
                   </Table>
                 </div>

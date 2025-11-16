@@ -104,6 +104,14 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
   const csvInputRef = useRef<HTMLInputElement>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [bankStatementOpen, setBankStatementOpen] = useState(false);
+  const [selectedBankStudent, setSelectedBankStudent] = useState<{ id: string; name: string; balance: number } | null>(null);
+
+  // Shop section states
+  const [shopOpen, setShopOpen] = useState(false);
+  const [shopStep, setShopStep] = useState(1);
+  const [selectedPurchaser, setSelectedPurchaser] = useState<string>('');
+  const [basket, setBasket] = useState<{ id: string; name: string; emoji: string; price: number; quantity: number }[]>([]);
 
   // Parents section states
   const [sendLetterOpen, setSendLetterOpen] = useState(false);
@@ -137,6 +145,125 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
   const formatCubCoins = (amount: bigint | number) => {
     const num = typeof amount === 'bigint' ? Number(amount) : amount;
     return num.toLocaleString();
+  };
+
+  // Mock transaction history for demo
+  const getMockTransactions = (studentId: string, currentBalance: number) => {
+    const transactions = [
+      { date: '15/11/2024', reference: 'Excellent homework', amount: 10, type: 'earned' as const },
+      { date: '14/11/2024', reference: 'Shop purchase: Line leader', amount: -12, type: 'spent' as const },
+      { date: '12/11/2024', reference: 'Helping classmate', amount: 5, type: 'earned' as const },
+      { date: '10/11/2024', reference: 'Good behavior', amount: 8, type: 'earned' as const },
+      { date: '08/11/2024', reference: 'Shop purchase: Stickers + VAT', amount: -6, type: 'spent' as const },
+      { date: '05/11/2024', reference: 'Class participation', amount: 12, type: 'earned' as const },
+      { date: '01/11/2024', reference: 'Initial balance', amount: currentBalance - 17, type: 'earned' as const },
+    ];
+
+    let runningBalance = 0;
+    return transactions.reverse().map(t => {
+      runningBalance += t.amount;
+      return { ...t, balanceAfter: runningBalance };
+    }).reverse();
+  };
+
+  // Shop items data
+  const shopItems = [
+    // Privileges (individual)
+    { id: 'p1', name: 'Line leader', emoji: '👑', description: 'Be first in line for a day', price: 10, category: 'Privilege', purchaseType: 'individual' },
+    { id: 'p2', name: 'Choose seat', emoji: '💺', description: 'Pick your seat for a week', price: 15, category: 'Privilege', purchaseType: 'individual' },
+    { id: 'p3', name: 'First to lunch', emoji: '🍽️', description: 'Skip the queue at lunch', price: 12, category: 'Privilege', purchaseType: 'individual' },
+    { id: 'p4', name: "Teacher's helper", emoji: '🌟', description: 'Help teacher for a day', price: 18, category: 'Privilege', purchaseType: 'individual' },
+    // Rewards (individual)
+    { id: 'r1', name: 'Extra playtime', emoji: '⚽', description: '10 minutes extra play', price: 20, category: 'Reward', purchaseType: 'individual' },
+    { id: 'r2', name: 'Homework pass', emoji: '📝', description: 'Skip one homework', price: 25, category: 'Reward', purchaseType: 'individual' },
+    { id: 'r3', name: 'Free time', emoji: '🎮', description: '15 minutes free activity', price: 22, category: 'Reward', purchaseType: 'individual' },
+    { id: 'r4', name: 'Show & tell', emoji: '🎁', description: 'Extra show & tell slot', price: 15, category: 'Reward', purchaseType: 'individual' },
+    // Items (individual)
+    { id: 'i1', name: 'Fancy pencil', emoji: '✏️', description: 'Special decorated pencil', price: 8, category: 'Item', purchaseType: 'individual' },
+    { id: 'i2', name: 'Stickers', emoji: '⭐', description: 'Pack of 5 stickers', price: 5, category: 'Item', purchaseType: 'individual' },
+    { id: 'i3', name: 'Bookmark', emoji: '🔖', description: 'Custom bookmark', price: 10, category: 'Item', purchaseType: 'individual' },
+    // Experiences (individual)
+    { id: 'e1', name: 'Lunch with teacher', emoji: '🍕', description: 'Special lunch time', price: 30, category: 'Experience', purchaseType: 'individual' },
+    { id: 'e2', name: 'Read to class', emoji: '📚', description: 'Read your favorite book', price: 20, category: 'Experience', purchaseType: 'individual' },
+    { id: 'e3', name: 'Music choice', emoji: '🎵', description: 'Pick class music', price: 25, category: 'Experience', purchaseType: 'individual' },
+    // Class-only items
+    { id: 'c1', name: 'Pizza party', emoji: '🍕', description: 'Pizza for the whole class', price: 200, category: 'Class', purchaseType: 'classOnly' },
+    { id: 'c2', name: 'Movie day', emoji: '🎬', description: 'Watch a movie together', price: 180, category: 'Class', purchaseType: 'classOnly' },
+    { id: 'c3', name: 'Extra break', emoji: '🎉', description: '15 min extra break time', price: 150, category: 'Class', purchaseType: 'classOnly' },
+  ];
+
+  // Shop helper functions
+  const getFilteredShopItems = () => {
+    if (selectedPurchaser === 'whole-class') {
+      return shopItems.filter(item => item.purchaseType === 'classOnly' || item.purchaseType === 'both');
+    }
+    return shopItems.filter(item => item.purchaseType === 'individual' || item.purchaseType === 'both');
+  };
+
+  const addToBasket = (item: typeof shopItems[0]) => {
+    setBasket(prev => {
+      const existing = prev.find(b => b.id === item.id);
+      if (existing) {
+        return prev.map(b => b.id === item.id ? { ...b, quantity: b.quantity + 1 } : b);
+      }
+      return [...prev, { id: item.id, name: item.name, emoji: item.emoji, price: item.price, quantity: 1 }];
+    });
+  };
+
+  const removeFromBasket = (itemId: string) => {
+    setBasket(prev => prev.filter(b => b.id !== itemId));
+  };
+
+  const getBasketSubtotal = () => basket.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const getBasketVAT = () => Math.round(getBasketSubtotal() * 0.2);
+  const getBasketTotal = () => getBasketSubtotal() + getBasketVAT();
+
+  const getPurchaserBalance = () => {
+    if (selectedPurchaser === 'whole-class') {
+      return Number(totalClassCubCoins);
+    }
+    const student = studentsList.find(s => s.id === selectedPurchaser);
+    return student?.personalBalance || 0;
+  };
+
+  const handleConfirmPurchase = async () => {
+    const total = getBasketTotal();
+    const purchaserBalance = getPurchaserBalance();
+
+    if (total > purchaserBalance) {
+      toast.error('Insufficient balance!');
+      return;
+    }
+
+    try {
+      if (selectedPurchaser === 'whole-class') {
+        await updateClassBalance.mutateAsync({
+          adjustment: -total,
+          reason: `Shop purchase (${basket.length} items) + VAT`,
+        });
+      } else {
+        const student = studentsList.find(s => s.id === selectedPurchaser);
+        if (student) {
+          await updateStudent.mutateAsync({
+            studentId: student.id,
+            personalBalance: student.personalBalance - total,
+          });
+        }
+      }
+
+      const itemNames = basket.map(b => `${b.emoji} ${b.name} x${b.quantity}`).join(', ');
+      toast.success(
+        `Purchase complete! ${itemNames}. Subtotal: ${getBasketSubtotal()} CC + VAT: ${getBasketVAT()} CC = Total: ${total} CC`,
+        { duration: 5000 }
+      );
+
+      setShopOpen(false);
+      setShopStep(1);
+      setSelectedPurchaser('');
+      setBasket([]);
+    } catch (error) {
+      toast.error('Failed to process purchase');
+    }
   };
 
   // Handler functions
@@ -641,8 +768,16 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
               {/* Funds Card */}
               <Card className="border-amber-200">
                 <CardHeader className="pb-4">
-                  <CardTitle className="text-xl">Funds</CardTitle>
-                  <CardDescription className="text-sm">Manage class fund and settings</CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-xl">Funds</CardTitle>
+                      <CardDescription className="text-sm">Manage class fund and settings</CardDescription>
+                    </div>
+                    <Button onClick={() => setShopOpen(true)} className="gap-2">
+                      <Icon className="w-4 h-4" />
+                      Open Shop
+                    </Button>
+                  </div>
                 </CardHeader>
                 <Separator />
                 <CardContent className="space-y-4 pt-4">
@@ -1125,7 +1260,18 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
                                     <Icon className="w-3 h-3 mr-1" />
                                     Edit
                                   </Button>
-                                  <Button size="sm" variant="default">
+                                  <Button
+                                    size="sm"
+                                    variant="default"
+                                    onClick={() => {
+                                      setSelectedBankStudent({
+                                        id: student.id,
+                                        name: student.name,
+                                        balance: student.personalBalance
+                                      });
+                                      setBankStatementOpen(true);
+                                    }}
+                                  >
                                     <Icon className="w-3 h-3 mr-1" />
                                     Enter Bank
                                   </Button>
@@ -1513,6 +1659,240 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Bank Statement Dialog */}
+      <Dialog open={bankStatementOpen} onOpenChange={setBankStatementOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl">
+              Bank Statement - {selectedBankStudent?.name}
+            </DialogTitle>
+            <DialogDescription>
+              Transaction history and current balance
+            </DialogDescription>
+          </DialogHeader>
+          {selectedBankStudent && (
+            <div className="space-y-4">
+              <div className="bg-primary/10 p-4 rounded-lg text-center">
+                <div className="text-sm text-muted-foreground">Current Balance</div>
+                <div className="text-3xl font-bold text-primary">
+                  {selectedBankStudent.balance} CC
+                </div>
+              </div>
+              <div className="border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Reference</TableHead>
+                      <TableHead className="text-right">Amount</TableHead>
+                      <TableHead className="text-right">Balance</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {getMockTransactions(selectedBankStudent.id, selectedBankStudent.balance).map((tx, i) => (
+                      <TableRow key={i}>
+                        <TableCell className="font-mono text-sm">{tx.date}</TableCell>
+                        <TableCell>{tx.reference}</TableCell>
+                        <TableCell className={`text-right font-medium ${tx.type === 'earned' ? 'text-green-600' : 'text-red-600'}`}>
+                          {tx.type === 'earned' ? '+' : ''}{tx.amount} CC
+                        </TableCell>
+                        <TableCell className="text-right font-mono">{tx.balanceAfter} CC</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Shop Dialog */}
+      <Dialog open={shopOpen} onOpenChange={(open) => {
+        setShopOpen(open);
+        if (!open) {
+          setShopStep(1);
+          setSelectedPurchaser('');
+          setBasket([]);
+        }
+      }}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl">
+              {shopStep === 1 && 'CubCoin Shop - Who is purchasing?'}
+              {shopStep === 2 && 'Browse Shop'}
+              {shopStep === 3 && 'Review Basket'}
+              {shopStep === 4 && 'Confirm Purchase'}
+            </DialogTitle>
+            <DialogDescription>
+              {shopStep === 1 && 'Select who will be making this purchase'}
+              {shopStep === 2 && `Shopping for: ${selectedPurchaser === 'whole-class' ? 'Whole Class' : studentsList.find(s => s.id === selectedPurchaser)?.name}`}
+              {shopStep === 3 && 'Review your items before purchase'}
+              {shopStep === 4 && 'Final confirmation'}
+            </DialogDescription>
+          </DialogHeader>
+
+          {shopStep === 1 && (
+            <div className="space-y-4">
+              <Select value={selectedPurchaser} onValueChange={setSelectedPurchaser}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select purchaser..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="whole-class">🏫 Whole Class</SelectItem>
+                  {studentsList.map(student => (
+                    <SelectItem key={student.id} value={student.id}>
+                      {student.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <DialogFooter>
+                <Button
+                  disabled={!selectedPurchaser}
+                  onClick={() => setShopStep(2)}
+                >
+                  Continue
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+
+          {shopStep === 2 && (
+            <div className="space-y-4">
+              <div className="bg-primary/10 p-3 rounded-lg flex justify-between items-center">
+                <span className="font-medium">Available Balance:</span>
+                <span className="text-xl font-bold">{getPurchaserBalance()} CC</span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {getFilteredShopItems().map(item => (
+                  <Card key={item.id} className="p-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl">{item.emoji}</span>
+                        <div>
+                          <div className="font-medium">{item.name}</div>
+                          <div className="text-xs text-muted-foreground">{item.description}</div>
+                          <Badge variant="outline" className="mt-1 text-xs">{item.category}</Badge>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-bold">{item.price} CC</div>
+                        <Button size="sm" className="mt-1" onClick={() => addToBasket(item)}>
+                          Add
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+
+              <DialogFooter className="flex justify-between">
+                <Button variant="outline" onClick={() => setShopStep(1)}>Back</Button>
+                <div className="flex items-center gap-2">
+                  {basket.length > 0 && (
+                    <Badge className="text-sm">{basket.reduce((sum, b) => sum + b.quantity, 0)} items</Badge>
+                  )}
+                  <Button
+                    disabled={basket.length === 0}
+                    onClick={() => setShopStep(3)}
+                  >
+                    View Basket
+                  </Button>
+                </div>
+              </DialogFooter>
+            </div>
+          )}
+
+          {shopStep === 3 && (
+            <div className="space-y-4">
+              <div className="border rounded-lg divide-y">
+                {basket.map(item => (
+                  <div key={item.id} className="p-3 flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{item.emoji}</span>
+                      <span>{item.name} x{item.quantity}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="font-medium">{item.price * item.quantity} CC</span>
+                      <Button size="sm" variant="destructive" onClick={() => removeFromBasket(item.id)}>
+                        Remove
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="bg-muted p-4 rounded-lg space-y-2">
+                <div className="flex justify-between">
+                  <span>Subtotal:</span>
+                  <span>{getBasketSubtotal()} CC</span>
+                </div>
+                <div className="flex justify-between text-muted-foreground">
+                  <span>VAT (20%):</span>
+                  <span>{getBasketVAT()} CC</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between font-bold text-lg">
+                  <span>Total:</span>
+                  <span>{getBasketTotal()} CC</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between">
+                  <span>Current Balance:</span>
+                  <span>{getPurchaserBalance()} CC</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>After Purchase:</span>
+                  <span className={getPurchaserBalance() >= getBasketTotal() ? 'text-green-600 font-medium' : 'text-red-600 font-medium'}>
+                    {getPurchaserBalance() - getBasketTotal()} CC
+                  </span>
+                </div>
+              </div>
+
+              <DialogFooter className="flex justify-between">
+                <Button variant="outline" onClick={() => setShopStep(2)}>Continue Shopping</Button>
+                <Button
+                  disabled={getPurchaserBalance() < getBasketTotal()}
+                  onClick={() => setShopStep(4)}
+                >
+                  Confirm Order
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+
+          {shopStep === 4 && (
+            <div className="space-y-4">
+              <Alert>
+                <AlertDescription>
+                  You are about to purchase {basket.reduce((sum, b) => sum + b.quantity, 0)} item(s) for a total of <strong>{getBasketTotal()} CC</strong> (including VAT).
+                </AlertDescription>
+              </Alert>
+
+              <div className="text-center">
+                <div className="text-sm text-muted-foreground mb-2">Items:</div>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {basket.map(item => (
+                    <Badge key={item.id} variant="secondary" className="text-sm">
+                      {item.emoji} {item.name} x{item.quantity}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <DialogFooter className="flex justify-between">
+                <Button variant="outline" onClick={() => setShopStep(3)}>Back</Button>
+                <Button onClick={handleConfirmPurchase}>
+                  Complete Purchase
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -18,10 +18,24 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // Ensure proper module initialization order
+        manualChunks: {
+          // Group core dependencies together
+          'vendor-react': ['react', 'react-dom'],
+          'vendor-router': ['@tanstack/react-router'],
+          'vendor-query': ['@tanstack/react-query'],
+          'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-select', '@radix-ui/react-dropdown-menu', '@radix-ui/react-checkbox'],
+          // Keep auth and contexts together to prevent circular dependency issues
+          'app-core': [
+            './src/hooks/useAuth.tsx',
+            './src/contexts/DemoContext.tsx',
+            './src/contexts/DemoDataContext.tsx',
+          ],
+        },
       },
     },
   },
   optimizeDeps: {
-    include: ['lucide-react'],
+    // Remove lucide-react since we no longer use it
+    exclude: ['lucide-react'],
   },
 });

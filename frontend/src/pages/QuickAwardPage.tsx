@@ -19,16 +19,47 @@ const Icon = ({ className = "w-4 h-4" }: { className?: string }) => (
 );
 
 export default function QuickAwardPage() {
+  console.log('📊 QuickAwardPage: Component function starting');
+
+  console.log('📊 QuickAwardPage: Before useIsCallerAdmin');
   const { data: isAdmin, isLoading: adminLoading } = useIsCallerAdmin();
+  console.log('📊 QuickAwardPage: After useIsCallerAdmin');
+
+  console.log('📊 QuickAwardPage: Before useGetClassFund');
   const { data: classFund, isLoading: fundLoading } = useGetClassFund();
+  console.log('📊 QuickAwardPage: After useGetClassFund');
+
+  console.log('📊 QuickAwardPage: Before useGetClassGoals');
   const { data: classGoals, isLoading: goalsLoading } = useGetClassGoals();
+  console.log('📊 QuickAwardPage: After useGetClassGoals');
+
+  console.log('📊 QuickAwardPage: Before useGetLastAwardedStudents');
   const { data: lastAwardedStudents } = useGetLastAwardedStudents();
+  console.log('📊 QuickAwardPage: After useGetLastAwardedStudents');
+
+  console.log('📊 QuickAwardPage: Before useGetUndoTransaction');
   const { data: undoTransaction } = useGetUndoTransaction();
+  console.log('📊 QuickAwardPage: After useGetUndoTransaction');
+
+  console.log('📊 QuickAwardPage: Before useGetWeeklyStats');
   const { data: weeklyStats, isLoading: statsLoading } = useGetWeeklyStats();
+  console.log('📊 QuickAwardPage: After useGetWeeklyStats');
+
+  console.log('📊 QuickAwardPage: Before useGetTeacherClass');
   const { data: teacherClass } = useGetTeacherClass();
+  console.log('📊 QuickAwardPage: After useGetTeacherClass');
+
+  console.log('📊 QuickAwardPage: Before useGetStudents');
   const { data: students, isLoading: studentsLoading } = useGetStudents(teacherClass?.id);
+  console.log('📊 QuickAwardPage: After useGetStudents');
+
+  console.log('📊 QuickAwardPage: Before useAwardClassGems');
   const awardCubCoins = useAwardClassGems();
+  console.log('📊 QuickAwardPage: After useAwardClassGems');
+
+  console.log('📊 QuickAwardPage: Before useUndoLastAward');
   const undoAward = useUndoLastAward();
+  console.log('📊 QuickAwardPage: After useUndoLastAward, all hooks initialized');
 
   const [selectedStudent, setSelectedStudent] = useState<string>('');
   const [isWholeClass, setIsWholeClass] = useState(false);

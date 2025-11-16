@@ -18,24 +18,30 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // Ensure proper module initialization order
-        manualChunks: {
-          // Group core dependencies together
-          'vendor-react': ['react', 'react-dom'],
-          'vendor-router': ['@tanstack/react-router'],
-          'vendor-query': ['@tanstack/react-query'],
-          'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-select', '@radix-ui/react-dropdown-menu', '@radix-ui/react-checkbox'],
-          // Keep auth and contexts together to prevent circular dependency issues
-          'app-core': [
-            './src/hooks/useAuth.tsx',
-            './src/contexts/DemoContext.tsx',
-            './src/contexts/DemoDataContext.tsx',
-          ],
+        manualChunks(id) {
+          // Core React deps
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+            return 'vendor-react';
+          }
+          // Router
+          if (id.includes('node_modules/@tanstack/react-router')) {
+            return 'vendor-router';
+          }
+          // Query
+          if (id.includes('node_modules/@tanstack/react-query')) {
+            return 'vendor-query';
+          }
+          // UI components
+          if (id.includes('node_modules/@radix-ui/')) {
+            return 'vendor-ui';
+          }
+          // DO NOT chunk app code separately - let Rollup handle the dependency order
         },
       },
     },
   },
   optimizeDeps: {
-    // Remove lucide-react since we no longer use it
-    exclude: ['lucide-react'],
+    // Pre-bundle these to ensure proper initialization
+    include: ['react', 'react-dom', '@tanstack/react-query', '@tanstack/react-router'],
   },
 });

@@ -1,7 +1,6 @@
 // @ts-nocheck
 import { useState } from 'react';
-import { useGetLessonCompletions, useGetCurriculumModules, useUpdateLessonNotes } from '../hooks/useQueries';
-import { useIsCallerAdmin } from '../hooks/useAdminCheck';
+import { useIsCallerAdmin, useGetLessonCompletions, useGetCurriculumModules, useUpdateLessonNotes } from '../hooks/useQueries';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';

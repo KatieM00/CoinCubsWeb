@@ -128,8 +128,8 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
   const [balanceAmount, setBalanceAmount] = useState('');
   const [balanceReason, setBalanceReason] = useState('');
   const [editPresetsOpen, setEditPresetsOpen] = useState(false);
-  const [editablePresets, setEditablePresets] = useState<string[]>([]);
-  const [splitRatio, setSplitRatio] = useState({ class: '70', personal: '30' });
+  const [editablePresets, setEditablePresets] = useState<string[]>(() => []);
+  const [splitRatio, setSplitRatio] = useState(() => ({ class: '70', personal: '30' }));
 
   // Goals section states
   const [createGoalOpen, setCreateGoalOpen] = useState(false);

@@ -17,10 +17,7 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Force lucide-react into a single chunk to prevent circular dependency issues
-          'lucide': ['lucide-react'],
-        },
+        // Removed manual chunking - was causing initialization issues
       },
     },
   },

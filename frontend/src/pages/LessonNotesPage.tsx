@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { FileDown, BookOpen, Calendar, Edit2, Save, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { LessonCompletion } from '../types';
 import { Textarea } from '@/components/ui/textarea';
@@ -227,7 +226,7 @@ export default function LessonNotesPage() {
       <div className="text-center space-y-3 md:space-y-4">
         <div className="flex justify-center mb-3 md:mb-4">
           <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center shadow-lg">
-            <BookOpen className="w-8 h-8 md:w-10 md:h-10 text-white" />
+            <span className="text-3xl md:text-4xl">📚</span>
           </div>
         </div>
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-purple-900">Lesson Notes</h1>
@@ -244,7 +243,7 @@ export default function LessonNotesPage() {
           size="lg"
           className="h-12 px-6 text-base font-bold bg-purple-600 hover:bg-purple-700 shadow-lg"
         >
-          <FileDown className="w-5 h-5 mr-2" />
+          📥
           Export to PDF
         </Button>
       </div>
@@ -289,7 +288,7 @@ export default function LessonNotesPage() {
                     <div className="flex items-center gap-2">
                       <div className="text-right text-sm text-gray-500">
                         <div className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
+                          <span>📅</span>
                           <span>
                             {date.toLocaleDateString('en-US', {
                               month: 'short',
@@ -304,7 +303,7 @@ export default function LessonNotesPage() {
                         size="sm"
                         onClick={() => handleEditNotes(completion)}
                       >
-                        <Edit2 className="w-4 h-4" />
+                        ✏️
                       </Button>
                     </div>
                   </div>
@@ -364,7 +363,7 @@ export default function LessonNotesPage() {
                 setEditedNotes('');
               }}
             >
-              <X className="w-4 h-4 mr-2" />
+              ❌
               Cancel
             </Button>
             <Button
@@ -373,7 +372,7 @@ export default function LessonNotesPage() {
               disabled={updateNotes.isPending}
               className="bg-green-600 hover:bg-green-700"
             >
-              <Save className="w-4 h-4 mr-2" />
+              💾
               {updateNotes.isPending ? 'Saving...' : 'Save Notes'}
             </Button>
           </DialogFooter>

@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Loader2, X, Check } from 'lucide-react';
+// lucide-react removed
 
 // Set up PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -86,7 +86,7 @@ export default function PDFFormViewer({
         <div className="flex-1 overflow-y-auto border rounded-lg bg-gray-50 p-4">
           {isLoading && (
             <div className="flex items-center justify-center h-64">
-              <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+              ⏳
               <span className="ml-2 text-muted-foreground">Loading document...</span>
             </div>
           )}
@@ -149,7 +149,7 @@ export default function PDFFormViewer({
                 onClick={clearSignature}
                 className="mt-2"
               >
-                <X className="w-4 h-4 mr-1" />
+                ❌
                 Clear Signature
               </Button>
             </div>
@@ -167,12 +167,12 @@ export default function PDFFormViewer({
               <Button onClick={handleSign} disabled={isSigning}>
                 {isSigning ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ⏳
                     Signing...
                   </>
                 ) : (
                   <>
-                    <Check className="w-4 h-4 mr-2" />
+                    ✅
                     Sign & Submit
                   </>
                 )}

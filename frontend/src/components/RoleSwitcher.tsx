@@ -1,7 +1,8 @@
 import { useAuth } from '../hooks/useAuth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { GraduationCap, Users } from 'lucide-react'
+
+// Simple icon component using CubCoin image
 
 export default function RoleSwitcher() {
   const { profiles, activeRole, switchRole } = useAuth()
@@ -33,7 +34,7 @@ export default function RoleSwitcher() {
             >
               <CardHeader className="text-center">
                 <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <GraduationCap className="w-8 h-8 text-amber-600" />
+                  <span className="text-4xl">🎓</span>
                 </div>
                 <CardTitle className="text-2xl">Teacher</CardTitle>
                 <CardDescription>Manage your classroom and award students</CardDescription>
@@ -62,7 +63,7 @@ export default function RoleSwitcher() {
             >
               <CardHeader className="text-center">
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Users className="w-8 h-8 text-blue-600" />
+                  <span className="text-4xl">👨‍👩‍👧</span>
                 </div>
                 <CardTitle className="text-2xl">Parent</CardTitle>
                 <CardDescription>View your child's learning journey</CardDescription>

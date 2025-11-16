@@ -9,9 +9,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Sparkles, GraduationCap, Users, AlertCircle, FlaskConical } from 'lucide-react'
 import { toast } from 'sonner'
 import { isSupabaseConfigured } from '@/lib/supabase'
+import CubCoinIcon from '@/assets/CubCoin.png'
+
+// Simple icon component using CubCoin image
+const Icon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <img src={CubCoinIcon} alt="" className={className} />
+)
 
 export default function LoginScreen() {
   const { loginWithGoogle, isLoading } = useAuth()
@@ -33,17 +38,17 @@ export default function LoginScreen() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="gap-2 bg-white/80 backdrop-blur-sm hover:bg-white">
-              <FlaskConical className="w-4 h-4" />
+              🧪
               <span className="hidden sm:inline">Demo</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem onClick={() => enterDemoMode('teacher')} className="cursor-pointer">
-              <GraduationCap className="w-4 h-4 mr-2 text-amber-600" />
+              <span className="mr-2">🎓</span>
               Demo as Teacher
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => enterDemoMode('parent')} className="cursor-pointer">
-              <Users className="w-4 h-4 mr-2 text-blue-600" />
+              <span className="mr-2">👨‍👩‍👧</span>
               Demo as Parent
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -53,7 +58,7 @@ export default function LoginScreen() {
       <div className="max-w-4xl w-full">
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full shadow-2xl mb-6">
-            <Sparkles className="w-12 h-12 text-white" />
+            <Icon className="w-12 h-12" />
           </div>
           <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mb-4">
             Welcome to CoinCubs
@@ -66,7 +71,7 @@ export default function LoginScreen() {
 
         {!isSupabaseConfigured && (
           <Alert variant="destructive" className="max-w-2xl mx-auto mb-6">
-            <AlertCircle className="h-4 w-4" />
+            <span className="mr-2">⚠️</span>
             <AlertDescription>
               <strong>Setup Required:</strong> Supabase environment variables are not configured.
               Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your Netlify environment variables.
@@ -77,8 +82,8 @@ export default function LoginScreen() {
         <Card className="bg-white/80 backdrop-blur-sm border-2 border-amber-300 shadow-xl hover:shadow-2xl transition-shadow max-w-md mx-auto">
           <CardHeader className="text-center">
             <div className="w-16 h-16 bg-gradient-to-br from-amber-100 to-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <GraduationCap className="w-8 h-8 text-amber-600" />
-              <Users className="w-8 h-8 text-blue-600 -ml-3" />
+              <span className="text-2xl">🎓</span>
+              <span className="text-2xl -ml-2">👨‍👩‍👧</span>
             </div>
             <CardTitle className="text-2xl">Sign In</CardTitle>
             <CardDescription className="text-base">

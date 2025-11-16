@@ -7,11 +7,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Award, TrendingUp, Users, Undo2, CheckCircle2, Trophy, Coins, TrendingUpIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { AwardSplit } from '../types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import CubCoinIcon from '@/assets/CubCoin.png';
+
+// Simple icon component using CubCoin image
+const Icon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <img src={CubCoinIcon} alt="" className={className} />
+);
 
 export default function QuickAwardPage() {
   const { data: isAdmin, isLoading: adminLoading } = useIsCallerAdmin();
@@ -218,7 +223,7 @@ export default function QuickAwardPage() {
         <CardHeader className="pb-3 md:pb-4">
           <div className="flex items-center gap-2 md:gap-3">
             <div className="w-10 h-10 md:w-12 md:h-12 bg-amber-100 rounded-full flex items-center justify-center">
-              <Coins className="w-5 h-5 md:w-6 md:h-6 text-amber-600" />
+              <Icon className="w-5 h-5 md:w-6 md:h-6" />
             </div>
             <div>
               <CardTitle className="text-xl md:text-2xl">Award</CardTitle>
@@ -257,7 +262,7 @@ export default function QuickAwardPage() {
                 onClick={handleWholeClassClick}
                 className="h-12 md:h-14 px-4 md:px-6 font-semibold whitespace-nowrap"
               >
-                <Trophy className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                🏆
                 Whole Class
               </Button>
             </div>
@@ -343,7 +348,7 @@ export default function QuickAwardPage() {
           {showConfirmation && lastAwardSplit && (
             <div className="bg-green-50 rounded-xl p-3 md:p-4 border-2 border-green-300 animate-in fade-in slide-in-from-top-2">
               <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-green-600 flex-shrink-0 mt-1" />
+                <span className="text-green-600 flex-shrink-0 mt-1 text-xl">✓</span>
                 <div>
                   <p className="text-base md:text-lg font-semibold text-green-900 mb-1">
                     ✅ Awarded successfully!
@@ -367,7 +372,7 @@ export default function QuickAwardPage() {
               className="w-full border-2 border-red-300 text-red-700 hover:bg-red-50 text-base md:text-lg h-14 md:h-16 font-semibold gap-2"
               disabled={undoAward.isPending}
             >
-              <Undo2 className="w-4 h-4 md:w-5 md:h-5" />
+              ↩️
               {undoAward.isPending ? 'Undoing...' : 'UNDO LAST AWARD'}
             </Button>
           )}

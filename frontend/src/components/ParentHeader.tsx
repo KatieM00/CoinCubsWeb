@@ -2,8 +2,13 @@ import { useAuth } from '../hooks/useAuth';
 import { useDemo } from '../contexts/DemoContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Sparkles, LogOut } from 'lucide-react';
 import { toast } from 'sonner';
+import CubCoinIcon from '@/assets/CubCoin.png';
+
+// Simple icon component using CubCoin image
+const Icon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <img src={CubCoinIcon} alt="" className={className} />
+);
 
 export default function ParentHeader() {
   const { logout, profile } = useAuth();
@@ -34,7 +39,7 @@ export default function ParentHeader() {
             {/* Logo */}
             <div className="flex items-center gap-2 md:gap-3">
               <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center shadow-lg">
-                <Sparkles className="w-4 h-4 md:w-6 md:h-6 text-white" />
+                <Icon className="w-4 h-4 md:w-6 md:h-6" />
               </div>
               <div>
                 <h1 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
@@ -55,7 +60,7 @@ export default function ParentHeader() {
                 </div>
               )}
               <Button onClick={handleLogout} variant="outline" size="sm" className="gap-2 h-11 md:h-10 lg:h-9">
-                <LogOut className="w-4 h-4" />
+                🚪
                 <span className="hidden sm:inline">{isDemoMode ? 'Exit Demo' : 'Logout'}</span>
               </Button>
             </div>

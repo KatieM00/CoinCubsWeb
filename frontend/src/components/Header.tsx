@@ -4,9 +4,14 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Sparkles, LogOut, Zap, Monitor, BookOpen, Settings, Menu } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import CubCoinIcon from '@/assets/CubCoin.png';
+
+// Simple icon component using CubCoin image
+const Icon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <img src={CubCoinIcon} alt="" className={className} />
+);
 
 export default function Header() {
   const { logout, profile } = useAuth();
@@ -57,7 +62,7 @@ export default function Header() {
               className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-opacity"
             >
               <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
-                <Sparkles className="w-4 h-4 md:w-6 md:h-6 text-white" />
+                <Icon className="w-4 h-4 md:w-6 md:h-6" />
               </div>
               <div>
                 <h1 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
@@ -75,7 +80,7 @@ export default function Header() {
               onClick={() => handleNavigate('/quick-award')}
               className="gap-2 h-9"
             >
-              <Zap className="w-4 h-4" />
+              ⚡
               Award
             </Button>
             <Button
@@ -84,7 +89,7 @@ export default function Header() {
               onClick={() => handleNavigate('/class-display')}
               className="gap-2 h-9"
             >
-              <Monitor className="w-4 h-4" />
+              🖥️
               Class Display
             </Button>
             <Button
@@ -93,7 +98,7 @@ export default function Header() {
               onClick={() => handleNavigate('/lessons')}
               className="gap-2 h-9"
             >
-              <BookOpen className="w-4 h-4" />
+              📚
               Lessons
             </Button>
             <Button
@@ -102,7 +107,7 @@ export default function Header() {
               onClick={() => handleNavigate('/settings')}
               className="gap-2 h-9"
             >
-              <Settings className="w-4 h-4" />
+              ⚙️
               Settings
             </Button>
           </nav>
@@ -119,7 +124,7 @@ export default function Header() {
               size="sm"
               className="gap-2 h-11 md:h-10 lg:h-9"
             >
-              <LogOut className="w-4 h-4" />
+              🚪
               <span className="hidden sm:inline">{isDemoMode ? 'Exit Demo' : 'Logout'}</span>
             </Button>
 
@@ -127,7 +132,7 @@ export default function Header() {
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="outline" size="sm" className="lg:hidden h-11 md:h-10">
-                  <Menu className="w-5 h-5" />
+                  ☰
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[280px] sm:w-[320px]">
@@ -147,7 +152,7 @@ export default function Header() {
                       onClick={() => handleNavigate('/quick-award')}
                       className="justify-start gap-3 h-12"
                     >
-                      <Zap className="w-5 h-5" />
+                      ⚡
                       Award
                     </Button>
                     <Button
@@ -156,7 +161,7 @@ export default function Header() {
                       onClick={() => handleNavigate('/class-display')}
                       className="justify-start gap-3 h-12"
                     >
-                      <Monitor className="w-5 h-5" />
+                      🖥️
                       Class Display
                     </Button>
                     <Button
@@ -165,7 +170,7 @@ export default function Header() {
                       onClick={() => handleNavigate('/lessons')}
                       className="justify-start gap-3 h-12"
                     >
-                      <BookOpen className="w-5 h-5" />
+                      📚
                       Lessons
                     </Button>
                     <Button
@@ -174,7 +179,7 @@ export default function Header() {
                       onClick={() => handleNavigate('/settings')}
                       className="justify-start gap-3 h-12"
                     >
-                      <Settings className="w-5 h-5" />
+                      ⚙️
                       Settings
                     </Button>
                   </nav>

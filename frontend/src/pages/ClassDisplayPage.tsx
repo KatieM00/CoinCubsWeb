@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { Coins, Trophy, TrendingUp, BookOpen, X, Check } from 'lucide-react';
+// lucide-react removed
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import {
@@ -952,7 +952,7 @@ export default function ClassDisplayPage() {
             size="lg"
             className="h-16 px-8 text-xl font-bold bg-green-600 hover:bg-green-700 shadow-2xl border-4 border-white"
           >
-            <Check className="w-6 h-6 mr-3" />
+            ✅
             Complete Lesson
           </Button>
           <Button
@@ -962,7 +962,7 @@ export default function ClassDisplayPage() {
             variant="outline"
             className="h-16 px-8 text-xl font-bold bg-white hover:bg-gray-100 shadow-2xl border-4 border-gray-300"
           >
-            <X className="w-6 h-6 mr-3" />
+            ❌
             {endLesson.isPending ? 'Ending...' : 'End Without Saving'}
           </Button>
         </div>
@@ -1016,7 +1016,7 @@ export default function ClassDisplayPage() {
                 disabled={markLessonComplete.isPending || endLesson.isPending}
                 className="bg-green-600 hover:bg-green-700"
               >
-                <Check className="w-4 h-4 mr-2" />
+                ✅
                 {markLessonComplete.isPending || endLesson.isPending ? 'Saving...' : 'Mark Complete'}
               </Button>
             </DialogFooter>
@@ -1061,7 +1061,7 @@ export default function ClassDisplayPage() {
           <CardContent className="py-6 md:py-8 lg:py-12">
             <div className="text-center relative z-10">
               <div className="flex items-center justify-center gap-2 mb-3">
-                <Coins className="w-8 h-8 md:w-12 md:h-12 text-amber-600" />
+                🪙
                 <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-amber-900">
                   Current Class Funds
                 </h2>
@@ -1099,7 +1099,7 @@ export default function ClassDisplayPage() {
                       }}
                       className="absolute"
                     >
-                      <Coins className="w-12 h-12 md:w-16 md:h-16 text-amber-500" />
+                      🪙
                     </motion.div>
                   ))}
                 </AnimatePresence>
@@ -1113,7 +1113,7 @@ export default function ClassDisplayPage() {
           <CardContent className="py-6 md:py-8 lg:py-12">
             <div className="text-center">
               <div className="flex items-center justify-center gap-2 mb-4">
-                <Trophy className="w-8 h-8 md:w-12 md:h-12 text-green-600" />
+                🏆
                 <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-green-900">
                   Class Goal
                 </h2>
@@ -1146,7 +1146,7 @@ export default function ClassDisplayPage() {
       <Card className="border-blue-300 bg-white/95 backdrop-blur-sm shadow-xl mb-8">
         <CardContent className="py-6 md:py-8">
           <div className="flex items-center gap-3 mb-6">
-            <TrendingUp className="w-8 h-8 md:w-10 md:h-10 text-blue-600" />
+            📈
             <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-blue-900">
               Updates
             </h2>

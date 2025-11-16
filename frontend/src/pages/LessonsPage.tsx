@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BookOpen, Play, RotateCcw, FileDown, ChevronDown, ChevronUp, CheckCircle2, FileText, Eye, Edit2 } from 'lucide-react';
+// lucide-react removed
 import { toast } from 'sonner';
 import { CurriculumModule, LessonCompletion } from '../types';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -260,7 +260,7 @@ export default function LessonsPage() {
       <div className="text-center space-y-3 md:space-y-4">
         <div className="flex justify-center mb-3 md:mb-4">
           <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center shadow-lg">
-            <BookOpen className="w-8 h-8 md:w-10 md:h-10 text-white" />
+            📚
           </div>
         </div>
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-purple-900">CoinCubs Curriculum</h1>
@@ -333,7 +333,7 @@ export default function LessonsPage() {
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="outline" className="w-full h-11 md:h-12 text-base" disabled={restartCurriculum.isPending}>
-                    <RotateCcw className="w-4 h-4 mr-2" />
+                    🔄
                     Restart Curriculum
                   </Button>
                 </AlertDialogTrigger>
@@ -363,7 +363,7 @@ export default function LessonsPage() {
                 onClick={handleExportAllPDF}
                 disabled={lessonCompletions.length === 0}
               >
-                <FileDown className="w-4 h-4 mr-2" />
+                📥
                 Export All Notes ({lessonCompletions.length})
               </Button>
             </div>
@@ -525,7 +525,7 @@ function LessonCard({
               className="w-full justify-between h-11 md:h-12 text-sm md:text-base font-semibold bg-gray-50 hover:bg-gray-100 border-gray-300"
             >
               <span>View Full Lesson Details</span>
-              {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+              {isExpanded ? <span>⬆️</span> : <span>⬇️</span>}
             </Button>
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-3 space-y-3">
@@ -603,12 +603,12 @@ function LessonCard({
                 onClick={() => onStartMonday(module.weekNumber)}
                 disabled={startMondayPending}
               >
-                <Play className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                ▶️
                 {startMondayPending ? 'Starting...' : 'START MONDAY LESSON'}
               </Button>
               {mondayCompletion && (
                 <div className="absolute -top-2 -right-2 bg-green-500 text-white rounded-full p-1 shadow-lg">
-                  <CheckCircle2 className="w-5 h-5" />
+                  ✅
                 </div>
               )}
             </div>
@@ -620,7 +620,7 @@ function LessonCard({
                   className="flex-1 text-xs"
                   onClick={() => handleViewNotes('monday')}
                 >
-                  <Eye className="w-3 h-3 mr-1" />
+                  👁️
                   View Notes
                 </Button>
                 <Button
@@ -629,7 +629,7 @@ function LessonCard({
                   className="flex-1 text-xs"
                   onClick={() => handleExportLesson('monday')}
                 >
-                  <FileDown className="w-3 h-3 mr-1" />
+                  📥
                   Export
                 </Button>
               </div>
@@ -649,12 +649,12 @@ function LessonCard({
                 onClick={() => onStartFriday(module.weekNumber)}
                 disabled={startFridayPending}
               >
-                <Play className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                ▶️
                 {startFridayPending ? 'Starting...' : 'START FRIDAY LESSON'}
               </Button>
               {fridayCompletion && (
                 <div className="absolute -top-2 -right-2 bg-green-500 text-white rounded-full p-1 shadow-lg">
-                  <CheckCircle2 className="w-5 h-5" />
+                  ✅
                 </div>
               )}
             </div>
@@ -666,7 +666,7 @@ function LessonCard({
                   className="flex-1 text-xs"
                   onClick={() => handleViewNotes('friday')}
                 >
-                  <Eye className="w-3 h-3 mr-1" />
+                  👁️
                   View Notes
                 </Button>
                 <Button
@@ -675,7 +675,7 @@ function LessonCard({
                   className="flex-1 text-xs"
                   onClick={() => handleExportLesson('friday')}
                 >
-                  <FileDown className="w-3 h-3 mr-1" />
+                  📥
                   Export
                 </Button>
               </div>
@@ -728,7 +728,7 @@ function LessonCard({
               disabled={updateNotes.isPending}
               className="bg-green-600 hover:bg-green-700"
             >
-              <Edit2 className="w-4 h-4 mr-2" />
+              ✏️
               {updateNotes.isPending ? 'Saving...' : 'Save Notes'}
             </Button>
           </DialogFooter>

@@ -6,9 +6,14 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { GraduationCap, Users, ArrowLeft, LogOut } from 'lucide-react'
 import { toast } from 'sonner'
 import { useNavigate } from '@tanstack/react-router'
+import CubCoinIcon from '@/assets/CubCoin.png'
+
+// Simple icon component using CubCoin image
+const Icon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <img src={CubCoinIcon} alt="" className={className} />
+)
 
 type Step = 'role-select' | 'teacher-setup' | 'parent-setup'
 
@@ -280,7 +285,7 @@ export default function RoleSelection() {
               }}
               className="text-muted-foreground hover:text-foreground"
             >
-              <LogOut className="w-4 h-4 mr-2" />
+              🚪
               Sign Out
             </Button>
           </div>
@@ -307,7 +312,7 @@ export default function RoleSelection() {
             >
               <CardHeader className="text-center">
                 <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <GraduationCap className="w-8 h-8 text-amber-600" />
+                  <span className="text-4xl">🎓</span>
                 </div>
                 <CardTitle className="text-2xl">
                   {hasTeacherRole ? '✓ Teacher Account' : 'I\'m a Teacher'}
@@ -339,7 +344,7 @@ export default function RoleSelection() {
             >
               <CardHeader className="text-center">
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Users className="w-8 h-8 text-blue-600" />
+                  <span className="text-4xl">👨‍👩‍👧</span>
                 </div>
                 <CardTitle className="text-2xl">
                   {hasParentRole ? '✓ Parent Account' : 'I\'m a Parent'}
@@ -396,7 +401,7 @@ export default function RoleSelection() {
                 size="sm"
                 onClick={() => setStep('role-select')}
               >
-                <ArrowLeft className="w-4 h-4 mr-2" />
+                ←
                 Back
               </Button>
               <Button
@@ -487,7 +492,7 @@ export default function RoleSelection() {
               }}
               className="text-muted-foreground hover:text-foreground"
             >
-              <LogOut className="w-4 h-4 mr-2" />
+              🚪
               Sign Out
             </Button>
           </div>

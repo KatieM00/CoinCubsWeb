@@ -9,25 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import {
-  BookOpen,
-  CreditCard,
-  FileText,
-  User,
-  Award,
-  TrendingUp,
-  Calendar,
-  CheckCircle2,
-  Clock,
-  AlertCircle,
-  Plus,
-  Edit,
-  Trash2,
-  Bell,
-  Mail,
-  Smartphone,
-  Lock
-} from 'lucide-react';
+// lucide-react removed
 import { useGetCurriculumProgress, useGetClassAchievements, useGetParentChildren, useValidateClassCode, useAddChildEnrollment, useUpdateParentProfile, useGetNotificationPreferences, useUpdateNotificationPreferences } from '../hooks/useQueries';
 import { useAuth } from '../hooks/useAuth';
 import { toast } from 'sonner';
@@ -245,19 +227,19 @@ export default function ParentPortalPage() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-4 h-auto p-1 bg-white/80 backdrop-blur-sm">
           <TabsTrigger value="learning" className="gap-2 py-3">
-            <BookOpen className="w-4 h-4" />
+            📚
             <span className="hidden sm:inline">Learning</span>
           </TabsTrigger>
           <TabsTrigger value="payments" className="gap-2 py-3">
-            <CreditCard className="w-4 h-4" />
+            💳
             <span className="hidden sm:inline">Payments</span>
           </TabsTrigger>
           <TabsTrigger value="forms" className="gap-2 py-3">
-            <FileText className="w-4 h-4" />
+            📄
             <span className="hidden sm:inline">Forms</span>
           </TabsTrigger>
           <TabsTrigger value="profile" className="gap-2 py-3">
-            <User className="w-4 h-4" />
+            👤
             <span className="hidden sm:inline">Profile</span>
           </TabsTrigger>
         </TabsList>
@@ -271,7 +253,7 @@ export default function ParentPortalPage() {
                   <CardTitle className="text-2xl">Learning Progress</CardTitle>
                   <CardDescription>Track {selectedChild}'s educational journey</CardDescription>
                 </div>
-                <Award className="w-8 h-8 text-blue-600" />
+                🏅
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -279,7 +261,7 @@ export default function ParentPortalPage() {
               <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center shrink-0">
-                    <BookOpen className="w-6 h-6 text-white" />
+                    📚
                   </div>
                   <div className="flex-1">
                     <h3 className="text-xl font-semibold text-blue-900 mb-2">
@@ -308,14 +290,14 @@ export default function ParentPortalPage() {
               {/* Child's Contributions */}
               <div>
                 <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-green-600" />
+                  📈
                   {selectedChild}'s Positive Contributions
                 </h3>
                 <div className="space-y-3">
                   <Card className="border-green-200 bg-green-50/50">
                     <CardContent className="pt-4">
                       <div className="flex items-start gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5" />
+                        ✅
                         <div className="flex-1">
                           <p className="font-medium text-green-900">Helped a classmate with math</p>
                           <p className="text-sm text-green-700 mt-1">
@@ -330,7 +312,7 @@ export default function ParentPortalPage() {
                   <Card className="border-green-200 bg-green-50/50">
                     <CardContent className="pt-4">
                       <div className="flex items-start gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5" />
+                        ✅
                         <div className="flex-1">
                           <p className="font-medium text-green-900">Perfect homework completion</p>
                           <p className="text-sm text-green-700 mt-1">
@@ -348,7 +330,7 @@ export default function ParentPortalPage() {
               {/* Class Achievements */}
               <div>
                 <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Award className="w-5 h-5 text-amber-600" />
+                  🏅
                   Recent Class Achievements
                 </h3>
                 <div className="grid sm:grid-cols-2 gap-4">
@@ -420,7 +402,7 @@ export default function ParentPortalPage() {
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
                             <Badge variant="destructive" className="bg-orange-600">
-                              <Clock className="w-3 h-3 mr-1" />
+                              ⏰
                               Due in 3 days
                             </Badge>
                           </div>
@@ -443,7 +425,7 @@ export default function ParentPortalPage() {
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
                             <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-                              <Calendar className="w-3 h-3 mr-1" />
+                              📅
                               Due Dec 15
                             </Badge>
                           </div>
@@ -468,7 +450,7 @@ export default function ParentPortalPage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
                     <div className="flex items-center gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-green-600" />
+                      ✅
                       <div>
                         <p className="font-medium">School Supplies</p>
                         <p className="text-sm text-muted-foreground">Paid on Nov 15, 2025</p>
@@ -478,7 +460,7 @@ export default function ParentPortalPage() {
                   </div>
                   <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
                     <div className="flex items-center gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-green-600" />
+                      ✅
                       <div>
                         <p className="font-medium">Book Fair</p>
                         <p className="text-sm text-muted-foreground">Paid on Oct 28, 2025</p>
@@ -492,7 +474,7 @@ export default function ParentPortalPage() {
               {/* Secure Payments */}
               <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg p-6 border border-purple-200">
                 <div className="flex items-start gap-4">
-                  <Lock className="w-6 h-6 text-purple-600 mt-1" />
+                  🔒
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-purple-900 mb-2">
                       Secure Online Payments
@@ -502,7 +484,7 @@ export default function ParentPortalPage() {
                       All transactions will be verified and recorded for complete transparency.
                     </p>
                     <Button disabled variant="outline" className="border-purple-600 text-purple-700">
-                      <Lock className="w-4 h-4 mr-2" />
+                      🔒
                       Set Up Payment Method (Coming Soon)
                     </Button>
                   </div>
@@ -530,7 +512,7 @@ export default function ParentPortalPage() {
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
                             <Badge variant="destructive" className="bg-orange-600">
-                              <AlertCircle className="w-3 h-3 mr-1" />
+                              ⚠️
                               Signature Required
                             </Badge>
                           </div>
@@ -556,7 +538,7 @@ export default function ParentPortalPage() {
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
                             <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-                              <Clock className="w-3 h-3 mr-1" />
+                              ⏰
                               Pending
                             </Badge>
                           </div>
@@ -585,7 +567,7 @@ export default function ParentPortalPage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
                     <div className="flex items-center gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-green-600" />
+                      ✅
                       <div>
                         <p className="font-medium">Emergency Contact Form</p>
                         <p className="text-sm text-muted-foreground">Signed on Nov 20, 2025</p>
@@ -601,7 +583,7 @@ export default function ParentPortalPage() {
                   </div>
                   <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
                     <div className="flex items-center gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-green-600" />
+                      ✅
                       <div>
                         <p className="font-medium">Medical Information</p>
                         <p className="text-sm text-muted-foreground">Signed on Oct 15, 2025</p>
@@ -621,7 +603,7 @@ export default function ParentPortalPage() {
               {/* Digital Signatures Info */}
               <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg p-6 border border-purple-200">
                 <div className="flex items-start gap-4">
-                  <Lock className="w-6 h-6 text-purple-600 mt-1" />
+                  🔒
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-purple-900 mb-2">
                       Secure Digital Signatures
@@ -632,7 +614,7 @@ export default function ParentPortalPage() {
                       are legally binding and cryptographically secured.
                     </p>
                     <div className="flex items-center gap-2 text-sm text-purple-700">
-                      <CheckCircle2 className="w-4 h-4" />
+                      ✅
                       <span>Cryptographically verified</span>
                     </div>
                   </div>
@@ -686,7 +668,7 @@ export default function ParentPortalPage() {
                   </div>
                   {!isEditingProfile ? (
                     <Button variant="outline" onClick={() => setIsEditingProfile(true)}>
-                      <Edit className="w-4 h-4 mr-2" />
+                      ✏️
                       Edit Profile
                     </Button>
                   ) : (
@@ -718,7 +700,7 @@ export default function ParentPortalPage() {
                   <Dialog open={addChildDialogOpen} onOpenChange={setAddChildDialogOpen}>
                     <DialogTrigger asChild>
                       <Button variant="outline" size="sm">
-                        <Plus className="w-4 h-4 mr-2" />
+                        ➕
                         Add Child
                       </Button>
                     </DialogTrigger>
@@ -782,7 +764,7 @@ export default function ParentPortalPage() {
                           </div>
                           {validatedClass && (
                             <div className="flex items-center gap-2 text-sm text-green-600">
-                              <CheckCircle2 className="w-4 h-4" />
+                              ✅
                               <span>Valid class: {validatedClass.class_name}</span>
                             </div>
                           )}
@@ -830,7 +812,7 @@ export default function ParentPortalPage() {
                             </div>
                             <div className="flex gap-2">
                               <Button variant="ghost" size="sm">
-                                <Edit className="w-4 h-4" />
+                                ✏️
                               </Button>
                             </div>
                           </div>
@@ -848,7 +830,7 @@ export default function ParentPortalPage() {
                             </div>
                             <div className="flex gap-2">
                               <Button variant="ghost" size="sm">
-                                <Edit className="w-4 h-4" />
+                                ✏️
                               </Button>
                             </div>
                           </div>
@@ -863,7 +845,7 @@ export default function ParentPortalPage() {
                             </div>
                             <div className="flex gap-2">
                               <Button variant="ghost" size="sm">
-                                <Edit className="w-4 h-4" />
+                                ✏️
                               </Button>
                             </div>
                           </div>
@@ -881,7 +863,7 @@ export default function ParentPortalPage() {
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold">Payment Methods</h3>
                   <Button variant="outline" size="sm">
-                    <Plus className="w-4 h-4 mr-2" />
+                    ➕
                     Add Payment Method
                   </Button>
                 </div>
@@ -890,7 +872,7 @@ export default function ParentPortalPage() {
                     <CardContent className="pt-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <CreditCard className="w-5 h-5 text-blue-600" />
+                          💳
                           <div>
                             <p className="font-semibold">Visa •••• 4242</p>
                             <p className="text-sm text-muted-foreground">Expires 12/2026</p>
@@ -899,10 +881,10 @@ export default function ParentPortalPage() {
                         <div className="flex gap-2">
                           <Badge variant="secondary">Default</Badge>
                           <Button variant="ghost" size="sm">
-                            <Edit className="w-4 h-4" />
+                            ✏️
                           </Button>
                           <Button variant="ghost" size="sm">
-                            <Trash2 className="w-4 h-4" />
+                            🗑️
                           </Button>
                         </div>
                       </div>
@@ -919,7 +901,7 @@ export default function ParentPortalPage() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-3">
-                      <Mail className="w-5 h-5 text-blue-600" />
+                      📧
                       <div>
                         <p className="font-medium">Email Notifications</p>
                         <p className="text-sm text-muted-foreground">Weekly updates and important alerts</p>
@@ -932,7 +914,7 @@ export default function ParentPortalPage() {
                   </div>
                   <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-3">
-                      <Smartphone className="w-5 h-5 text-blue-600" />
+                      📱
                       <div>
                         <p className="font-medium">SMS Notifications</p>
                         <p className="text-sm text-muted-foreground">Payment reminders and urgent updates</p>
@@ -945,7 +927,7 @@ export default function ParentPortalPage() {
                   </div>
                   <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-3">
-                      <Bell className="w-5 h-5 text-blue-600" />
+                      🔔
                       <div>
                         <p className="font-medium">Achievement Notifications</p>
                         <p className="text-sm text-muted-foreground">When your child earns recognition</p>
@@ -958,7 +940,7 @@ export default function ParentPortalPage() {
                   </div>
                   <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-3">
-                      <FileText className="w-5 h-5 text-blue-600" />
+                      📄
                       <div>
                         <p className="font-medium">Form Alerts</p>
                         <p className="text-sm text-muted-foreground">New forms requiring signature</p>

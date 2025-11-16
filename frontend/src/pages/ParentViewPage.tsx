@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Users, Heart, Target, BookOpen, TrendingUp, Award, Sparkles } from 'lucide-react';
+// lucide-react removed
 
 export default function ParentViewPage() {
   const { data: classFund, isLoading: fundLoading } = useGetClassFund();
@@ -52,7 +52,7 @@ export default function ParentViewPage() {
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center">
-              <Heart className="w-6 h-6 text-teal-600" />
+              ❤️
             </div>
             <div>
               <CardTitle className="text-2xl">Our Community-First Philosophy</CardTitle>
@@ -107,7 +107,7 @@ export default function ParentViewPage() {
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <BookOpen className="w-6 h-6 text-blue-600" />
+              📚
             </div>
             <div>
               <CardTitle className="text-2xl">What Your Child is Learning</CardTitle>
@@ -120,7 +120,7 @@ export default function ParentViewPage() {
             <div className="space-y-4">
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                  <Sparkles className="w-4 h-4 text-amber-600" />
+                  ✨
                 </div>
                 <div>
                   <h4 className="font-semibold mb-1">Financial Literacy</h4>
@@ -133,7 +133,7 @@ export default function ParentViewPage() {
 
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                  <Users className="w-4 h-4 text-purple-600" />
+                  👥
                 </div>
                 <div>
                   <h4 className="font-semibold mb-1">Collaboration Skills</h4>
@@ -145,7 +145,7 @@ export default function ParentViewPage() {
 
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                  <Target className="w-4 h-4 text-green-600" />
+                  🎯
                 </div>
                 <div>
                   <h4 className="font-semibold mb-1">Goal Setting</h4>
@@ -159,7 +159,7 @@ export default function ParentViewPage() {
             <div className="space-y-4">
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                  <Award className="w-4 h-4 text-blue-600" />
+                  🏅
                 </div>
                 <div>
                   <h4 className="font-semibold mb-1">Civic Engagement</h4>
@@ -171,7 +171,7 @@ export default function ParentViewPage() {
 
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                  <Heart className="w-4 h-4 text-pink-600" />
+                  ❤️
                 </div>
                 <div>
                   <h4 className="font-semibold mb-1">Empathy & Community Values</h4>
@@ -183,7 +183,7 @@ export default function ParentViewPage() {
 
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                  <TrendingUp className="w-4 h-4 text-orange-600" />
+                  📈
                 </div>
                 <div>
                   <h4 className="font-semibold mb-1">Critical Thinking</h4>
@@ -251,7 +251,7 @@ export default function ParentViewPage() {
                     className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg"
                   >
                     <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Award className="w-4 h-4 text-purple-600" />
+                      🏅
                     </div>
                     <div className="flex-1 min-w-0">
                       <h4 className="font-semibold text-sm">{achievement.name}</h4>
@@ -262,7 +262,7 @@ export default function ParentViewPage() {
               </div>
             ) : (
               <div className="text-center py-8">
-                <Award className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                🏅
                 <p className="text-sm text-muted-foreground">
                   The class is working toward their first achievements!
                 </p>
@@ -276,7 +276,7 @@ export default function ParentViewPage() {
       <Card className="bg-gradient-to-br from-green-100 to-emerald-100 border-green-300 shadow-lg">
         <CardContent className="py-8">
           <div className="text-center max-w-3xl mx-auto space-y-4">
-            <TrendingUp className="w-12 h-12 text-green-600 mx-auto" />
+            📈
             <h3 className="text-2xl font-bold text-green-900">Long-Term Educational Impact</h3>
             <p className="text-green-800">
               Research shows that children who learn financial literacy and collaboration skills early develop

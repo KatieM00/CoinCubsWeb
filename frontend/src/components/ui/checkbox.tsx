@@ -1,8 +1,14 @@
 import * as React from "react"
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
-import { Check } from "lucide-react"
+// lucide-react removed - using SVG alternative
 
 import { cn } from "@/lib/utils"
+
+const CheckIcon = ({ className }: { className?: string }) => (
+  <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 6 9 17l-5-5"/>
+  </svg>
+)
 
 const Checkbox = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitive.Root>,
@@ -19,7 +25,7 @@ const Checkbox = React.forwardRef<
     <CheckboxPrimitive.Indicator
       className={cn("grid place-content-center text-current")}
     >
-      <Check className="h-4 w-4" />
+      <CheckIcon className="h-4 w-4" />
     </CheckboxPrimitive.Indicator>
   </CheckboxPrimitive.Root>
 ))

@@ -17,8 +17,11 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        // Removed manual chunking - was causing initialization issues
+        // Ensure proper module initialization order
       },
     },
+  },
+  optimizeDeps: {
+    include: ['lucide-react'],
   },
 });

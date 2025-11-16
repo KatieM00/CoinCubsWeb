@@ -1,10 +1,4 @@
-import {
-  CircleCheck,
-  Info,
-  LoaderCircle,
-  OctagonX,
-  TriangleAlert,
-} from "lucide-react"
+// lucide-react removed - using emoji alternatives
 import { useTheme } from "next-themes"
 import { Toaster as Sonner } from "sonner"
 
@@ -18,11 +12,11 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
       icons={{
-        success: <CircleCheck className="h-4 w-4" />,
-        info: <Info className="h-4 w-4" />,
-        warning: <TriangleAlert className="h-4 w-4" />,
-        error: <OctagonX className="h-4 w-4" />,
-        loading: <LoaderCircle className="h-4 w-4 animate-spin" />,
+        success: <span className="h-4 w-4">✓</span>,
+        info: <span className="h-4 w-4">ℹ</span>,
+        warning: <span className="h-4 w-4">⚠</span>,
+        error: <span className="h-4 w-4">✕</span>,
+        loading: <span className="h-4 w-4 animate-spin">⏳</span>,
       }}
       toastOptions={{
         classNames: {

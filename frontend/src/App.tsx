@@ -170,13 +170,19 @@ const lessonNotesRoute = createRoute({
   ),
 });
 
+// Wrapper to pass auth profile as prop to avoid circular dependency in lazy-loaded chunk
+function SettingsPageWrapper() {
+  const { profile } = useAuth();
+  return <SettingsPage profile={profile} />;
+}
+
 const settingsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/settings',
   component: () => (
     <ProtectedTeacherRoute>
       <Suspense fallback={<PageLoader />}>
-        <SettingsPage />
+        <SettingsPageWrapper />
       </Suspense>
     </ProtectedTeacherRoute>
   ),

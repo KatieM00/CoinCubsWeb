@@ -1,8 +1,8 @@
 // @ts-nocheck
 import { useState, useEffect, useRef } from 'react';
-// DO NOT import useAuth directly - it causes circular dependency issues with the bundler
-// Use useGetUserProfile from useQueries instead
-import { useIsCallerAdmin, useGetClassFund, useGetRewardsCatalog, useAddReward, useUpdateRewardPrice, useCreateClassGoal, useGetPresetAmounts, useUpdatePresetAmounts, useGetTeacherClass, useGetStudents, useAddStudent, useUpdateClassBalance, useUpdateStudent, useCreateTeacherClass, useUpdateTeacherClass, useGetClassGoals, useUpdateProfile, useDeleteStudent, useGetUserProfile } from '../hooks/useQueries';
+// DO NOT import useAuth or useGetUserProfile directly - they cause circular dependency issues with the bundler
+// Profile is passed as a prop from the parent component (App.tsx)
+import { useIsCallerAdmin, useGetClassFund, useGetRewardsCatalog, useAddReward, useUpdateRewardPrice, useCreateClassGoal, useGetPresetAmounts, useUpdatePresetAmounts, useGetTeacherClass, useGetStudents, useAddStudent, useUpdateClassBalance, useUpdateStudent, useCreateTeacherClass, useUpdateTeacherClass, useGetClassGoals, useUpdateProfile, useDeleteStudent } from '../hooks/useQueries';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,17 +23,23 @@ import { cn } from '@/lib/utils';
 
 type SettingsSection = 'classroom' | 'funds' | 'students' | 'parents' | 'account';
 
+// Props interface - profile is passed from parent to avoid circular dependency
+interface SettingsPageProps {
+  profile?: {
+    id: string;
+    full_name?: string | null;
+    email?: string | null;
+    role?: string | null;
+  } | null;
+}
+
 // Simple icon component using CubCoin image
 const Icon = ({ className = "w-4 h-4" }: { className?: string }) => (
   <img src={CubCoinIcon} alt="" className={className} />
 );
 
-export default function SettingsPage() {
+export default function SettingsPage({ profile }: SettingsPageProps) {
   console.log('⚙️ SettingsPage: Component function starting');
-
-  console.log('⚙️ SettingsPage: Before useGetUserProfile');
-  const { data: profile } = useGetUserProfile();
-  console.log('⚙️ SettingsPage: After useGetUserProfile');
 
   console.log('⚙️ SettingsPage: Before useIsCallerAdmin');
   const { data: isAdmin, isLoading: adminLoading } = useIsCallerAdmin();

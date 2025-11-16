@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { useState, useEffect } from 'react';
-import { useGetCurriculumModules, useGetCurrentWeek, useInitializeCurriculum, useStartMondayLesson, useStartFridayLesson, useSkipToWeek, useRestartCurriculum, useIsCallerAdmin, useGetLessonCompletions, useUpdateLessonNotes } from '../hooks/useQueries';
+import { useGetCurriculumModules, useGetCurrentWeek, useInitializeCurriculum, useStartMondayLesson, useStartFridayLesson, useSkipToWeek, useRestartCurriculum, useGetLessonCompletions, useUpdateLessonNotes } from '../hooks/useQueries';
+import { useIsCallerAdmin } from '../hooks/useAdminCheck';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';

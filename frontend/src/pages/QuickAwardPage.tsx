@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { useState, useEffect, useRef } from 'react';
-import { useGetClassFund, useAwardClassGems, useGetClassGoals, useIsCallerAdmin, useGetLastAwardedStudents, useGetUndoTransaction, useUndoLastAward, useGetWeeklyStats, useGetStudents, useGetTeacherClass } from '../hooks/useQueries';
+import { useGetClassFund, useAwardClassGems, useGetClassGoals, useGetLastAwardedStudents, useGetUndoTransaction, useUndoLastAward, useGetWeeklyStats, useGetStudents, useGetTeacherClass } from '../hooks/useQueries';
+import { useIsCallerAdmin } from '../hooks/useAdminCheck';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

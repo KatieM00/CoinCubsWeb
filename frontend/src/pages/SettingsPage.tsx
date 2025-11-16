@@ -434,11 +434,11 @@ export default function SettingsPage() {
   const studentsList = students || [];
 
   const sidebarItems = [
-    { id: 'classroom' as SettingsSection, label: 'Classroom', icon: Building },
-    { id: 'funds' as SettingsSection, label: 'Funds and Goals', icon: Target },
-    { id: 'students' as SettingsSection, label: 'Students', icon: Users },
-    { id: 'parents' as SettingsSection, label: 'Parents', icon: Mail },
-    { id: 'account' as SettingsSection, label: 'Account Admin', icon: UserCircle },
+    { id: 'classroom' as SettingsSection, label: 'Classroom', icon: Icon },
+    { id: 'funds' as SettingsSection, label: 'Funds and Goals', icon: Icon },
+    { id: 'students' as SettingsSection, label: 'Students', icon: Icon },
+    { id: 'parents' as SettingsSection, label: 'Parents', icon: Icon },
+    { id: 'account' as SettingsSection, label: 'Account Admin', icon: Icon },
   ];
 
   return (

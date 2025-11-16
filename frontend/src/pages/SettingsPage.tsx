@@ -154,7 +154,7 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
   const [studentActive, setStudentActive] = useState(true);
   const [studentParentName, setStudentParentName] = useState('');
   const [showAllBalances, setShowAllBalances] = useState(false);
-  const [hiddenBalances, setHiddenBalances] = useState<Set<string>>(new Set());
+  const [hiddenBalances, setHiddenBalances] = useState<Set<string>>(() => new Set());
   const [isRemoveMode, setIsRemoveMode] = useState(false);
   const csvInputRef = useRef<HTMLInputElement>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);

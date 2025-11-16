@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import RoleSelection from './pages/RoleSelection';
 import { useAuth, AuthProvider } from './hooks/useAuth';
 import { DemoProvider, useDemo } from './contexts/DemoContext';
@@ -14,8 +14,16 @@ import QuickAwardPage from './pages/QuickAwardPage';
 import ClassDisplayPage from './pages/ClassDisplayPage';
 import LessonsPage from './pages/LessonsPage';
 import LessonNotesPage from './pages/LessonNotesPage';
-import SettingsPage from './pages/SettingsPage';
+// Lazy load SettingsPage to ensure all modules are fully initialized before it renders
+const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 import ParentPortalPage from './pages/ParentPortalPage';
+
+// Loading fallback for lazy loaded pages
+const PageLoader = () => (
+  <div className="flex items-center justify-center p-8">
+    <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+  </div>
+);
 
 function TeacherLayout() {
   return (
@@ -167,7 +175,9 @@ const settingsRoute = createRoute({
   path: '/settings',
   component: () => (
     <ProtectedTeacherRoute>
-      <SettingsPage />
+      <Suspense fallback={<PageLoader />}>
+        <SettingsPage />
+      </Suspense>
     </ProtectedTeacherRoute>
   ),
 });

@@ -1,7 +1,8 @@
 // @ts-nocheck
 import { useState, useEffect, useRef } from 'react';
-import { useIsCallerAdmin, useGetClassFund, useGetRewardsCatalog, useAddReward, useUpdateRewardPrice, useCreateClassGoal, useGetPresetAmounts, useUpdatePresetAmounts, useGetTeacherClass, useGetStudents, useAddStudent, useUpdateClassBalance, useUpdateStudent, useCreateTeacherClass, useUpdateTeacherClass, useGetClassGoals, useUpdateProfile, useDeleteStudent } from '../hooks/useQueries';
-import { useAuth } from '../hooks/useAuth';
+// DO NOT import useAuth directly - it causes circular dependency issues with the bundler
+// Use useGetUserProfile from useQueries instead
+import { useIsCallerAdmin, useGetClassFund, useGetRewardsCatalog, useAddReward, useUpdateRewardPrice, useCreateClassGoal, useGetPresetAmounts, useUpdatePresetAmounts, useGetTeacherClass, useGetStudents, useAddStudent, useUpdateClassBalance, useUpdateStudent, useCreateTeacherClass, useUpdateTeacherClass, useGetClassGoals, useUpdateProfile, useDeleteStudent, useGetUserProfile } from '../hooks/useQueries';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,9 +31,9 @@ const Icon = ({ className = "w-4 h-4" }: { className?: string }) => (
 export default function SettingsPage() {
   console.log('⚙️ SettingsPage: Component function starting');
 
-  console.log('⚙️ SettingsPage: Before useAuth');
-  const { profile, user } = useAuth();
-  console.log('⚙️ SettingsPage: After useAuth');
+  console.log('⚙️ SettingsPage: Before useGetUserProfile');
+  const { data: profile } = useGetUserProfile();
+  console.log('⚙️ SettingsPage: After useGetUserProfile');
 
   console.log('⚙️ SettingsPage: Before useIsCallerAdmin');
   const { data: isAdmin, isLoading: adminLoading } = useIsCallerAdmin();

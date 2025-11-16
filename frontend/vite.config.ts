@@ -15,6 +15,7 @@ export default defineConfig({
     open: true,
   },
   build: {
+    minify: false, // Disable minification to fix TDZ issues
     rollupOptions: {
       output: {
         // Ensure proper module initialization order

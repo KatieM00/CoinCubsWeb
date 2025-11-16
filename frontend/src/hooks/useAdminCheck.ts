@@ -3,10 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useDemo } from '@/contexts/DemoContext';
 
 export const useIsCallerAdmin = () => {
-  console.log('🔌 useIsCallerAdmin hook called');
   const { profile } = useAuth();
   const { isDemoMode } = useDemo();
-  console.log('🔌 useIsCallerAdmin hook initialized');
 
   return useQuery({
     queryKey: ['isCallerAdmin', profile?.id],

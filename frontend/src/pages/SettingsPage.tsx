@@ -39,79 +39,24 @@ const Icon = ({ className = "w-4 h-4" }: { className?: string }) => (
 );
 
 export default function SettingsPage({ profile }: SettingsPageProps) {
-  console.log('⚙️ SettingsPage: Component function starting');
-
-  console.log('⚙️ SettingsPage: Before useIsCallerAdmin');
   const { data: isAdmin, isLoading: adminLoading } = useIsCallerAdmin();
-  console.log('⚙️ SettingsPage: After useIsCallerAdmin');
-
-  console.log('⚙️ SettingsPage: Before useGetClassFund');
   const { data: classFund, isLoading: fundLoading } = useGetClassFund();
-  console.log('⚙️ SettingsPage: After useGetClassFund');
-
-  console.log('⚙️ SettingsPage: Before useGetRewardsCatalog');
   const { data: rewards, isLoading: rewardsLoading } = useGetRewardsCatalog();
-  console.log('⚙️ SettingsPage: After useGetRewardsCatalog');
-
-  console.log('⚙️ SettingsPage: Before useGetPresetAmounts');
   const { data: presetAmounts } = useGetPresetAmounts();
-  console.log('⚙️ SettingsPage: After useGetPresetAmounts');
-
-  console.log('⚙️ SettingsPage: Before useGetTeacherClass');
   const { data: teacherClass } = useGetTeacherClass();
-  console.log('⚙️ SettingsPage: After useGetTeacherClass');
-
-  console.log('⚙️ SettingsPage: Before useGetStudents');
   const { data: students, isLoading: studentsLoading } = useGetStudents(teacherClass?.id);
-  console.log('⚙️ SettingsPage: After useGetStudents');
-
-  console.log('⚙️ SettingsPage: Before useGetClassGoals');
   const { data: classGoals, isLoading: goalsLoading } = useGetClassGoals();
-  console.log('⚙️ SettingsPage: After useGetClassGoals');
-
-  console.log('⚙️ SettingsPage: Before useAddStudent');
   const addStudent = useAddStudent();
-  console.log('⚙️ SettingsPage: After useAddStudent');
-
-  console.log('⚙️ SettingsPage: Before useUpdateClassBalance');
   const updateClassBalance = useUpdateClassBalance();
-  console.log('⚙️ SettingsPage: After useUpdateClassBalance');
-
-  console.log('⚙️ SettingsPage: Before useUpdateStudent');
   const updateStudent = useUpdateStudent();
-  console.log('⚙️ SettingsPage: After useUpdateStudent');
-
-  console.log('⚙️ SettingsPage: Before useDeleteStudent');
   const deleteStudent = useDeleteStudent();
-  console.log('⚙️ SettingsPage: After useDeleteStudent');
-
-  console.log('⚙️ SettingsPage: Before useAddReward');
   const addReward = useAddReward();
-  console.log('⚙️ SettingsPage: After useAddReward');
-
-  console.log('⚙️ SettingsPage: Before useUpdateRewardPrice');
   const updateRewardPrice = useUpdateRewardPrice();
-  console.log('⚙️ SettingsPage: After useUpdateRewardPrice');
-
-  console.log('⚙️ SettingsPage: Before useCreateClassGoal');
   const createGoal = useCreateClassGoal();
-  console.log('⚙️ SettingsPage: After useCreateClassGoal');
-
-  console.log('⚙️ SettingsPage: Before useUpdatePresetAmounts');
   const updatePresets = useUpdatePresetAmounts();
-  console.log('⚙️ SettingsPage: After useUpdatePresetAmounts');
-
-  console.log('⚙️ SettingsPage: Before useCreateTeacherClass');
   const createTeacherClass = useCreateTeacherClass();
-  console.log('⚙️ SettingsPage: After useCreateTeacherClass');
-
-  console.log('⚙️ SettingsPage: Before useUpdateTeacherClass');
   const updateTeacherClass = useUpdateTeacherClass();
-  console.log('⚙️ SettingsPage: After useUpdateTeacherClass');
-
-  console.log('⚙️ SettingsPage: Before useUpdateProfile');
   const updateProfile = useUpdateProfile();
-  console.log('⚙️ SettingsPage: After useUpdateProfile - ALL HOOKS INITIALIZED');
 
   const [activeSection, setActiveSection] = useState<SettingsSection>('classroom');
 
@@ -178,6 +123,9 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
       setAccountEmail(profile.email || '');
     }
   }, [profile]);
+
+  // Derive studentsList from students data - MUST be defined before any useEffect that uses it
+  const studentsList = students || [];
 
   // Initialize all student balances as hidden by default
   useEffect(() => {
@@ -494,7 +442,7 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
   const totalClassCubCoins = classFund?.balance || BigInt(0);
   const activeGoals = classGoals?.filter((goal: any) => goal.isActive) || [];
   const primaryGoal = activeGoals[0];
-  const studentsList = students || [];
+  // studentsList is now defined earlier (before useEffect that uses it) to avoid TDZ error
 
   const sidebarItems = [
     { id: 'classroom' as SettingsSection, label: 'Classroom', icon: Icon },

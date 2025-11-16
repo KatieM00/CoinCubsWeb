@@ -21,10 +21,8 @@ export const useGetUserProfile = () => {
 
 // Authorization check - MUST be in same module as other hooks to prevent initialization issues
 export const useIsCallerAdmin = () => {
-  console.log('🔌 useIsCallerAdmin hook called');
   const { profile } = useAuth();
   const { isDemoMode } = useDemo();
-  console.log('🔌 useIsCallerAdmin hook initialized');
 
   return useQuery({
     queryKey: ['isCallerAdmin', profile?.id],
@@ -45,11 +43,9 @@ export const useIsCallerAdmin = () => {
 
 // Class Fund Queries
 export const useGetClassFund = () => {
-  console.log('🔌 useGetClassFund hook called');
   const { isDemoMode } = useDemo();
   const demoData = isDemoMode ? useDemoData() : null;
   const { profile, user } = useAuth();
-  console.log('🔌 useGetClassFund hook initialized');
 
   return useQuery({
     queryKey: ['classFund', profile?.id, user?.id],
@@ -88,12 +84,10 @@ export const useGetClassFund = () => {
 };
 
 export const useAwardClassGems = () => {
-  console.log('🔌 useAwardClassGems hook called');
   const queryClient = useQueryClient();
   const { profile, user } = useAuth();
   const { isDemoMode } = useDemo();
   const demoData = isDemoMode ? useDemoData() : null;
-  console.log('🔌 useAwardClassGems hook initialized');
 
   return useMutation({
     mutationFn: async (params: { studentId?: string; amount: bigint | number; splitType?: string; description?: string; reason?: string }) => {
@@ -237,11 +231,9 @@ export const useUpdateClassBalance = () => {
 
 // Class Goals Queries
 export const useGetClassGoals = () => {
-  console.log('🔌 useGetClassGoals hook called');
   const { isDemoMode } = useDemo();
   const demoData = isDemoMode ? useDemoData() : null;
   const { profile, user } = useAuth();
-  console.log('🔌 useGetClassGoals hook initialized');
 
   return useQuery({
     queryKey: ['classGoals', profile?.id, user?.id],
@@ -1000,11 +992,9 @@ export const useUpdateTeacherClass = () => {
 
 // Student Queries
 export const useGetStudents = (classId?: string) => {
-  console.log('🔌 useGetStudents hook called with classId:', classId);
   const { isDemoMode } = useDemo();
   const demoData = isDemoMode ? useDemoData() : null;
   const { data: teacherClass } = useGetTeacherClass();
-  console.log('🔌 useGetStudents hook initialized');
 
   // Use provided classId or fall back to teacherClass.id
   const effectiveClassId = classId || teacherClass?.id;
@@ -1100,10 +1090,8 @@ export const useAddStudent = () => {
 };
 
 export const useGetLastAwardedStudents = () => {
-  console.log('🔌 useGetLastAwardedStudents hook called');
   const { isDemoMode } = useDemo();
   const demoData = isDemoMode ? useDemoData() : null;
-  console.log('🔌 useGetLastAwardedStudents hook initialized');
 
   return useQuery({
     queryKey: ['lastAwardedStudents'],
@@ -1218,7 +1206,6 @@ export const useDeleteStudent = () => {
 
 // Undo & Transaction Queries
 export const useGetUndoTransaction = () => {
-  console.log('🔌 useGetUndoTransaction hook called');
   return useQuery({
     queryKey: ['undoTransaction'],
     queryFn: async () => null,
@@ -1226,7 +1213,6 @@ export const useGetUndoTransaction = () => {
 };
 
 export const useUndoLastAward = () => {
-  console.log('🔌 useUndoLastAward hook called');
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
@@ -1242,11 +1228,9 @@ export const useUndoLastAward = () => {
 
 // Weekly Stats Queries
 export const useGetWeeklyStats = () => {
-  console.log('🔌 useGetWeeklyStats hook called');
   const { isDemoMode } = useDemo();
   const demoData = isDemoMode ? useDemoData() : null;
   const { profile, user } = useAuth();
-  console.log('🔌 useGetWeeklyStats hook initialized');
 
   return useQuery({
     queryKey: ['weeklyStats', profile?.id, user?.id],
@@ -1281,11 +1265,9 @@ export const useListApprovals = () => {
 
 // Teacher's Class Query
 export const useGetTeacherClass = () => {
-  console.log('🔌 useGetTeacherClass hook called');
   const { profile } = useAuth();
   const { isDemoMode } = useDemo();
   const demoData = isDemoMode ? useDemoData() : null;
-  console.log('🔌 useGetTeacherClass hook initialized');
 
   return useQuery({
     queryKey: ['teacherClass', profile?.id],

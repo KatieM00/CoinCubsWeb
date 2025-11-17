@@ -32,12 +32,12 @@ export default function LoginScreen() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 p-4 relative">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#FFF8E7] via-[#E8C391]/20 to-[#DDB76F]/10 p-4 relative">
       {/* Demo Button - Top Right Corner */}
       <div className="absolute top-4 right-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2 bg-white/80 backdrop-blur-sm hover:bg-white">
+            <Button variant="outline" size="sm" className="gap-2 bg-white/80 backdrop-blur-sm hover:bg-white border-[#E8C391]">
               🧪
               <span className="hidden sm:inline">Demo</span>
             </Button>
@@ -57,14 +57,11 @@ export default function LoginScreen() {
 
       <div className="max-w-4xl w-full">
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full shadow-2xl mb-6">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#E8C391] to-[#DDB76F] rounded-full shadow-2xl mb-6">
             <Icon className="w-12 h-12" />
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mb-4">
-            Welcome to CoinCubs
-          </h1>
-          <p className="text-xl text-muted-foreground mb-2">Growing Together, Achieving Together</p>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-xl text-[#8D6E63] mb-2">Growing Together, Achieving Together</p>
+          <p className="text-lg text-[#8D6E63] max-w-2xl mx-auto">
             A classroom economy where every student helps the whole class succeed
           </p>
         </div>
@@ -79,13 +76,13 @@ export default function LoginScreen() {
           </Alert>
         )}
 
-        <Card className="bg-white/80 backdrop-blur-sm border-2 border-amber-300 shadow-xl hover:shadow-2xl transition-shadow max-w-md mx-auto">
+        <Card className="bg-white/80 backdrop-blur-sm border-2 border-[#E8C391] shadow-xl hover:shadow-2xl transition-shadow max-w-md mx-auto">
           <CardHeader className="text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-amber-100 to-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-gradient-to-br from-[#E8C391]/30 to-[#DDB76F]/30 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-2xl">🎓</span>
               <span className="text-2xl -ml-2">👨‍👩‍👧</span>
             </div>
-            <CardTitle className="text-2xl">Sign In</CardTitle>
+            <CardTitle className="text-2xl text-[#3E2723]">Sign In</CardTitle>
             <CardDescription className="text-base">
               Teachers and Parents both use Google sign-in
             </CardDescription>

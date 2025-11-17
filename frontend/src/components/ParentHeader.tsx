@@ -33,19 +33,19 @@ export default function ParentHeader() {
   };
 
   return (
-    <header className="bg-white/80 backdrop-blur-sm border-b border-blue-200 sticky top-0 z-50">
+    <header className="bg-[#5D4037] border-b border-[#3E2723] sticky top-0 z-50">
         <div className="container mx-auto px-3 md:px-4 lg:px-6 py-3 md:py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center gap-2 md:gap-3">
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center shadow-lg">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-[#E8C391] to-[#DDB76F] rounded-full flex items-center justify-center shadow-lg">
                 <Icon className="w-4 h-4 md:w-6 md:h-6" />
               </div>
               <div>
-                <h1 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <h1 className="text-lg md:text-2xl font-bold text-[#FFF8E7]">
                   CoinCubs
                 </h1>
-                <p className="text-[10px] md:text-xs text-muted-foreground">Parent Portal</p>
+                <p className="text-[10px] md:text-xs text-[#E8C391]">Parent Portal</p>
               </div>
             </div>
 
@@ -53,13 +53,13 @@ export default function ParentHeader() {
             <div className="flex items-center gap-2 md:gap-4">
               {(isDemoMode || profile) && (
                 <div className="text-right hidden sm:block">
-                  <p className="text-sm font-medium text-foreground">
+                  <p className="text-sm font-medium text-[#FFF8E7]">
                     {isDemoMode ? 'Demo Parent' : profile?.full_name}
                   </p>
-                  <p className="text-xs text-muted-foreground">Parent</p>
+                  <p className="text-xs text-[#E8C391]">Parent</p>
                 </div>
               )}
-              <Button onClick={handleLogout} variant="outline" size="sm" className="gap-2 h-11 md:h-10 lg:h-9">
+              <Button onClick={handleLogout} variant="outline" size="sm" className="gap-2 h-11 md:h-10 lg:h-9 border-[#E8C391] text-[#FFF8E7] hover:bg-[#E8C391] hover:text-[#3E2723]">
                 🚪
                 <span className="hidden sm:inline">{isDemoMode ? 'Exit Demo' : 'Logout'}</span>
               </Button>

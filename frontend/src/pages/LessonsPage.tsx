@@ -255,18 +255,7 @@ export default function LessonsPage() {
 
   return (
     <div className="container mx-auto px-3 sm:px-4 md:px-6 py-6 md:py-8 max-w-7xl space-y-6 md:space-y-8">
-      {/* Page Header Section */}
-      <div className="text-center space-y-3 md:space-y-4">
-        <div className="flex justify-center mb-3 md:mb-4">
-          <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center shadow-lg">
-            📚
-          </div>
-        </div>
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-purple-900">CoinCubs Curriculum</h1>
-        <p className="text-lg sm:text-xl md:text-2xl text-blue-700 font-medium">9-Week Financial Literacy Program</p>
-      </div>
-
-      {/* Four Lesson Cards in Responsive Grid */}
+      {/* Lesson Cards in Responsive Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         {curriculumModules && curriculumModules.length > 0 ? (
           curriculumModules.map((module) => {
@@ -302,9 +291,9 @@ export default function LessonsPage() {
       </div>
 
       {/* Curriculum Controls Section */}
-      <Card className="shadow-xl bg-gradient-to-br from-gray-50 to-blue-50">
+      <Card className="shadow-xl bg-gradient-to-br from-[#FFF8E7] to-[#E8C391]/30">
         <CardHeader>
-          <CardTitle className="text-lg md:text-xl text-purple-900">Curriculum Controls</CardTitle>
+          <CardTitle className="text-lg md:text-xl text-[#3E2723]">Curriculum Controls</CardTitle>
           <CardDescription>Navigate, restart, or export lesson plans</CardDescription>
         </CardHeader>
         <CardContent>
@@ -494,29 +483,29 @@ function PrintableLessonPlan({
             <div className="bg-gray-50 p-3 rounded-lg"><Label className="text-xs font-bold uppercase text-gray-500">Lesson #</Label><div className="text-sm font-medium">{lessonNumber}</div></div>
           </div>
           <div>
-            <h3 className="text-base font-bold text-purple-900 border-b-2 border-purple-500 pb-1 mb-3">Lesson Focus and Goals</h3>
-            <div className="bg-purple-50 p-4 rounded-lg text-sm">{lesson.lessonFocus || lesson.teacherScript}</div>
+            <h3 className="text-base font-bold text-[#3E2723] border-b-2 border-[#DDB76F] pb-1 mb-3">Lesson Focus and Goals</h3>
+            <div className="bg-[#FFF8E7] p-4 rounded-lg text-sm">{lesson.lessonFocus || lesson.teacherScript}</div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <h3 className="text-base font-bold text-purple-900 border-b-2 border-purple-500 pb-1 mb-3">Materials Needed</h3>
-              <div className="bg-blue-50 p-4 rounded-lg text-sm">
+              <h3 className="text-base font-bold text-[#3E2723] border-b-2 border-[#DDB76F] pb-1 mb-3">Materials Needed</h3>
+              <div className="bg-[#E8C391]/20 p-4 rounded-lg text-sm">
                 <ul className="list-disc list-inside space-y-1">{(lesson.materials || ['Class Display', 'Whiteboard', 'Discussion materials']).map((m: string, i: number) => (<li key={i}>{m}</li>))}</ul>
               </div>
             </div>
             <div>
-              <h3 className="text-base font-bold text-purple-900 border-b-2 border-purple-500 pb-1 mb-3">Learning Objectives</h3>
+              <h3 className="text-base font-bold text-[#3E2723] border-b-2 border-[#DDB76F] pb-1 mb-3">Learning Objectives</h3>
               <div className="bg-green-50 p-4 rounded-lg text-sm">
                 <ul className="list-disc list-inside space-y-1">{(lesson.objectives || module.learningObjectives).map((obj: string, i: number) => (<li key={i}>{obj}</li>))}</ul>
               </div>
             </div>
           </div>
           <div>
-            <h3 className="text-base font-bold text-purple-900 border-b-2 border-purple-500 pb-1 mb-3">Structure/Activity</h3>
+            <h3 className="text-base font-bold text-[#3E2723] border-b-2 border-[#DDB76F] pb-1 mb-3">Structure/Activity</h3>
             <div className="bg-amber-50 p-4 rounded-lg text-sm whitespace-pre-line">{lesson.structure || `Teacher Script: ${lesson.teacherScript}\n\nDiscussion Questions:\n${lesson.discussionQuestions.map((q: string, i: number) => `${i + 1}. ${q}`).join('\n')}\n\nActivities:\n${lesson.activities.map((a: { name: string; description: string }) => `- ${a.name}: ${a.description}`).join('\n')}`}</div>
           </div>
           <div>
-            <h3 className="text-base font-bold text-purple-900 border-b-2 border-purple-500 pb-1 mb-3">Assessment</h3>
+            <h3 className="text-base font-bold text-[#3E2723] border-b-2 border-[#DDB76F] pb-1 mb-3">Assessment</h3>
             <div className="bg-orange-50 p-4 rounded-lg text-sm">{lesson.assessment || `Observe student participation in discussions. Check understanding through responses to questions.`}</div>
           </div>
         </div>
@@ -636,8 +625,8 @@ function LessonCard({
     <Card
       className={`border-2 transition-all ${
         isCurrent
-          ? 'border-purple-500 bg-gradient-to-br from-purple-50 to-blue-50 shadow-lg'
-          : 'border-blue-300 bg-white hover:shadow-md'
+          ? 'border-[#DDB76F] bg-gradient-to-br from-[#FFF8E7] to-[#E8C391]/30 shadow-lg'
+          : 'border-[#E8C391] bg-white hover:shadow-md'
       }`}
     >
       <CardHeader className="pb-3">
@@ -645,7 +634,7 @@ function LessonCard({
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
               <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center ${
-                isCurrent ? 'bg-purple-600' : 'bg-blue-500'
+                isCurrent ? 'bg-[#5D4037]' : 'bg-[#8D6E63]'
               }`}>
                 <span className="text-white font-bold text-sm md:text-base">{Number(module.weekNumber)}</span>
               </div>
@@ -661,8 +650,8 @@ function LessonCard({
       </CardHeader>
       <CardContent className="space-y-3">
         {/* Learning Objectives */}
-        <div className="p-3 bg-white rounded-lg border border-purple-200">
-          <h4 className="font-semibold text-purple-900 mb-2 text-sm">Learning Objectives:</h4>
+        <div className="p-3 bg-white rounded-lg border border-[#E8C391]">
+          <h4 className="font-semibold text-[#3E2723] mb-2 text-sm">Learning Objectives:</h4>
           <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
             {module.learningObjectives.map((obj, idx) => (
               <li key={idx}>{obj}</li>
@@ -683,9 +672,9 @@ function LessonCard({
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-3 space-y-3">
             {/* Monday Lesson Details */}
-            <div className="p-4 bg-blue-50 rounded-lg border border-blue-200 space-y-3">
+            <div className="p-4 bg-[#FFF8E7] rounded-lg border border-[#E8C391] space-y-3">
               <div className="flex items-center justify-between">
-                <h4 className="font-bold text-blue-900 flex items-center gap-2">
+                <h4 className="font-bold text-[#3E2723] flex items-center gap-2">
                   <span className="text-lg">📘</span>
                   {module.mondayLesson.title}
                 </h4>
@@ -699,11 +688,11 @@ function LessonCard({
                 </Button>
               </div>
               <div>
-                <p className="text-sm font-semibold text-blue-800 mb-1">Teacher Script:</p>
+                <p className="text-sm font-semibold text-[#5D4037] mb-1">Teacher Script:</p>
                 <p className="text-sm text-gray-700 italic">{module.mondayLesson.teacherScript}</p>
               </div>
               <div>
-                <p className="text-sm font-semibold text-blue-800 mb-1">Discussion Questions:</p>
+                <p className="text-sm font-semibold text-[#5D4037] mb-1">Discussion Questions:</p>
                 <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
                   {module.mondayLesson.discussionQuestions.map((q, idx) => (
                     <li key={idx}>{q}</li>
@@ -712,10 +701,10 @@ function LessonCard({
               </div>
               {module.mondayLesson.activities.length > 0 && (
                 <div>
-                  <p className="text-sm font-semibold text-blue-800 mb-1">Activities:</p>
+                  <p className="text-sm font-semibold text-[#5D4037] mb-1">Activities:</p>
                   {module.mondayLesson.activities.map((activity, idx) => (
-                    <div key={idx} className="mb-2 p-2 bg-white rounded border border-blue-100">
-                      <p className="text-sm font-medium text-blue-900">{activity.name}</p>
+                    <div key={idx} className="mb-2 p-2 bg-white rounded border border-[#E8C391]/50">
+                      <p className="text-sm font-medium text-[#3E2723]">{activity.name}</p>
                       <p className="text-xs text-gray-600">{activity.description}</p>
                     </div>
                   ))}
@@ -772,7 +761,7 @@ function LessonCard({
             <div className="relative">
               <Button
                 size="lg"
-                className="h-11 md:h-14 text-sm md:text-base font-bold bg-blue-600 hover:bg-blue-700 shadow-md w-full"
+                className="h-11 md:h-14 text-sm md:text-base font-bold bg-[#5D4037] hover:bg-[#3E2723] shadow-md w-full"
                 onClick={() => onStartMonday(module.weekNumber)}
                 disabled={startMondayPending}
               >
@@ -818,7 +807,7 @@ function LessonCard({
             <div className="relative">
               <Button
                 size="lg"
-                className="h-11 md:h-14 text-sm md:text-base font-bold bg-orange-600 hover:bg-orange-700 shadow-md w-full"
+                className="h-11 md:h-14 text-sm md:text-base font-bold bg-[#DDB76F] hover:bg-[#E8C391] text-[#3E2723] shadow-md w-full"
                 onClick={() => onStartFriday(module.weekNumber)}
                 disabled={startFridayPending}
               >

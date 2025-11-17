@@ -216,7 +216,7 @@ export default function ParentPortalPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
+        <h1 className="text-4xl font-bold text-[#3E2723] mb-2">
           Welcome Back!
         </h1>
         <p className="text-lg text-muted-foreground">
@@ -246,7 +246,7 @@ export default function ParentPortalPage() {
 
         {/* Learning Tab */}
         <TabsContent value="learning" className="space-y-6">
-          <Card className="bg-white/80 backdrop-blur-sm border-blue-200">
+          <Card className="bg-white/80 backdrop-blur-sm border-[#E8C391]">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
@@ -258,28 +258,28 @@ export default function ParentPortalPage() {
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Current Week Overview */}
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
+              <div className="bg-gradient-to-br from-[#FFF8E7] to-[#E8C391]/30 rounded-lg p-6 border border-[#E8C391]">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 bg-[#5D4037] rounded-full flex items-center justify-center shrink-0">
                     📚
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-blue-900 mb-2">
+                    <h3 className="text-xl font-semibold text-[#3E2723] mb-2">
                       Week {curriculumProgress?.currentWeek.toString() || '1'}: Financial Literacy
                     </h3>
-                    <p className="text-blue-700 mb-4">
-                      This week, the class is learning about <strong>earning and saving</strong>. 
-                      Students are exploring how to make good financial decisions and work together 
+                    <p className="text-[#5D4037] mb-4">
+                      This week, the class is learning about <strong>earning and saving</strong>.
+                      Students are exploring how to make good financial decisions and work together
                       toward shared goals.
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                      <Badge variant="secondary" className="bg-[#E8C391]/30 text-[#3E2723]">
                         Teamwork
                       </Badge>
-                      <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                      <Badge variant="secondary" className="bg-[#E8C391]/30 text-[#3E2723]">
                         Decision Making
                       </Badge>
-                      <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                      <Badge variant="secondary" className="bg-[#E8C391]/30 text-[#3E2723]">
                         Community Goals
                       </Badge>
                     </div>
@@ -386,7 +386,7 @@ export default function ParentPortalPage() {
 
         {/* Payments Tab */}
         <TabsContent value="payments" className="space-y-6">
-          <Card className="bg-white/80 backdrop-blur-sm border-blue-200">
+          <Card className="bg-white/80 backdrop-blur-sm border-[#E8C391]">
             <CardHeader>
               <CardTitle className="text-2xl">Payment Management</CardTitle>
               <CardDescription>View and manage school expenses</CardDescription>
@@ -419,12 +419,12 @@ export default function ParentPortalPage() {
                     </CardContent>
                   </Card>
                   
-                  <Card className="border-blue-200 bg-blue-50/50">
+                  <Card className="border-[#E8C391] bg-[#FFF8E7]/50">
                     <CardContent className="pt-4">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                            <Badge variant="secondary" className="bg-[#E8C391]/30 text-[#3E2723]">
                               📅
                               Due Dec 15
                             </Badge>
@@ -433,9 +433,9 @@ export default function ParentPortalPage() {
                           <p className="text-sm text-muted-foreground mt-1">
                             Optional contribution for end-of-semester celebration
                           </p>
-                          <p className="text-2xl font-bold text-blue-600 mt-2">$15.00</p>
+                          <p className="text-2xl font-bold text-[#5D4037] mt-2">$15.00</p>
                         </div>
-                        <Button variant="outline" className="border-blue-600 text-blue-700">
+                        <Button variant="outline" className="border-[#5D4037] text-[#5D4037]">
                           Pay Now
                         </Button>
                       </div>
@@ -472,18 +472,18 @@ export default function ParentPortalPage() {
               </div>
 
               {/* Secure Payments */}
-              <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg p-6 border border-purple-200">
+              <div className="bg-gradient-to-br from-[#FFF8E7] to-[#E8C391]/30 rounded-lg p-6 border border-[#E8C391]">
                 <div className="flex items-start gap-4">
                   🔒
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-purple-900 mb-2">
+                    <h3 className="text-lg font-semibold text-[#3E2723] mb-2">
                       Secure Online Payments
                     </h3>
-                    <p className="text-purple-700 mb-4">
+                    <p className="text-[#5D4037] mb-4">
                       Soon you'll be able to make secure, transparent payments directly through the platform.
                       All transactions will be verified and recorded for complete transparency.
                     </p>
-                    <Button disabled variant="outline" className="border-purple-600 text-purple-700">
+                    <Button disabled variant="outline" className="border-[#5D4037] text-[#5D4037]">
                       🔒
                       Set Up Payment Method (Coming Soon)
                     </Button>
@@ -496,7 +496,7 @@ export default function ParentPortalPage() {
 
         {/* Forms Tab */}
         <TabsContent value="forms" className="space-y-6">
-          <Card className="bg-white/80 backdrop-blur-sm border-blue-200">
+          <Card className="bg-white/80 backdrop-blur-sm border-[#E8C391]">
             <CardHeader>
               <CardTitle className="text-2xl">Forms & Permissions</CardTitle>
               <CardDescription>Review and sign digital forms</CardDescription>
@@ -532,12 +532,12 @@ export default function ParentPortalPage() {
                     </CardContent>
                   </Card>
 
-                  <Card className="border-blue-200 bg-blue-50/50">
+                  <Card className="border-[#E8C391] bg-[#FFF8E7]/50">
                     <CardContent className="pt-4">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                            <Badge variant="secondary" className="bg-[#E8C391]/30 text-[#3E2723]">
                               ⏰
                               Pending
                             </Badge>
@@ -550,7 +550,7 @@ export default function ParentPortalPage() {
                         </div>
                         <Button
                           variant="outline"
-                          className="border-blue-600 text-blue-700"
+                          className="border-[#5D4037] text-[#5D4037]"
                           onClick={() => handleOpenForm('photo-release-2025', 'Photo Release Form', 'Annual photo consent for school publications')}
                         >
                           Review & Sign
@@ -601,19 +601,19 @@ export default function ParentPortalPage() {
               </div>
 
               {/* Digital Signatures Info */}
-              <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg p-6 border border-purple-200">
+              <div className="bg-gradient-to-br from-[#FFF8E7] to-[#E8C391]/30 rounded-lg p-6 border border-[#E8C391]">
                 <div className="flex items-start gap-4">
                   🔒
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-purple-900 mb-2">
+                    <h3 className="text-lg font-semibold text-[#3E2723] mb-2">
                       Secure Digital Signatures
                     </h3>
-                    <p className="text-purple-700 mb-4">
+                    <p className="text-[#5D4037] mb-4">
                       All digital signatures are secured with industry-standard encryption,
                       ensuring security, verification, and permanent record-keeping. Your signatures
                       are legally binding and cryptographically secured.
                     </p>
-                    <div className="flex items-center gap-2 text-sm text-purple-700">
+                    <div className="flex items-center gap-2 text-sm text-[#5D4037]">
                       ✅
                       <span>Cryptographically verified</span>
                     </div>
@@ -626,7 +626,7 @@ export default function ParentPortalPage() {
 
         {/* Profile Tab */}
         <TabsContent value="profile" className="space-y-6">
-          <Card className="bg-white/80 backdrop-blur-sm border-blue-200">
+          <Card className="bg-white/80 backdrop-blur-sm border-[#E8C391]">
             <CardHeader>
               <CardTitle className="text-2xl">Profile Settings</CardTitle>
               <CardDescription>Manage your account and preferences</CardDescription>
@@ -803,7 +803,7 @@ export default function ParentPortalPage() {
                 <div className="space-y-3">
                   {enrolledChildren && enrolledChildren.length > 0 ? (
                     enrolledChildren.map((child, index) => (
-                      <Card key={child.id} className={index === 0 ? "border-blue-200 bg-blue-50/50" : "border-gray-200"}>
+                      <Card key={child.id} className={index === 0 ? "border-[#E8C391] bg-[#FFF8E7]/50" : "border-gray-200"}>
                         <CardContent className="pt-4">
                           <div className="flex items-center justify-between">
                             <div>
@@ -821,7 +821,7 @@ export default function ParentPortalPage() {
                     ))
                   ) : (
                     <>
-                      <Card className="border-blue-200 bg-blue-50/50">
+                      <Card className="border-[#E8C391] bg-[#FFF8E7]/50">
                         <CardContent className="pt-4">
                           <div className="flex items-center justify-between">
                             <div>
@@ -868,7 +868,7 @@ export default function ParentPortalPage() {
                   </Button>
                 </div>
                 <div className="space-y-3">
-                  <Card className="border-blue-200 bg-blue-50/50">
+                  <Card className="border-[#E8C391] bg-[#FFF8E7]/50">
                     <CardContent className="pt-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">

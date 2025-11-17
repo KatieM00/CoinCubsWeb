@@ -518,7 +518,7 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
                       className={cn(
                         'w-full flex items-center gap-2 px-2 py-2.5 text-left transition-colors text-sm',
                         activeSection === item.id
-                          ? 'bg-blue-100 text-blue-900 font-semibold'
+                          ? 'bg-[#E8C391]/30 text-[#3E2723] font-semibold'
                           : 'text-gray-700 hover:bg-gray-50'
                       )}
                     >
@@ -810,7 +810,7 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
                   </div>
 
                   {/* Weekly Salary Section */}
-                  <div className="pt-4 border-t border-purple-100">
+                  <div className="pt-4 border-t border-[#E8C391]">
                     <div className="flex items-center justify-between mb-3">
                       <div>
                         <h4 className="font-semibold text-base">Weekly Salary</h4>
@@ -830,7 +830,7 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
                             </DialogDescription>
                           </DialogHeader>
                           <div className="space-y-4">
-                            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                            <div className="flex items-center justify-between p-3 bg-[#FFF8E7] rounded-lg">
                               <div>
                                 <Label htmlFor="salaryEnabled" className="font-semibold">Enable Weekly Salary</Label>
                                 <p className="text-xs text-muted-foreground">Automatically add funds to class balance each week</p>
@@ -921,7 +921,7 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
               </Card>
 
               {/* Goals Card */}
-              <Card className="border-purple-200">
+              <Card className="border-[#E8C391]">
                 <CardHeader className="pb-4">
                   <div className="flex items-center justify-between">
                     <div>

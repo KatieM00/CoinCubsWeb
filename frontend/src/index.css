@@ -4,50 +4,53 @@
 
 @layer base {
     :root {
-        --radius: 1rem;
-        /* Warm, welcoming color palette for CoinCubs */
-        --background: 0.98 0.02 98;
-        --foreground: 0.25 0.015 25;
-        --card: 1 0 100;
-        --card-foreground: 0.25 0.015 25;
-        --popover: 1 0 100;
-        --popover-foreground: 0.25 0.015 25;
-        /* Rich Purple Primary (#7C3AED) */
-        --primary: 0.60 0.24 270;
-        --primary-foreground: 0.98 0.02 98;
-        /* Blue Accent (#3B82F6) */
-        --secondary: 0.65 0.20 250;
-        --secondary-foreground: 0.98 0.02 98;
-        /* Warm backgrounds */
-        --muted: 0.96 0.02 90;
-        --muted-foreground: 0.50 0.01 55;
-        /* Gold Accent (#F59E0B) */
-        --accent: 0.75 0.18 45;
-        --accent-foreground: 0.20 0.015 25;
-        /* Green for success */
-        --success: 0.65 0.18 150;
-        --success-foreground: 0.98 0.02 98;
-        /* Warm yellow */
-        --warning: 0.80 0.16 80;
-        --warning-foreground: 0.20 0.015 25;
+        --radius: 0.75rem;
+        /* CoinCubs Brown/Gold Color Palette */
+        /* Primary Brown: #5D4037 | Golden Cream: #E8C391 | Light Cream: #FFF8E7 */
+        /* Medium Brown: #8D6E63 | Accent Gold: #DDB76F | Dark Brown: #3E2723 */
+        --background: 0.97 0.02 85;
+        --foreground: 0.35 0.06 50;
+        --card: 0.99 0.01 90;
+        --card-foreground: 0.35 0.06 50;
+        --popover: 0.99 0.01 90;
+        --popover-foreground: 0.35 0.06 50;
+        /* Primary Brown (#5D4037) */
+        --primary: 0.40 0.08 45;
+        --primary-foreground: 0.97 0.02 85;
+        /* Golden Cream (#E8C391) */
+        --secondary: 0.83 0.08 75;
+        --secondary-foreground: 0.35 0.06 50;
+        /* Light backgrounds */
+        --muted: 0.95 0.02 80;
+        --muted-foreground: 0.55 0.06 55;
+        /* Accent Gold (#DDB76F) */
+        --accent: 0.78 0.12 80;
+        --accent-foreground: 0.35 0.06 50;
+        /* Success: Earthy Green (#7CB342) */
+        --success: 0.70 0.16 120;
+        --success-foreground: 0.97 0.02 85;
+        /* Warning: Warm Orange (#F57C00) */
+        --warning: 0.70 0.18 55;
+        --warning-foreground: 0.25 0.06 45;
+        /* Error: Warm Red (#D32F2F) */
         --destructive: 0.55 0.22 25;
-        --destructive-foreground: 0.98 0.02 98;
-        --border: 0.92 0.03 85;
-        --input: 0.92 0.03 85;
-        --ring: 0.60 0.24 270;
-        --chart-1: 0.60 0.24 270;
-        --chart-2: 0.65 0.20 250;
-        --chart-3: 0.75 0.18 45;
-        --chart-4: 0.65 0.18 150;
-        --chart-5: 0.80 0.16 80;
-        --sidebar: 0.98 0.02 98;
-        --sidebar-foreground: 0.25 0.015 25;
-        --sidebar-primary: 0.60 0.24 270;
-        --sidebar-primary-foreground: 0.98 0.02 98;
-        --sidebar-accent: 0.96 0.02 90;
-        --sidebar-accent-foreground: 0.35 0.02 50;
-        --sidebar-border: 0.92 0.03 85;
-        --sidebar-ring: 0.60 0.24 270;
+        --destructive-foreground: 0.97 0.02 85;
+        --border: 0.70 0.06 60;
+        --input: 0.95 0.02 80;
+        --ring: 0.78 0.12 80;
+        --chart-1: 0.40 0.08 45;
+        --chart-2: 0.83 0.08 75;
+        --chart-3: 0.78 0.12 80;
+        --chart-4: 0.70 0.16 120;
+        --chart-5: 0.70 0.18 55;
+        --sidebar: 0.40 0.08 45;
+        --sidebar-foreground: 0.97 0.02 85;
+        --sidebar-primary: 0.83 0.08 75;
+        --sidebar-primary-foreground: 0.35 0.06 50;
+        --sidebar-accent: 0.55 0.06 55;
+        --sidebar-accent-foreground: 0.97 0.02 85;
+        --sidebar-border: 0.55 0.06 55;
+        --sidebar-ring: 0.78 0.12 80;
     }
 
     .dark {

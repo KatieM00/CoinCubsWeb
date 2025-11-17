@@ -192,7 +192,7 @@ export default function ClassBankPage() {
 
   const getPurchaserBalance = () => {
     if (selectedPurchaser === 'whole-class') {
-      return Number(classFund?.totalAmount || 0);
+      return Number(classFund?.balance || 0);
     }
     const student = studentsList.find(s => s.id === selectedPurchaser);
     return student?.personalBalance || 0;
@@ -277,7 +277,7 @@ export default function ClassBankPage() {
     );
   }
 
-  const currentBalance = Number(classFund?.totalAmount || 0);
+  const currentBalance = Number(classFund?.balance || 0);
 
   return (
     <div className="container mx-auto px-3 md:px-4 lg:px-6 py-4 md:py-6 lg:py-8 max-w-4xl space-y-4 md:space-y-6 pb-8">

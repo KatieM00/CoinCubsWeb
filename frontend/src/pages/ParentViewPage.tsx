@@ -25,7 +25,7 @@ export default function ParentViewPage() {
     );
   }
 
-  const totalClassGems = classFund?.totalAmount || BigInt(0);
+  const totalClassGems = classFund?.balance || BigInt(0);
   const activeGoals = classGoals?.filter((goal) => goal.isActive) || [];
 
   return (

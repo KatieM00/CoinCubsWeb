@@ -202,7 +202,7 @@ export default function QuickAwardPage() {
     );
   }
 
-  const totalCubCoins = classFund?.totalAmount || BigInt(0);
+  const totalCubCoins = classFund?.balance || BigInt(0);
   const activeGoals = classGoals?.filter(goal => goal.isActive) || [];
   const primaryGoal = activeGoals[0];
 

@@ -11,6 +11,7 @@ import { AwardSplit } from '../types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import CubCoinIcon from '@/assets/CubCoin.png';
+import TrophyIcon from '@/assets/Trophy.png';
 
 // Simple icon component using CubCoin image
 const Icon = ({ className = "w-4 h-4" }: { className?: string }) => (
@@ -259,9 +260,9 @@ export default function QuickAwardPage() {
                 variant={isWholeClass ? 'default' : 'outline'}
                 size="lg"
                 onClick={handleWholeClassClick}
-                className="h-12 md:h-14 px-4 md:px-6 font-semibold whitespace-nowrap"
+                className="h-12 md:h-14 px-4 md:px-6 font-semibold whitespace-nowrap gap-2"
               >
-                🏆
+                <img src={TrophyIcon} alt="" className="w-5 h-5" />
                 Whole Class
               </Button>
             </div>

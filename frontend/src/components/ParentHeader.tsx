@@ -3,12 +3,7 @@ import { useDemo } from '../contexts/DemoContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import CubCoinIcon from '@/assets/CubCoin.png';
-
-// Simple icon component using CubCoin image
-const Icon = ({ className = "w-4 h-4" }: { className?: string }) => (
-  <img src={CubCoinIcon} alt="" className={className} />
-);
+import LogoLongCl from '@/assets/LogoLongCl.png';
 
 export default function ParentHeader() {
   const { logout, profile } = useAuth();
@@ -37,16 +32,8 @@ export default function ParentHeader() {
         <div className="container mx-auto px-3 md:px-4 lg:px-6 py-3 md:py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <div className="flex items-center gap-2 md:gap-3">
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
-                <Icon className="w-4 h-4 md:w-6 md:h-6" />
-              </div>
-              <div>
-                <h1 className="text-lg md:text-2xl font-bold text-[#3E2723]">
-                  CoinCubs
-                </h1>
-                <p className="text-[10px] md:text-xs text-[#5D4037]">Parent Portal</p>
-              </div>
+            <div className="flex items-center">
+              <img src={LogoLongCl} alt="CoinCubs" className="h-10 md:h-12 lg:h-14 w-auto" />
             </div>
 
             {/* Right Side */}

@@ -6,12 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import LogoLongCl from '@/assets/LogoLongCl.png';
+import TrophyIcon from '@/assets/Trophy.png';
+import DisplayIcon from '@/assets/Display.png';
+import BookIcon from '@/assets/Book.png';
+import CogSettingsIcon from '@/assets/CogSettings.png';
 import CubCoinIcon from '@/assets/CubCoin.png';
-
-// Simple icon component using CubCoin image
-const Icon = ({ className = "w-4 h-4" }: { className?: string }) => (
-  <img src={CubCoinIcon} alt="" className={className} />
-);
 
 export default function Header() {
   const { logout, profile } = useAuth();
@@ -59,17 +59,9 @@ export default function Header() {
             {/* Logo */}
             <button
               onClick={() => handleNavigate('/')}
-              className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-opacity"
+              className="flex items-center hover:opacity-80 transition-opacity"
             >
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
-                <Icon className="w-4 h-4 md:w-6 md:h-6" />
-              </div>
-              <div>
-                <h1 className="text-lg md:text-2xl font-bold text-[#3E2723]">
-                  CoinCubs
-                </h1>
-                <p className="text-[10px] md:text-xs text-[#5D4037] hidden sm:block">Growing Together</p>
-              </div>
+              <img src={LogoLongCl} alt="CoinCubs" className="h-10 md:h-12 lg:h-14 w-auto" />
             </button>
 
           {/* Desktop Navigation (>1024px) */}
@@ -80,7 +72,7 @@ export default function Header() {
               onClick={() => handleNavigate('/quick-award')}
               className={`gap-2 h-9 ${currentPath === '/' || currentPath === '/quick-award' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600' : 'text-[#3E2723] hover:bg-orange-100 hover:text-[#3E2723]'}`}
             >
-              ⚡
+              <img src={TrophyIcon} alt="" className="w-4 h-4" />
               Award
             </Button>
             <Button
@@ -89,7 +81,7 @@ export default function Header() {
               onClick={() => handleNavigate('/class-display')}
               className={`gap-2 h-9 ${currentPath === '/class-display' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600' : 'text-[#3E2723] hover:bg-orange-100 hover:text-[#3E2723]'}`}
             >
-              🖥️
+              <img src={DisplayIcon} alt="" className="w-4 h-4" />
               Class Display
             </Button>
             <Button
@@ -98,7 +90,7 @@ export default function Header() {
               onClick={() => handleNavigate('/lessons')}
               className={`gap-2 h-9 ${currentPath === '/lessons' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600' : 'text-[#3E2723] hover:bg-orange-100 hover:text-[#3E2723]'}`}
             >
-              📚
+              <img src={BookIcon} alt="" className="w-4 h-4" />
               Lessons
             </Button>
             <Button
@@ -107,7 +99,7 @@ export default function Header() {
               onClick={() => handleNavigate('/class-bank')}
               className={`gap-2 h-9 ${currentPath === '/class-bank' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600' : 'text-[#3E2723] hover:bg-orange-100 hover:text-[#3E2723]'}`}
             >
-              🏦
+              <img src={CubCoinIcon} alt="" className="w-4 h-4" />
               Class Bank
             </Button>
             <Button
@@ -116,7 +108,7 @@ export default function Header() {
               onClick={() => handleNavigate('/settings')}
               className={`gap-2 h-9 ${currentPath === '/settings' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600' : 'text-[#3E2723] hover:bg-orange-100 hover:text-[#3E2723]'}`}
             >
-              ⚙️
+              <img src={CogSettingsIcon} alt="" className="w-4 h-4" />
               Settings
             </Button>
           </nav>
@@ -161,7 +153,7 @@ export default function Header() {
                       onClick={() => handleNavigate('/quick-award')}
                       className={`justify-start gap-3 h-12 ${currentPath === '/' || currentPath === '/quick-award' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600' : 'text-[#3E2723] hover:bg-orange-100'}`}
                     >
-                      ⚡
+                      <img src={TrophyIcon} alt="" className="w-5 h-5" />
                       Award
                     </Button>
                     <Button
@@ -170,7 +162,7 @@ export default function Header() {
                       onClick={() => handleNavigate('/class-display')}
                       className={`justify-start gap-3 h-12 ${currentPath === '/class-display' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600' : 'text-[#3E2723] hover:bg-orange-100'}`}
                     >
-                      🖥️
+                      <img src={DisplayIcon} alt="" className="w-5 h-5" />
                       Class Display
                     </Button>
                     <Button
@@ -179,7 +171,7 @@ export default function Header() {
                       onClick={() => handleNavigate('/lessons')}
                       className={`justify-start gap-3 h-12 ${currentPath === '/lessons' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600' : 'text-[#3E2723] hover:bg-orange-100'}`}
                     >
-                      📚
+                      <img src={BookIcon} alt="" className="w-5 h-5" />
                       Lessons
                     </Button>
                     <Button
@@ -188,7 +180,7 @@ export default function Header() {
                       onClick={() => handleNavigate('/class-bank')}
                       className={`justify-start gap-3 h-12 ${currentPath === '/class-bank' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600' : 'text-[#3E2723] hover:bg-orange-100'}`}
                     >
-                      🏦
+                      <img src={CubCoinIcon} alt="" className="w-5 h-5" />
                       Class Bank
                     </Button>
                     <Button
@@ -197,7 +189,7 @@ export default function Header() {
                       onClick={() => handleNavigate('/settings')}
                       className={`justify-start gap-3 h-12 ${currentPath === '/settings' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600' : 'text-[#3E2723] hover:bg-orange-100'}`}
                     >
-                      ⚙️
+                      <img src={CogSettingsIcon} alt="" className="w-5 h-5" />
                       Settings
                     </Button>
                   </nav>

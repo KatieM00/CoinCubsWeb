@@ -634,7 +634,7 @@ function LessonCard({
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
               <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center ${
-                isCurrent ? 'bg-[#5D4037]' : 'bg-[#8D6E63]'
+                isCurrent ? 'bg-gradient-to-r from-amber-500 to-orange-500' : 'bg-orange-400'
               }`}>
                 <span className="text-white font-bold text-sm md:text-base">{Number(module.weekNumber)}</span>
               </div>
@@ -761,7 +761,7 @@ function LessonCard({
             <div className="relative">
               <Button
                 size="lg"
-                className="h-11 md:h-14 text-sm md:text-base font-bold bg-[#5D4037] hover:bg-[#3E2723] shadow-md w-full"
+                className="h-11 md:h-14 text-sm md:text-base font-bold bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-md w-full"
                 onClick={() => onStartMonday(module.weekNumber)}
                 disabled={startMondayPending}
               >

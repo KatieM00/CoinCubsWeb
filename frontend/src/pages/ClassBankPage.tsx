@@ -287,10 +287,13 @@ export default function ClassBankPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 md:gap-3">
               <div className="w-10 h-10 md:w-12 md:h-12 bg-amber-100 rounded-full flex items-center justify-center">
-                <span className="text-xl md:text-2xl">🏦</span>
+                <Icon className="w-6 h-6 md:w-8 md:h-8" />
               </div>
               <div>
-                <CardTitle className="text-xl md:text-2xl">Class Bank</CardTitle>
+                <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
+                  <Icon className="w-5 h-5 md:w-6 md:h-6" />
+                  Class Bank
+                </CardTitle>
                 <CardDescription className="text-sm md:text-base">Complete transaction history for your class fund</CardDescription>
               </div>
             </div>

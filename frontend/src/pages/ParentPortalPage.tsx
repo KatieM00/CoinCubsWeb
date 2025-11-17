@@ -264,7 +264,7 @@ export default function ParentPortalPage() {
               {/* Current Week Overview */}
               <div className="bg-gradient-to-br from-[#FFF8E7] to-[#E8C391]/30 rounded-lg p-6 border border-[#E8C391]">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-[#5D4037] rounded-full flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center shrink-0">
                     📚
                   </div>
                   <div className="flex-1">
@@ -984,7 +984,7 @@ export default function ParentPortalPage() {
               {/* Money Heroes */}
               <div className="bg-gradient-to-br from-[#FFF8E7] to-[#E8C391]/30 rounded-lg p-4 border border-[#E8C391]">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-[#5D4037] rounded-full flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center shrink-0">
                     🦸
                   </div>
                   <div className="flex-1">
@@ -1007,7 +1007,7 @@ export default function ParentPortalPage() {
               {/* Just Finance Foundation */}
               <div className="bg-gradient-to-br from-[#FFF8E7] to-[#E8C391]/30 rounded-lg p-4 border border-[#E8C391]">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-[#5D4037] rounded-full flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center shrink-0">
                     💡
                   </div>
                   <div className="flex-1">
@@ -1030,7 +1030,7 @@ export default function ParentPortalPage() {
               {/* HSBC UK */}
               <div className="bg-gradient-to-br from-[#FFF8E7] to-[#E8C391]/30 rounded-lg p-4 border border-[#E8C391]">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-[#5D4037] rounded-full flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center shrink-0">
                     🏦
                   </div>
                   <div className="flex-1">
@@ -1053,7 +1053,7 @@ export default function ParentPortalPage() {
               {/* Make Sense of Pence */}
               <div className="bg-gradient-to-br from-[#FFF8E7] to-[#E8C391]/30 rounded-lg p-4 border border-[#E8C391]">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-[#5D4037] rounded-full flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center shrink-0">
                     💰
                   </div>
                   <div className="flex-1">
@@ -1076,7 +1076,7 @@ export default function ParentPortalPage() {
               {/* bMoneywize */}
               <div className="bg-gradient-to-br from-[#FFF8E7] to-[#E8C391]/30 rounded-lg p-4 border border-[#E8C391]">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-[#5D4037] rounded-full flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center shrink-0">
                     📊
                   </div>
                   <div className="flex-1">
@@ -1099,7 +1099,7 @@ export default function ParentPortalPage() {
               {/* FT FLIC Learning Hub */}
               <div className="bg-gradient-to-br from-[#FFF8E7] to-[#E8C391]/30 rounded-lg p-4 border border-[#E8C391]">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-[#5D4037] rounded-full flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center shrink-0">
                     📰
                   </div>
                   <div className="flex-1">
@@ -1122,7 +1122,7 @@ export default function ParentPortalPage() {
               {/* Money Confident Kids */}
               <div className="bg-gradient-to-br from-[#FFF8E7] to-[#E8C391]/30 rounded-lg p-4 border border-[#E8C391]">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-[#5D4037] rounded-full flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center shrink-0">
                     🎯
                   </div>
                   <div className="flex-1">
@@ -1145,7 +1145,7 @@ export default function ParentPortalPage() {
               {/* FoolProof Foundation */}
               <div className="bg-gradient-to-br from-[#FFF8E7] to-[#E8C391]/30 rounded-lg p-4 border border-[#E8C391]">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-[#5D4037] rounded-full flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center shrink-0">
                     🛡️
                   </div>
                   <div className="flex-1">

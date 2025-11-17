@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import CubCoinIcon from '@/assets/CubCoin.png';
+import CogSettingsIcon from '@/assets/CogSettings.png';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -494,10 +495,13 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
         <CardHeader className="text-center py-6">
           <div className="flex justify-center mb-3">
             <div className="w-16 h-16 bg-slate-600 rounded-full flex items-center justify-center shadow-lg">
-              <Icon className="w-8 h-8 text-white" />
+              <img src={CogSettingsIcon} alt="" className="w-8 h-8" />
             </div>
           </div>
-          <CardTitle className="text-3xl font-bold text-slate-900">⚙️ Settings</CardTitle>
+          <CardTitle className="text-3xl font-bold text-slate-900 flex items-center justify-center gap-2">
+            <img src={CogSettingsIcon} alt="" className="w-8 h-8" />
+            Settings
+          </CardTitle>
           <CardDescription className="text-base text-slate-700">
             Administrative controls and class management
           </CardDescription>

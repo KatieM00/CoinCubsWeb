@@ -11,12 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { toast } from 'sonner'
 import { isSupabaseConfigured } from '@/lib/supabase'
-import CubCoinIcon from '@/assets/CubCoin.png'
-
-// Simple icon component using CubCoin image
-const Icon = ({ className = "w-4 h-4" }: { className?: string }) => (
-  <img src={CubCoinIcon} alt="" className={className} />
-)
+import LogoNameCl from '@/assets/LogoNameCl.png'
 
 export default function LoginScreen() {
   const { loginWithGoogle, isLoading } = useAuth()
@@ -57,8 +52,8 @@ export default function LoginScreen() {
 
       <div className="max-w-4xl w-full">
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#E8C391] to-[#DDB76F] rounded-full shadow-2xl mb-6">
-            <Icon className="w-12 h-12" />
+          <div className="flex justify-center mb-6">
+            <img src={LogoNameCl} alt="CoinCubs" className="h-24 md:h-32 w-auto" />
           </div>
           <p className="text-xl text-[#8D6E63] mb-2">Growing Together, Achieving Together</p>
           <p className="text-lg text-[#8D6E63] max-w-2xl mx-auto">

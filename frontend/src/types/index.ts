@@ -37,3 +37,17 @@ export type LessonCompletion = {
   notes: string
   teacherId: string
 }
+
+// Class Bank Transaction types
+export type ClassTransactionType = 'award' | 'interest' | 'expense' | 'shopPurchase' | 'adjustment'
+
+export type ClassTransaction = {
+  id: string
+  transactionType: ClassTransactionType
+  amount: number // Positive for income, negative for expenses
+  reference: string
+  category?: string
+  balanceAfter: number
+  timestamp: string // ISO date string
+  relatedItemId?: string
+}

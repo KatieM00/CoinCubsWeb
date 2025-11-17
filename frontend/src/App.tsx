@@ -16,6 +16,7 @@ import LessonsPage from './pages/LessonsPage';
 import LessonNotesPage from './pages/LessonNotesPage';
 // Import SettingsPage directly (not lazy loaded) to avoid chunk initialization issues
 import SettingsPage from './pages/SettingsPage';
+import ClassBankPage from './pages/ClassBankPage';
 import ParentPortalPage from './pages/ParentPortalPage';
 
 function TeacherLayout() {
@@ -179,6 +180,16 @@ const settingsRoute = createRoute({
   ),
 });
 
+const classBankRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/class-bank',
+  component: () => (
+    <ProtectedTeacherRoute>
+      <ClassBankPage />
+    </ProtectedTeacherRoute>
+  ),
+});
+
 const parentPortalRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/parent-portal',
@@ -206,6 +217,7 @@ const routeTree = rootRoute.addChildren([
   lessonsRoute,
   lessonNotesRoute,
   settingsRoute,
+  classBankRoute,
   parentPortalRoute,
   authCallbackRoute,
 ]);

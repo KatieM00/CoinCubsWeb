@@ -102,6 +102,15 @@ export default function Header() {
               Lessons
             </Button>
             <Button
+              variant={currentPath === '/class-bank' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => handleNavigate('/class-bank')}
+              className="gap-2 h-9"
+            >
+              🏦
+              Class Bank
+            </Button>
+            <Button
               variant={currentPath === '/settings' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => handleNavigate('/settings')}
@@ -172,6 +181,15 @@ export default function Header() {
                     >
                       📚
                       Lessons
+                    </Button>
+                    <Button
+                      variant={currentPath === '/class-bank' ? 'default' : 'ghost'}
+                      size="lg"
+                      onClick={() => handleNavigate('/class-bank')}
+                      className="justify-start gap-3 h-12"
+                    >
+                      🏦
+                      Class Bank
                     </Button>
                     <Button
                       variant={currentPath === '/settings' ? 'default' : 'ghost'}

@@ -76,6 +76,19 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
   const [editablePresets, setEditablePresets] = useState<string[]>(() => []);
   const [splitRatio, setSplitRatio] = useState(() => ({ class: '70', personal: '30' }));
 
+  // Weekly Salary states
+  const [weeklySalaryOpen, setWeeklySalaryOpen] = useState(false);
+  const [weeklySalaryEnabled, setWeeklySalaryEnabled] = useState(false);
+  const [weeklySalaryAmount, setWeeklySalaryAmount] = useState('30');
+  const [weeklySalaryDay, setWeeklySalaryDay] = useState('monday');
+  const [nextPaymentDate, setNextPaymentDate] = useState(() => {
+    const today = new Date();
+    const daysUntilMonday = (8 - today.getDay()) % 7 || 7;
+    const nextMonday = new Date(today);
+    nextMonday.setDate(today.getDate() + daysUntilMonday);
+    return nextMonday.toLocaleDateString('en-GB');
+  });
+
   // Goals section states
   const [createGoalOpen, setCreateGoalOpen] = useState(false);
   const [goalName, setGoalName] = useState('');
@@ -135,6 +148,15 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
       setHiddenBalances(new Set(studentsList.map(s => s.id)));
     }
   }, [studentsList.length]);
+
+  // Enable weekly salary by default in demo mode
+  useEffect(() => {
+    if (isDemoMode) {
+      setWeeklySalaryEnabled(true);
+      setWeeklySalaryAmount('30');
+      setWeeklySalaryDay('monday');
+    }
+  }, [isDemoMode]);
 
   const formatCubCoins = (amount: bigint | number) => {
     const num = typeof amount === 'bigint' ? Number(amount) : amount;
@@ -785,6 +807,115 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
                         </DialogFooter>
                       </DialogContent>
                     </Dialog>
+                  </div>
+
+                  {/* Weekly Salary Section */}
+                  <div className="pt-4 border-t border-purple-100">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <h4 className="font-semibold text-base">Weekly Salary</h4>
+                        <p className="text-xs text-muted-foreground">Automatic weekly income for the class fund</p>
+                      </div>
+                      <Dialog open={weeklySalaryOpen} onOpenChange={setWeeklySalaryOpen}>
+                        <DialogTrigger asChild>
+                          <Button size="sm" variant="outline" className="gap-2 h-9">
+                            💰 Configure Weekly Salary
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-md">
+                          <DialogHeader>
+                            <DialogTitle>Weekly Salary Settings</DialogTitle>
+                            <DialogDescription>
+                              Reward students with a regular 'salary' for consistent classroom participation and attendance
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                              <div>
+                                <Label htmlFor="salaryEnabled" className="font-semibold">Enable Weekly Salary</Label>
+                                <p className="text-xs text-muted-foreground">Automatically add funds to class balance each week</p>
+                              </div>
+                              <input
+                                id="salaryEnabled"
+                                type="checkbox"
+                                checked={weeklySalaryEnabled}
+                                onChange={(e) => setWeeklySalaryEnabled(e.target.checked)}
+                                className="w-5 h-5 rounded border-gray-300"
+                              />
+                            </div>
+                            <div className="space-y-1.5">
+                              <Label htmlFor="salaryAmount">Amount (CubCoins)</Label>
+                              <Input
+                                id="salaryAmount"
+                                type="number"
+                                placeholder="30"
+                                value={weeklySalaryAmount}
+                                onChange={(e) => setWeeklySalaryAmount(e.target.value)}
+                                disabled={!weeklySalaryEnabled}
+                              />
+                            </div>
+                            <div className="space-y-1.5">
+                              <Label htmlFor="salaryDay">Pay Day</Label>
+                              <Select value={weeklySalaryDay} onValueChange={setWeeklySalaryDay} disabled={!weeklySalaryEnabled}>
+                                <SelectTrigger id="salaryDay">
+                                  <SelectValue placeholder="Select day" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="monday">Monday</SelectItem>
+                                  <SelectItem value="tuesday">Tuesday</SelectItem>
+                                  <SelectItem value="wednesday">Wednesday</SelectItem>
+                                  <SelectItem value="thursday">Thursday</SelectItem>
+                                  <SelectItem value="friday">Friday</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button variant="outline" onClick={() => setWeeklySalaryOpen(false)} size="sm">Cancel</Button>
+                            <Button
+                              onClick={() => {
+                                toast.success(`Weekly salary ${weeklySalaryEnabled ? 'enabled' : 'disabled'}${weeklySalaryEnabled ? `: ${weeklySalaryAmount} CC every ${weeklySalaryDay.charAt(0).toUpperCase() + weeklySalaryDay.slice(1)}` : ''}`);
+                                setWeeklySalaryOpen(false);
+                              }}
+                              size="sm"
+                            >
+                              Save Settings
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                    {weeklySalaryEnabled ? (
+                      <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge variant="secondary" className="bg-green-100 text-green-700">Enabled</Badge>
+                        </div>
+                        <div className="space-y-1 text-sm">
+                          <p><span className="font-medium">Amount:</span> {weeklySalaryAmount} CC every {weeklySalaryDay.charAt(0).toUpperCase() + weeklySalaryDay.slice(1)}</p>
+                          <p><span className="font-medium">Next payment:</span> {nextPaymentDate}</p>
+                        </div>
+                        <div className="flex gap-2 mt-3">
+                          <Button size="sm" variant="outline" className="text-xs h-8" onClick={() => setWeeklySalaryOpen(true)}>
+                            ✏️ Edit Settings
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-xs h-8"
+                            onClick={() => {
+                              setWeeklySalaryEnabled(false);
+                              toast.info('Weekly salary paused');
+                            }}
+                          >
+                            ⏸️ Pause Salary
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                        <p className="text-sm text-muted-foreground">Weekly salary is not enabled. Click "Configure Weekly Salary" to set up automatic weekly income for your class.</p>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

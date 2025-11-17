@@ -54,9 +54,10 @@ export default function ClassBankPage() {
     const transactions: ClassTransaction[] = [];
     let balance = 0;
 
-    // Generate 35 transactions over 4 weeks
+    // Generate transactions over 4 weeks including weekly salary
     const demoTransactions = [
       // Week 1
+      { daysAgo: 28, type: 'salary' as const, amount: 30, ref: 'Weekly classroom salary' },
       { daysAgo: 28, type: 'award' as const, amount: 50, ref: 'Whole class - excellent behaviour' },
       { daysAgo: 27, type: 'award' as const, amount: 21, ref: 'Student contribution - Emma (homework)' },
       { daysAgo: 26, type: 'award' as const, amount: 14, ref: 'Student contribution - James (helping)' },
@@ -65,6 +66,7 @@ export default function ClassBankPage() {
       { daysAgo: 23, type: 'award' as const, amount: 28, ref: 'Student contribution - Oliver (teamwork)' },
       { daysAgo: 22, type: 'interest' as const, amount: 3, ref: 'Weekly interest (2%)' },
       // Week 2
+      { daysAgo: 21, type: 'salary' as const, amount: 30, ref: 'Weekly classroom salary' },
       { daysAgo: 21, type: 'award' as const, amount: 42, ref: 'Student contribution - Lily (reading)' },
       { daysAgo: 20, type: 'award' as const, amount: 75, ref: 'Whole class - science project' },
       { daysAgo: 19, type: 'shopPurchase' as const, amount: -50, ref: 'Extra break time (15 min)' },
@@ -73,6 +75,7 @@ export default function ClassBankPage() {
       { daysAgo: 16, type: 'award' as const, amount: 35, ref: 'Student contribution - Amelia (art)' },
       { daysAgo: 15, type: 'interest' as const, amount: 5, ref: 'Weekly interest (2%)' },
       // Week 3
+      { daysAgo: 14, type: 'salary' as const, amount: 30, ref: 'Weekly classroom salary' },
       { daysAgo: 14, type: 'award' as const, amount: 28, ref: 'Student contribution - George (PE)' },
       { daysAgo: 13, type: 'award' as const, amount: 100, ref: 'Whole class - assembly performance' },
       { daysAgo: 12, type: 'award' as const, amount: 21, ref: 'Student contribution - Isla (spelling)' },
@@ -81,6 +84,7 @@ export default function ClassBankPage() {
       { daysAgo: 9, type: 'shopPurchase' as const, amount: -100, ref: 'Movie afternoon' },
       { daysAgo: 8, type: 'interest' as const, amount: 7, ref: 'Weekly interest (2%)' },
       // Week 4
+      { daysAgo: 7, type: 'salary' as const, amount: 30, ref: 'Weekly classroom salary' },
       { daysAgo: 7, type: 'award' as const, amount: 35, ref: 'Student contribution - Mia (writing)' },
       { daysAgo: 6, type: 'award' as const, amount: 42, ref: 'Student contribution - Noah (science)' },
       { daysAgo: 5, type: 'award' as const, amount: 50, ref: 'Whole class - golden time earned' },

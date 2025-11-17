@@ -19,6 +19,14 @@ export type Lesson = {
   teacherScript: string
   discussionQuestions: string[]
   activities: LessonActivity[]
+  // Extended fields for printable lesson plans
+  grade?: string
+  subject?: string
+  lessonFocus?: string
+  materials?: string[]
+  objectives?: string[]
+  structure?: string
+  assessment?: string
 }
 
 export type CurriculumModule = {
@@ -39,7 +47,7 @@ export type LessonCompletion = {
 }
 
 // Class Bank Transaction types
-export type ClassTransactionType = 'award' | 'interest' | 'expense' | 'shopPurchase' | 'adjustment'
+export type ClassTransactionType = 'award' | 'interest' | 'expense' | 'shopPurchase' | 'adjustment' | 'salary'
 
 export type ClassTransaction = {
   id: string

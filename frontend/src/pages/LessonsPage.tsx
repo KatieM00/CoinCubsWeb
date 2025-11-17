@@ -263,7 +263,7 @@ export default function LessonsPage() {
           </div>
         </div>
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-purple-900">CoinCubs Curriculum</h1>
-        <p className="text-lg sm:text-xl md:text-2xl text-blue-700 font-medium">8-Week Financial Literacy Program</p>
+        <p className="text-lg sm:text-xl md:text-2xl text-blue-700 font-medium">9-Week Financial Literacy Program</p>
       </div>
 
       {/* Four Lesson Cards in Responsive Grid */}
@@ -373,6 +373,159 @@ export default function LessonsPage() {
   );
 }
 
+// Printable Lesson Plan Modal Component
+function PrintableLessonPlan({
+  lesson,
+  module,
+  dayType,
+  lessonNumber,
+  onClose
+}: {
+  lesson: any;
+  module: CurriculumModule;
+  dayType: 'monday' | 'friday';
+  lessonNumber: number;
+  onClose: () => void;
+}) {
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      toast.error('Please allow pop-ups to print lesson plan');
+      return;
+    }
+
+    const today = new Date().toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Lesson Plan - ${lesson.title}</title>
+          <style>
+            @page { margin: 2cm; }
+            body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; color: #333; line-height: 1.6; }
+            .lesson-header { text-align: center; border-bottom: 3px solid #7C3AED; padding-bottom: 20px; margin-bottom: 20px; }
+            .lesson-header h1 { font-size: 28px; font-weight: bold; margin: 0 0 10px 0; color: #7C3AED; }
+            .top-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+            .second-row { display: grid; grid-template-columns: 2fr 1fr; gap: 15px; margin-bottom: 20px; }
+            .field { background: #f5f5f5; padding: 10px; border-radius: 6px; border: 1px solid #ddd; }
+            .field-label { font-weight: bold; font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 4px; }
+            .field-value { font-size: 14px; }
+            .section { margin-bottom: 20px; }
+            .section-title { font-weight: bold; font-size: 16px; color: #7C3AED; border-bottom: 2px solid #7C3AED; padding-bottom: 5px; margin-bottom: 10px; }
+            .section-content { background: #fafafa; padding: 15px; border-radius: 6px; border: 1px solid #e0e0e0; }
+            .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+            ul { margin: 0; padding-left: 20px; }
+            li { margin-bottom: 5px; }
+            .structure-content { white-space: pre-line; }
+            @media print { body { margin: 0; padding: 0; } .no-print { display: none !important; } }
+          </style>
+        </head>
+        <body>
+          <div class="lesson-header">
+            <h1>LESSON PLAN</h1>
+            <div style="font-size: 14px; color: #666;">Week ${module.weekNumber} - ${dayType.charAt(0).toUpperCase() + dayType.slice(1)} Lesson</div>
+          </div>
+          <div class="top-row">
+            <div class="field"><div class="field-label">Grade</div><div class="field-value">${lesson.grade || 'Year 3-6 (Ages 7-12)'}</div></div>
+            <div class="field"><div class="field-label">Subject</div><div class="field-value">${lesson.subject || 'Financial Literacy'}</div></div>
+            <div class="field"><div class="field-label">Date</div><div class="field-value">${today}</div></div>
+          </div>
+          <div class="second-row">
+            <div class="field"><div class="field-label">Topic</div><div class="field-value">${lesson.title}</div></div>
+            <div class="field"><div class="field-label">Lesson #</div><div class="field-value">${lessonNumber}</div></div>
+          </div>
+          <div class="section">
+            <div class="section-title">Lesson Focus and Goals</div>
+            <div class="section-content">${lesson.lessonFocus || lesson.teacherScript}</div>
+          </div>
+          <div class="two-column">
+            <div class="section">
+              <div class="section-title">Materials Needed</div>
+              <div class="section-content"><ul>${(lesson.materials || ['Class Display', 'Whiteboard', 'Discussion materials']).map((m: string) => `<li>${m}</li>`).join('')}</ul></div>
+            </div>
+            <div class="section">
+              <div class="section-title">Learning Objectives</div>
+              <div class="section-content"><ul>${(lesson.objectives || module.learningObjectives).map((obj: string) => `<li>${obj}</li>`).join('')}</ul></div>
+            </div>
+          </div>
+          <div class="section">
+            <div class="section-title">Structure/Activity</div>
+            <div class="section-content structure-content">${lesson.structure || `Teacher Script: ${lesson.teacherScript}\\n\\nDiscussion Questions:\\n${lesson.discussionQuestions.map((q: string, i: number) => `${i + 1}. ${q}`).join('\\n')}\\n\\nActivities:\\n${lesson.activities.map((a: { name: string; description: string }) => `- ${a.name}: ${a.description}`).join('\\n')}`}</div>
+          </div>
+          <div class="section">
+            <div class="section-title">Assessment</div>
+            <div class="section-content">${lesson.assessment || `Observe student participation in discussions. Check understanding through responses to questions.`}</div>
+          </div>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.onload = () => setTimeout(() => printWindow.print(), 250);
+    toast.success('Opening print dialog...');
+  };
+
+  return (
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <DialogTitle className="text-2xl">Lesson Plan</DialogTitle>
+              <DialogDescription>Week {module.weekNumber} - {dayType.charAt(0).toUpperCase() + dayType.slice(1)} Lesson</DialogDescription>
+            </div>
+            <Button onClick={handlePrint} className="gap-2">🖨️ Print Lesson Plan</Button>
+          </div>
+        </DialogHeader>
+        <div className="space-y-6 py-4">
+          <div className="grid grid-cols-3 gap-4">
+            <div className="bg-gray-50 p-3 rounded-lg"><Label className="text-xs font-bold uppercase text-gray-500">Grade</Label><div className="text-sm font-medium">{lesson.grade || 'Year 3-6 (Ages 7-12)'}</div></div>
+            <div className="bg-gray-50 p-3 rounded-lg"><Label className="text-xs font-bold uppercase text-gray-500">Subject</Label><div className="text-sm font-medium">{lesson.subject || 'Financial Literacy'}</div></div>
+            <div className="bg-gray-50 p-3 rounded-lg"><Label className="text-xs font-bold uppercase text-gray-500">Date</Label><div className="text-sm font-medium">{new Date().toLocaleDateString('en-GB')}</div></div>
+          </div>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="col-span-2 bg-gray-50 p-3 rounded-lg"><Label className="text-xs font-bold uppercase text-gray-500">Topic</Label><div className="text-sm font-medium">{lesson.title}</div></div>
+            <div className="bg-gray-50 p-3 rounded-lg"><Label className="text-xs font-bold uppercase text-gray-500">Lesson #</Label><div className="text-sm font-medium">{lessonNumber}</div></div>
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-purple-900 border-b-2 border-purple-500 pb-1 mb-3">Lesson Focus and Goals</h3>
+            <div className="bg-purple-50 p-4 rounded-lg text-sm">{lesson.lessonFocus || lesson.teacherScript}</div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <h3 className="text-base font-bold text-purple-900 border-b-2 border-purple-500 pb-1 mb-3">Materials Needed</h3>
+              <div className="bg-blue-50 p-4 rounded-lg text-sm">
+                <ul className="list-disc list-inside space-y-1">{(lesson.materials || ['Class Display', 'Whiteboard', 'Discussion materials']).map((m: string, i: number) => (<li key={i}>{m}</li>))}</ul>
+              </div>
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-purple-900 border-b-2 border-purple-500 pb-1 mb-3">Learning Objectives</h3>
+              <div className="bg-green-50 p-4 rounded-lg text-sm">
+                <ul className="list-disc list-inside space-y-1">{(lesson.objectives || module.learningObjectives).map((obj: string, i: number) => (<li key={i}>{obj}</li>))}</ul>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-purple-900 border-b-2 border-purple-500 pb-1 mb-3">Structure/Activity</h3>
+            <div className="bg-amber-50 p-4 rounded-lg text-sm whitespace-pre-line">{lesson.structure || `Teacher Script: ${lesson.teacherScript}\n\nDiscussion Questions:\n${lesson.discussionQuestions.map((q: string, i: number) => `${i + 1}. ${q}`).join('\n')}\n\nActivities:\n${lesson.activities.map((a: { name: string; description: string }) => `- ${a.name}: ${a.description}`).join('\n')}`}</div>
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-purple-900 border-b-2 border-purple-500 pb-1 mb-3">Assessment</h3>
+            <div className="bg-orange-50 p-4 rounded-lg text-sm">{lesson.assessment || `Observe student participation in discussions. Check understanding through responses to questions.`}</div>
+          </div>
+        </div>
+        <DialogFooter><Button variant="outline" onClick={onClose}>Close</Button></DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // Lesson Card Component with Expandable Sections
 function LessonCard({
   module,
@@ -401,6 +554,7 @@ function LessonCard({
   const [showNotesDialog, setShowNotesDialog] = useState(false);
   const [selectedDay, setSelectedDay] = useState<'monday' | 'friday' | null>(null);
   const [editedNotes, setEditedNotes] = useState('');
+  const [showLessonPlan, setShowLessonPlan] = useState<'monday' | 'friday' | null>(null);
 
   const handleViewNotes = (dayType: 'monday' | 'friday') => {
     const completion = dayType === 'monday' ? mondayCompletion : fridayCompletion;
@@ -530,10 +684,20 @@ function LessonCard({
           <CollapsibleContent className="mt-3 space-y-3">
             {/* Monday Lesson Details */}
             <div className="p-4 bg-blue-50 rounded-lg border border-blue-200 space-y-3">
-              <h4 className="font-bold text-blue-900 flex items-center gap-2">
-                <span className="text-lg">📘</span>
-                {module.mondayLesson.title}
-              </h4>
+              <div className="flex items-center justify-between">
+                <h4 className="font-bold text-blue-900 flex items-center gap-2">
+                  <span className="text-lg">📘</span>
+                  {module.mondayLesson.title}
+                </h4>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1 text-xs bg-white"
+                  onClick={() => setShowLessonPlan('monday')}
+                >
+                  📄 View Lesson Plan
+                </Button>
+              </div>
               <div>
                 <p className="text-sm font-semibold text-blue-800 mb-1">Teacher Script:</p>
                 <p className="text-sm text-gray-700 italic">{module.mondayLesson.teacherScript}</p>
@@ -561,10 +725,20 @@ function LessonCard({
 
             {/* Friday Lesson Details */}
             <div className="p-4 bg-orange-50 rounded-lg border border-orange-200 space-y-3">
-              <h4 className="font-bold text-orange-900 flex items-center gap-2">
-                <span className="text-lg">🎉</span>
-                {module.fridayLesson.title}
-              </h4>
+              <div className="flex items-center justify-between">
+                <h4 className="font-bold text-orange-900 flex items-center gap-2">
+                  <span className="text-lg">🎉</span>
+                  {module.fridayLesson.title}
+                </h4>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1 text-xs bg-white"
+                  onClick={() => setShowLessonPlan('friday')}
+                >
+                  📄 View Lesson Plan
+                </Button>
+              </div>
               <div>
                 <p className="text-sm font-semibold text-orange-800 mb-1">Teacher Script:</p>
                 <p className="text-sm text-gray-700 italic">{module.fridayLesson.teacherScript}</p>
@@ -733,6 +907,17 @@ function LessonCard({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Printable Lesson Plan Modal */}
+      {showLessonPlan && (
+        <PrintableLessonPlan
+          lesson={showLessonPlan === 'monday' ? module.mondayLesson : module.fridayLesson}
+          module={module}
+          dayType={showLessonPlan}
+          lessonNumber={Number(module.weekNumber) * 2 - (showLessonPlan === 'monday' ? 1 : 0)}
+          onClose={() => setShowLessonPlan(null)}
+        />
+      )}
     </Card>
   );
 }

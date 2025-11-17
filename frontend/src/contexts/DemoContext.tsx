@@ -1,5 +1,4 @@
 import { createContext, useContext, useState, ReactNode } from 'react'
-import { useNavigate } from '@tanstack/react-router'
 import { DemoDataProvider } from './DemoDataContext'
 
 export type DemoRole = 'teacher' | 'parent' | null
@@ -16,16 +15,13 @@ const DemoContext = createContext<DemoContextValue | undefined>(undefined)
 export function DemoProvider({ children }: { children: ReactNode }) {
   const [isDemoMode, setIsDemoMode] = useState(false)
   const [demoRole, setDemoRole] = useState<DemoRole>(null)
-  const navigate = useNavigate()
 
   const enterDemoMode = (role: DemoRole) => {
     console.log(`Entering demo mode as ${role}`)
     setIsDemoMode(true)
     setDemoRole(role)
-    // Small delay to ensure state updates before navigation
-    setTimeout(() => {
-      navigate({ to: '/' })
-    }, 10)
+    // Navigation will happen in the component that calls this
+    // since this context is outside the router
   }
 
   const exitDemoMode = () => {

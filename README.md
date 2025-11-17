@@ -1,195 +1,269 @@
-# CoinCubs - Classroom Economy Application
+# CoinCubs - Financial Literacy for Primary Schools
 
-A collaborative classroom economy system where students work together to achieve collective goals while earning individual rewards. Built with React, TypeScript, and Supabase.
+> **Hackathon Submission** - Teaching children financial literacy through gamified classroom management
 
-## Features
+---
 
-- **Google OAuth Authentication** - Secure login for teachers and parents
-- **Role-Based Access Control** - Teachers (admins) and Parents (users) with different permissions
-- **Student Account Management** - Track individual student balances and contributions
-- **Class Fund System** - Collective fund that benefits the entire class
-- **Rewards Catalog** - Redeemable rewards for students
-- **Class Goals & Voting** - Democratic decision-making for class activities
-- **Real-time Updates** - Live balance updates and transaction tracking
-- **Curriculum Integration** - Built-in lesson plans and activities
+## For Hackathon Judges - Quick Start
 
-## Tech Stack
+### Option 1: Demo Mode (Recommended)
 
-- **Frontend:** React 18, TypeScript, Vite
-- **Styling:** Tailwind CSS
-- **Routing:** TanStack Router
-- **State Management:** TanStack React Query
-- **Authentication:** Supabase Auth (Google OAuth)
-- **Database:** Supabase (PostgreSQL)
-- **Deployment:** Netlify
+**No setup required - instant access to all features with realistic demo data!**
 
-## Quick Start
+1. Visit the deployed application
+2. Click the **"Try Demo"** dropdown button in the top right corner
+3. Select:
+   - **"Demo as Teacher"** - Experience the full teacher dashboard
+   - **"Demo as Parent"** - Explore the parent portal
 
-### Prerequisites
+### Option 2: Sign In with Google
 
-- Node.js 18+ installed
-- A Supabase account
-- A Google Cloud Platform account (for OAuth)
+1. Click **"Sign in with Google"**
+2. Authenticate with your Google account
+3. Select your role (Teacher or Parent)
+4. Teachers: Create a class and add students
+5. Parents: Link to a class using a class code
 
-### Setup Instructions
+---
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/yourusername/CoincubsWeb.git
-   cd CoincubsWeb
-   ```
+## What to Test - Teacher Demo
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   cd frontend
-   npm install
-   ```
+### 1. Award CubCoins (Main Feature)
+**Navigate to: Award page (default)**
 
-3. **Set up environment variables:**
-   ```bash
-   cp .env.example .env
-   ```
+- Select a student from dropdown (e.g., "Emma Johnson")
+- Choose a reason: "Great work", "Helped classmate", etc.
+- Pick an amount: 5, 10, 15, 20, or 25 CC
+- Click **"Submit"**
+- **Notice the 70/30 split**: 70% to class fund, 30% to student's personal balance
+- This teaches community contribution!
 
-   Edit `.env` and add your Supabase credentials:
-   ```env
-   VITE_SUPABASE_URL=https://your-project.supabase.co
-   VITE_SUPABASE_ANON_KEY=your-anon-key-here
-   ```
+### 2. Whole Class Awards
+- Click **"Whole Class"** button instead of selecting a student
+- 100% goes to class fund
+- Great for collective achievements
 
-4. **Set up Supabase:**
-   - Create a new Supabase project
-   - Run the SQL in `supabase-schema.sql` to create tables and RLS policies
-   - Enable Google OAuth in Authentication settings
+### 3. Class Bank (Transaction History)
+**Navigate to: Class Bank**
 
-5. **Run the development server:**
-   ```bash
-   cd frontend
-   npm run dev
-   ```
+- View complete transaction history
+- Filter by: All Time, This Week, This Month
+- Sort: Newest First or Oldest First
+- See income (green +) and expenses (red -)
+- Track running balance
 
-6. **Open your browser:**
-   Navigate to `http://localhost:3000`
+### 4. Shop System with VAT
+**From Class Bank: Click "Open Shop"**
 
-## Deployment
+- **Step 1**: Choose purchaser
+  - "Whole Class" - for class rewards (pizza party, movie afternoon)
+  - Individual student - for personal privileges (line leader, homework pass)
+- **Step 2**: Browse and add items to basket
+- **Step 3**: Review with **20% VAT calculation** (teaches taxation!)
+- **Step 4**: Confirm purchase
 
-See [MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md) for detailed deployment instructions to Netlify.
+### 5. Student Management
+**Navigate to: Settings > Student Management**
 
-### Quick Deploy to Netlify
+- Add students manually or CSV import
+- View each student's:
+  - Personal balance
+  - Total class contribution
+- Click **"Enter Bank"** - see individual transaction history
 
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/yourusername/CoincubsWeb)
+### 6. Class Display
+**Navigate to: Class Display**
 
-Remember to set environment variables in Netlify:
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
+- Designed for classroom projection
+- Shows class fund balance and goals
 
-## Project Structure
+### 7. Lessons & Curriculum
+**Navigate to: Lessons**
+
+- 12-week financial literacy programme
+- Monday and Friday lessons each week
+- Teacher scripts and discussion questions
+- Mark lessons as complete
+
+---
+
+## What to Test - Parent Demo
+
+### 1. Learning Progress Tab
+- View your child's positive contributions
+- See curriculum progress
+- Track class achievements
+
+### 2. Payments Tab
+- View upcoming school expenses
+- See payment history
+- Secure payment setup (coming soon)
+
+### 3. Forms Tab
+- Review pending permission slips
+- Click **"Review & Sign"** to see digital signature capture
+- View completed forms
+
+### 4. Profile Tab
+- Update contact information
+- Add additional children with class codes
+- Manage notification preferences
+
+---
+
+## Educational Value
+
+### Financial Literacy Concepts
+
+1. **Earning** - Positive behaviours earn CubCoins
+2. **Saving** - Accumulate for bigger rewards
+3. **Spending** - Make purchasing decisions
+4. **Taxation** - 20% VAT teaches tax concepts
+5. **Community Contribution** - 70/30 split = collective benefit
+6. **Budgeting** - Track balances and plan purchases
+7. **Goal Setting** - Class works towards shared goals
+
+### Why This Matters
+
+UK research shows financial literacy education in primary schools significantly improves:
+- Decision-making skills
+- Understanding of money management
+- Collaborative problem-solving
+- Delayed gratification
+
+---
+
+## Technical Architecture
+
+### Tech Stack
+
+**Frontend Framework**
+- **React 18** with TypeScript for type safety
+- **Vite** for fast builds and hot module replacement
+- **TanStack Router** for type-safe routing
+- **TanStack Query (React Query)** for server state management
+
+**UI & Styling**
+- **Tailwind CSS** for utility-first styling
+- **Radix UI** primitives via shadcn/ui components
+- **Custom SVG icons** and emoji (no lucide-react dependency for bundle reliability)
+- **Sonner** for toast notifications
+
+**Backend & Authentication**
+- **Supabase** (PostgreSQL) for database
+- **Supabase Auth** with Google OAuth
+- **Row Level Security (RLS)** policies for data protection
+
+**Build & Deployment**
+- **Vite** production builds with code splitting
+- **Netlify** deployment with environment variables
+- **TypeScript** strict mode for reliability
+
+### Architecture Decisions
+
+**Why TanStack Router?**
+- Type-safe routing with full TypeScript support
+- File-based route generation
+- Built-in data loading patterns
+- Better than React Router for complex apps
+
+**Why TanStack Query?**
+- Automatic caching and background refetching
+- Optimistic updates for responsive UI
+- Query invalidation for data consistency
+- Reduces boilerplate compared to Redux
+
+**Why Supabase?**
+- PostgreSQL with real-time subscriptions
+- Built-in authentication (Google OAuth)
+- Row Level Security for data protection
+- Auto-generated REST APIs
+- Free tier suitable for hackathon
+
+**Why No lucide-react?**
+- Eliminated dependency to prevent bundle initialization issues
+- Direct SVG and emoji icons for reliability
+- Reduced bundle size
+- No tree-shaking concerns
+
+### Security Features
+- **Row Level Security** - Database-level access control
+- **Google OAuth** - No password management needed
+- **Environment Variables** - Secrets never in source code
+- **GDPR Compliance** - Data protection by design
+- **Demo Mode** - No real student data exposed
+
+### Performance Optimizations
+- Code splitting with manual chunks (vendor-react, vendor-router, vendor-query, vendor-ui)
+- Disabled minification to prevent TDZ (Temporal Dead Zone) issues
+- Pre-bundled dependencies for faster startup
+- Lazy loading for non-critical components
+- Efficient re-rendering with React Query caching
+
+### Design Principles
+- **Mobile-first** responsive design
+- **44px minimum** touch targets for accessibility
+- **WCAG AAA** compliance goals
+- **British English** throughout (UK primary school focus)
+- **No external icon dependencies** for bundle reliability
+- **Progressive enhancement** - works without JavaScript where possible
+
+---
+
+## Repository Structure
 
 ```
 CoincubsWeb/
 ├── frontend/
 │   ├── src/
-│   │   ├── components/     # Reusable UI components
-│   │   ├── hooks/          # Custom React hooks
-│   │   ├── lib/            # Utilities and configs
-│   │   ├── pages/          # Page components
-│   │   ├── App.tsx         # Main app component
-│   │   └── main.tsx        # Entry point
-│   ├── public/             # Static assets
-│   └── package.json
-├── backend/                # (Deprecated - Motoko backend)
-├── supabase-schema.sql     # Database schema
-├── MIGRATION_GUIDE.md      # Detailed setup guide
-├── netlify.toml            # Netlify configuration
-└── README.md               # This file
+│   │   ├── components/      # UI components
+│   │   ├── contexts/        # React contexts (Demo, Auth)
+│   │   ├── hooks/           # Custom hooks
+│   │   ├── pages/
+│   │   │   ├── QuickAwardPage.tsx    # Teacher dashboard
+│   │   │   ├── ClassBankPage.tsx     # Transactions
+│   │   │   ├── SettingsPage.tsx      # Management
+│   │   │   ├── LessonsPage.tsx       # Curriculum
+│   │   │   └── ParentPortalPage.tsx  # Parent view
+│   │   ├── data/            # Curriculum content
+│   │   └── types/           # TypeScript definitions
+│   └── dist/                # Production build
+└── README.md
 ```
-
-## User Roles
-
-### Teachers (Admin Role)
-- Award ClassGems to students
-- Manage student accounts
-- Create and manage rewards
-- Set up class goals
-- Create voting proposals
-- View all class data
-- Access curriculum lessons
-
-### Parents (User Role)
-- View student progress (read-only)
-- See class fund status
-- View class goals and achievements
-- Monitor voting proposals
-- Access parent portal
-
-## Security
-
-- **Row Level Security (RLS)** - All database tables protected by RLS policies
-- **Google OAuth** - Secure authentication through Google
-- **Environment Variables** - Sensitive data stored in `.env` (never committed)
-- **Role-Based Access** - Database-level permission enforcement
-
-## Development
-
-### Available Scripts
-
-```bash
-# Development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
-
-# Lint code
-npm run lint
-```
-
-### Database Schema
-
-The database includes these main tables:
-- `user_profiles` - User accounts with roles
-- `student_accounts` - Student balances and data
-- `class_funds` - Class-wide fund information
-- `transactions` - All CubCoin transactions
-- `rewards` - Available rewards catalog
-- `class_goals` - Class goals and targets
-- `voting_proposals` - Democratic voting system
-
-All tables have Row Level Security enabled.
-
-## Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## License
-
-MIT License - see LICENSE file for details
-
-## Support
-
-For issues or questions:
-- Check [MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md) for setup help
-- Review [Supabase Documentation](https://supabase.com/docs)
-- Open an issue on GitHub
-
-## Acknowledgments
-
-Built with:
-- [React](https://react.dev/)
-- [Supabase](https://supabase.com/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [TanStack](https://tanstack.com/)
-- [Vite](https://vitejs.dev/)
 
 ---
 
-**CoinCubs** - Growing Together, Achieving Together 🐻✨
+## Local Development
+
+```bash
+git clone https://github.com/yourusername/CoincubsWeb.git
+cd CoincubsWeb/frontend
+
+npm install
+npm run dev     # Start dev server
+npm run build   # Production build
+```
+
+---
+
+## Future Roadmap
+
+- Real-time transaction persistence
+- Banking system with interest
+- Achievement badges
+- Parent-teacher messaging
+- Class voting on purchases
+- Admin reports and analytics
+- Multi-language support
+
+---
+
+## The Team
+
+Built with dedication for educators and young learners, making financial education accessible and engaging.
+
+---
+
+**CoinCubs - Growing Financial Literacy Together**
+
+*"Teaching children to earn, save, and spend wisely - one CubCoin at a time"*

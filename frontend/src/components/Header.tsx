@@ -53,7 +53,7 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-[#5D4037] border-b border-[#3E2723] sticky top-0 z-50">
+    <header className="bg-[#DDB76F] border-b border-[#C4A35A] sticky top-0 z-50">
         <div className="container mx-auto px-3 md:px-4 lg:px-6 py-3 md:py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
@@ -61,14 +61,14 @@ export default function Header() {
               onClick={() => handleNavigate('/')}
               className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-opacity"
             >
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-[#E8C391] to-[#DDB76F] rounded-full flex items-center justify-center shadow-lg">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-[#5D4037] to-[#3E2723] rounded-full flex items-center justify-center shadow-lg">
                 <Icon className="w-4 h-4 md:w-6 md:h-6" />
               </div>
               <div>
-                <h1 className="text-lg md:text-2xl font-bold text-[#FFF8E7]">
+                <h1 className="text-lg md:text-2xl font-bold text-[#3E2723]">
                   CoinCubs
                 </h1>
-                <p className="text-[10px] md:text-xs text-[#E8C391] hidden sm:block">Growing Together</p>
+                <p className="text-[10px] md:text-xs text-[#5D4037] hidden sm:block">Growing Together</p>
               </div>
             </button>
 
@@ -78,7 +78,7 @@ export default function Header() {
               variant={currentPath === '/' || currentPath === '/quick-award' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => handleNavigate('/quick-award')}
-              className={`gap-2 h-9 ${currentPath === '/' || currentPath === '/quick-award' ? 'bg-[#E8C391] text-[#3E2723] hover:bg-[#DDB76F]' : 'text-[#FFF8E7] hover:bg-[#8D6E63] hover:text-[#FFF8E7]'}`}
+              className={`gap-2 h-9 ${currentPath === '/' || currentPath === '/quick-award' ? 'bg-[#5D4037] text-[#FFF8E7] hover:bg-[#3E2723]' : 'text-[#3E2723] hover:bg-[#C4A35A] hover:text-[#3E2723]'}`}
             >
               ⚡
               Award
@@ -87,7 +87,7 @@ export default function Header() {
               variant={currentPath === '/class-display' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => handleNavigate('/class-display')}
-              className={`gap-2 h-9 ${currentPath === '/class-display' ? 'bg-[#E8C391] text-[#3E2723] hover:bg-[#DDB76F]' : 'text-[#FFF8E7] hover:bg-[#8D6E63] hover:text-[#FFF8E7]'}`}
+              className={`gap-2 h-9 ${currentPath === '/class-display' ? 'bg-[#5D4037] text-[#FFF8E7] hover:bg-[#3E2723]' : 'text-[#3E2723] hover:bg-[#C4A35A] hover:text-[#3E2723]'}`}
             >
               🖥️
               Class Display
@@ -96,7 +96,7 @@ export default function Header() {
               variant={currentPath === '/lessons' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => handleNavigate('/lessons')}
-              className={`gap-2 h-9 ${currentPath === '/lessons' ? 'bg-[#E8C391] text-[#3E2723] hover:bg-[#DDB76F]' : 'text-[#FFF8E7] hover:bg-[#8D6E63] hover:text-[#FFF8E7]'}`}
+              className={`gap-2 h-9 ${currentPath === '/lessons' ? 'bg-[#5D4037] text-[#FFF8E7] hover:bg-[#3E2723]' : 'text-[#3E2723] hover:bg-[#C4A35A] hover:text-[#3E2723]'}`}
             >
               📚
               Lessons
@@ -105,7 +105,7 @@ export default function Header() {
               variant={currentPath === '/class-bank' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => handleNavigate('/class-bank')}
-              className={`gap-2 h-9 ${currentPath === '/class-bank' ? 'bg-[#E8C391] text-[#3E2723] hover:bg-[#DDB76F]' : 'text-[#FFF8E7] hover:bg-[#8D6E63] hover:text-[#FFF8E7]'}`}
+              className={`gap-2 h-9 ${currentPath === '/class-bank' ? 'bg-[#5D4037] text-[#FFF8E7] hover:bg-[#3E2723]' : 'text-[#3E2723] hover:bg-[#C4A35A] hover:text-[#3E2723]'}`}
             >
               🏦
               Class Bank
@@ -114,7 +114,7 @@ export default function Header() {
               variant={currentPath === '/settings' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => handleNavigate('/settings')}
-              className={`gap-2 h-9 ${currentPath === '/settings' ? 'bg-[#E8C391] text-[#3E2723] hover:bg-[#DDB76F]' : 'text-[#FFF8E7] hover:bg-[#8D6E63] hover:text-[#FFF8E7]'}`}
+              className={`gap-2 h-9 ${currentPath === '/settings' ? 'bg-[#5D4037] text-[#FFF8E7] hover:bg-[#3E2723]' : 'text-[#3E2723] hover:bg-[#C4A35A] hover:text-[#3E2723]'}`}
             >
               ⚙️
               Settings
@@ -131,7 +131,7 @@ export default function Header() {
               }}
               variant="outline"
               size="sm"
-              className="gap-2 h-11 md:h-10 lg:h-9 border-[#E8C391] text-[#FFF8E7] hover:bg-[#E8C391] hover:text-[#3E2723]"
+              className="gap-2 h-11 md:h-10 lg:h-9 border-[#5D4037] text-[#3E2723] hover:bg-[#5D4037] hover:text-[#FFF8E7]"
             >
               🚪
               <span className="hidden sm:inline">{isDemoMode ? 'Exit Demo' : 'Logout'}</span>
@@ -140,7 +140,7 @@ export default function Header() {
             {/* Mobile Menu Button (<1024px) */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="outline" size="sm" className="lg:hidden h-11 md:h-10 border-[#E8C391] text-[#FFF8E7] hover:bg-[#E8C391] hover:text-[#3E2723]">
+                <Button variant="outline" size="sm" className="lg:hidden h-11 md:h-10 border-[#5D4037] text-[#3E2723] hover:bg-[#5D4037] hover:text-[#FFF8E7]">
                   ☰
                 </Button>
               </SheetTrigger>

@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 // DO NOT import useAuth or useGetUserProfile directly - they cause circular dependency issues with the bundler
 // Profile is passed as a prop from the parent component (App.tsx)
 import { useIsCallerAdmin, useGetClassFund, useGetRewardsCatalog, useAddReward, useUpdateRewardPrice, useCreateClassGoal, useGetPresetAmounts, useUpdatePresetAmounts, useGetTeacherClass, useGetStudents, useAddStudent, useUpdateClassBalance, useUpdateStudent, useCreateTeacherClass, useUpdateTeacherClass, useGetClassGoals, useUpdateProfile, useDeleteStudent } from '../hooks/useQueries';
+import { useDemo } from '../contexts/DemoContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,6 +40,7 @@ const Icon = ({ className = "w-4 h-4" }: { className?: string }) => (
 );
 
 export default function SettingsPage({ profile }: SettingsPageProps) {
+  const { isDemoMode } = useDemo();
   const { data: isAdmin, isLoading: adminLoading } = useIsCallerAdmin();
   const { data: classFund, isLoading: fundLoading } = useGetClassFund();
   const { data: rewards, isLoading: rewardsLoading } = useGetRewardsCatalog();

@@ -225,7 +225,7 @@ export default function ParentPortalPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 h-auto p-1 bg-white/80 backdrop-blur-sm">
+        <TabsList className="grid w-full grid-cols-5 h-auto p-1 bg-white/80 backdrop-blur-sm">
           <TabsTrigger value="learning" className="gap-2 py-3">
             📚
             <span className="hidden sm:inline">Learning</span>
@@ -237,6 +237,10 @@ export default function ParentPortalPage() {
           <TabsTrigger value="forms" className="gap-2 py-3">
             📄
             <span className="hidden sm:inline">Forms</span>
+          </TabsTrigger>
+          <TabsTrigger value="resources" className="gap-2 py-3">
+            📖
+            <span className="hidden sm:inline">Resources</span>
           </TabsTrigger>
           <TabsTrigger value="profile" className="gap-2 py-3">
             👤
@@ -959,6 +963,206 @@ export default function ParentPortalPage() {
                 >
                   {updateNotificationPrefs.isPending ? 'Saving...' : 'Save Preferences'}
                 </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Resources Tab */}
+        <TabsContent value="resources" className="space-y-6">
+          <Card className="bg-white/80 backdrop-blur-sm border-[#E8C391]">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-2xl">Financial Education Resources</CardTitle>
+                  <CardDescription>Free UK resources to support your child's financial literacy journey at home</CardDescription>
+                </div>
+                📖
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Money Heroes */}
+              <div className="bg-gradient-to-br from-[#FFF8E7] to-[#E8C391]/30 rounded-lg p-4 border border-[#E8C391]">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-[#5D4037] rounded-full flex items-center justify-center shrink-0">
+                    🦸
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-[#3E2723] mb-1">Money Heroes (Young Enterprise)</h3>
+                    <p className="text-[#5D4037] text-sm mb-3">
+                      Financial education programme for children aged 3–11. Provides free parent resources, activities, games, storybooks, and guidance on teaching money skills at home.
+                    </p>
+                    <a
+                      href="https://moneyheroes.org.uk/resources/parents"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-[#5D4037] font-medium hover:text-[#3E2723] underline"
+                    >
+                      🔗 Visit Resource
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Just Finance Foundation */}
+              <div className="bg-gradient-to-br from-[#FFF8E7] to-[#E8C391]/30 rounded-lg p-4 border border-[#E8C391]">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-[#5D4037] rounded-full flex items-center justify-center shrink-0">
+                    💡
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-[#3E2723] mb-1">Just Finance Foundation – Resource Hub</h3>
+                    <p className="text-[#5D4037] text-sm mb-3">
+                      UK charity offering free financial wellbeing resources, including family activities, money conversation guides, and age-appropriate learning tools.
+                    </p>
+                    <a
+                      href="https://www.justfinancefoundation.org.uk/resource-hub"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-[#5D4037] font-medium hover:text-[#3E2723] underline"
+                    >
+                      🔗 Visit Resource
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* HSBC UK */}
+              <div className="bg-gradient-to-br from-[#FFF8E7] to-[#E8C391]/30 rounded-lg p-4 border border-[#E8C391]">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-[#5D4037] rounded-full flex items-center justify-center shrink-0">
+                    🏦
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-[#3E2723] mb-1">HSBC UK – Financial Education for Children</h3>
+                    <p className="text-[#5D4037] text-sm mb-3">
+                      Free worksheets, lesson activities, videos, and parent guides covering wants vs needs, saving, planning, and money basics for ages 3–7+.
+                    </p>
+                    <a
+                      href="https://www.hsbc.co.uk/financial-education/teach-kids-about-money/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-[#5D4037] font-medium hover:text-[#3E2723] underline"
+                    >
+                      🔗 Visit Resource
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Make Sense of Pence */}
+              <div className="bg-gradient-to-br from-[#FFF8E7] to-[#E8C391]/30 rounded-lg p-4 border border-[#E8C391]">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-[#5D4037] rounded-full flex items-center justify-center shrink-0">
+                    💰
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-[#3E2723] mb-1">Make Sense of Pence</h3>
+                    <p className="text-[#5D4037] text-sm mb-3">
+                      Free UK resource hub for families and educators with tools for teaching saving, digital payments, budgeting, and money awareness at home.
+                    </p>
+                    <a
+                      href="https://makesenseofpence.co.uk/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-[#5D4037] font-medium hover:text-[#3E2723] underline"
+                    >
+                      🔗 Visit Resource
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* bMoneywize */}
+              <div className="bg-gradient-to-br from-[#FFF8E7] to-[#E8C391]/30 rounded-lg p-4 border border-[#E8C391]">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-[#5D4037] rounded-full flex items-center justify-center shrink-0">
+                    📊
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-[#3E2723] mb-1">bMoneywize</h3>
+                    <p className="text-[#5D4037] text-sm mb-3">
+                      UK non-profit offering free digital financial education tools, downloads, and activities for children and families, including budgeting and money-skills worksheets.
+                    </p>
+                    <a
+                      href="https://bmoneywize.co.uk/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-[#5D4037] font-medium hover:text-[#3E2723] underline"
+                    >
+                      🔗 Visit Resource
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* FT FLIC Learning Hub */}
+              <div className="bg-gradient-to-br from-[#FFF8E7] to-[#E8C391]/30 rounded-lg p-4 border border-[#E8C391]">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-[#5D4037] rounded-full flex items-center justify-center shrink-0">
+                    📰
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-[#3E2723] mb-1">FT FLIC Learning Hub (Financial Times)</h3>
+                    <p className="text-[#5D4037] text-sm mb-3">
+                      Free library of financial literacy lessons, activities, and at-home learning modules for parents and children.
+                    </p>
+                    <a
+                      href="https://resources.ftflic.com/free-financial-literacy-resources/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-[#5D4037] font-medium hover:text-[#3E2723] underline"
+                    >
+                      🔗 Visit Resource
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Money Confident Kids */}
+              <div className="bg-gradient-to-br from-[#FFF8E7] to-[#E8C391]/30 rounded-lg p-4 border border-[#E8C391]">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-[#5D4037] rounded-full flex items-center justify-center shrink-0">
+                    🎯
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-[#3E2723] mb-1">Money Confident Kids</h3>
+                    <p className="text-[#5D4037] text-sm mb-3">
+                      Free online programme helping children learn goal setting, decision making, inflation basics, and saving habits. Contains videos and interactive lessons.
+                    </p>
+                    <a
+                      href="https://www.moneyconfidentkids.com/gb/en.html"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-[#5D4037] font-medium hover:text-[#3E2723] underline"
+                    >
+                      🔗 Visit Resource
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* FoolProof Foundation */}
+              <div className="bg-gradient-to-br from-[#FFF8E7] to-[#E8C391]/30 rounded-lg p-4 border border-[#E8C391]">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-[#5D4037] rounded-full flex items-center justify-center shrink-0">
+                    🛡️
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-[#3E2723] mb-1">FoolProof Foundation</h3>
+                    <p className="text-[#5D4037] text-sm mb-3">
+                      Free consumer life-skills and financial education modules for youth and families, focusing on critical thinking and safe money habits.
+                    </p>
+                    <a
+                      href="https://www.foolproofme.org/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-[#5D4037] font-medium hover:text-[#3E2723] underline"
+                    >
+                      🔗 Visit Resource
+                    </a>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>

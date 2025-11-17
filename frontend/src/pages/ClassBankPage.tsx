@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useState } from 'react';
-import { useIsCallerAdmin, useGetClassFund, useGetTeacherClass } from '../hooks/useQueries';
+import { useIsCallerAdmin, useGetClassFund, useGetTeacherClass, useGetStudents, useUpdateClassBalance, useUpdateStudent } from '../hooks/useQueries';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -24,12 +24,19 @@ export default function ClassBankPage() {
   const { data: isAdmin, isLoading: adminLoading } = useIsCallerAdmin();
   const { data: classFund, isLoading: fundLoading } = useGetClassFund();
   const { data: teacherClass } = useGetTeacherClass();
+  const { data: students } = useGetStudents(teacherClass?.id);
+  const updateClassBalance = useUpdateClassBalance();
+  const updateStudent = useUpdateStudent();
   const { isDemoMode } = useDemo();
 
   // Shop states
   const [shopOpen, setShopOpen] = useState(false);
   const [shopStep, setShopStep] = useState(1);
+  const [selectedPurchaser, setSelectedPurchaser] = useState<string>('');
   const [basket, setBasket] = useState<{ id: string; name: string; emoji: string; price: number; quantity: number }[]>([]);
+
+  // Derive studentsList from students data
+  const studentsList = students || [];
 
   // Filter states
   const [dateFilter, setDateFilter] = useState<'all' | 'week' | 'month'>('all');
@@ -145,7 +152,24 @@ export default function ClassBankPage() {
 
   // Shop items
   const shopItems = [
-    // Privileges (individual - but we only show class-only in class bank)
+    // Privileges (individual)
+    { id: 'p1', name: 'Line leader', emoji: '👑', description: 'Be first in line for a day', price: 10, category: 'Privilege', purchaseType: 'individual' },
+    { id: 'p2', name: 'Choose seat', emoji: '💺', description: 'Pick your seat for a week', price: 15, category: 'Privilege', purchaseType: 'individual' },
+    { id: 'p3', name: 'First to lunch', emoji: '🍽️', description: 'Skip the queue at lunch', price: 12, category: 'Privilege', purchaseType: 'individual' },
+    { id: 'p4', name: "Teacher's helper", emoji: '🌟', description: 'Help teacher for a day', price: 18, category: 'Privilege', purchaseType: 'individual' },
+    // Rewards (individual)
+    { id: 'r1', name: 'Extra playtime', emoji: '⚽', description: '10 minutes extra play', price: 20, category: 'Reward', purchaseType: 'individual' },
+    { id: 'r2', name: 'Homework pass', emoji: '📝', description: 'Skip one homework', price: 25, category: 'Reward', purchaseType: 'individual' },
+    { id: 'r3', name: 'Free time', emoji: '🎮', description: '15 minutes free activity', price: 22, category: 'Reward', purchaseType: 'individual' },
+    { id: 'r4', name: 'Show & tell', emoji: '🎁', description: 'Extra show & tell slot', price: 15, category: 'Reward', purchaseType: 'individual' },
+    // Items (individual)
+    { id: 'i1', name: 'Fancy pencil', emoji: '✏️', description: 'Special decorated pencil', price: 8, category: 'Item', purchaseType: 'individual' },
+    { id: 'i2', name: 'Stickers', emoji: '⭐', description: 'Pack of 5 stickers', price: 5, category: 'Item', purchaseType: 'individual' },
+    { id: 'i3', name: 'Bookmark', emoji: '🔖', description: 'Custom bookmark', price: 10, category: 'Item', purchaseType: 'individual' },
+    // Experiences (individual)
+    { id: 'e1', name: 'Lunch with teacher', emoji: '🍕', description: 'Special lunch time', price: 30, category: 'Experience', purchaseType: 'individual' },
+    { id: 'e2', name: 'Read to class', emoji: '📚', description: 'Read your favorite book', price: 20, category: 'Experience', purchaseType: 'individual' },
+    { id: 'e3', name: 'Music choice', emoji: '🎵', description: 'Pick class music', price: 25, category: 'Experience', purchaseType: 'individual' },
     // Class-only items
     { id: 'c1', name: 'Pizza party', emoji: '🍕', description: 'Pizza for the whole class', price: 200, category: 'Class', purchaseType: 'classOnly' },
     { id: 'c2', name: 'Extra break time', emoji: '⏰', description: '15 minutes extra break', price: 50, category: 'Class', purchaseType: 'classOnly' },
@@ -153,6 +177,22 @@ export default function ClassBankPage() {
     { id: 'c4', name: 'Games session', emoji: '🎮', description: 'Board games or outdoor games', price: 75, category: 'Class', purchaseType: 'classOnly' },
     { id: 'c5', name: 'Ice cream treat', emoji: '🍦', description: 'Ice cream for everyone', price: 150, category: 'Class', purchaseType: 'classOnly' },
   ];
+
+  // Shop helper functions
+  const getFilteredShopItems = () => {
+    if (selectedPurchaser === 'whole-class') {
+      return shopItems.filter(item => item.purchaseType === 'classOnly');
+    }
+    return shopItems.filter(item => item.purchaseType === 'individual');
+  };
+
+  const getPurchaserBalance = () => {
+    if (selectedPurchaser === 'whole-class') {
+      return Number(classFund?.totalAmount || 0);
+    }
+    const student = studentsList.find(s => s.id === selectedPurchaser);
+    return student?.personalBalance || 0;
+  };
 
   const addToBasket = (item: typeof shopItems[0]) => {
     setBasket(prev => {
@@ -172,20 +212,44 @@ export default function ClassBankPage() {
   const getBasketVAT = () => Math.round(getBasketSubtotal() * 0.2);
   const getBasketTotal = () => getBasketSubtotal() + getBasketVAT();
 
-  const handleConfirmPurchase = () => {
+  const handleConfirmPurchase = async () => {
     const total = getBasketTotal();
-    const currentBalance = Number(classFund?.totalAmount || 0);
+    const purchaserBalance = getPurchaserBalance();
 
-    if (total > currentBalance) {
-      toast.error('Insufficient class funds for this purchase');
+    if (total > purchaserBalance) {
+      toast.error('Insufficient balance!');
       return;
     }
 
-    // TODO: Record actual transaction when backend is connected
-    toast.success(`Purchase confirmed! ${total} CC deducted from class fund.`);
-    setBasket([]);
-    setShopStep(1);
-    setShopOpen(false);
+    try {
+      if (selectedPurchaser === 'whole-class') {
+        await updateClassBalance.mutateAsync({
+          adjustment: -total,
+          reason: `Shop purchase (${basket.length} items) + VAT`,
+        });
+      } else {
+        const student = studentsList.find(s => s.id === selectedPurchaser);
+        if (student) {
+          await updateStudent.mutateAsync({
+            studentId: student.id,
+            personalBalance: student.personalBalance - total,
+          });
+        }
+      }
+
+      const itemNames = basket.map(b => `${b.emoji} ${b.name} x${b.quantity}`).join(', ');
+      toast.success(
+        `Purchase complete! ${itemNames}. Subtotal: ${getBasketSubtotal()} CC + VAT: ${getBasketVAT()} CC = Total: ${total} CC`,
+        { duration: 5000 }
+      );
+
+      setShopOpen(false);
+      setShopStep(1);
+      setSelectedPurchaser('');
+      setBasket([]);
+    } catch (error) {
+      toast.error('Failed to process purchase');
+    }
   };
 
   if (adminLoading || fundLoading) {
@@ -356,165 +420,190 @@ export default function ClassBankPage() {
         setShopOpen(open);
         if (!open) {
           setShopStep(1);
+          setSelectedPurchaser('');
           setBasket([]);
         }
       }}>
-        <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+        <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
           <DialogHeader className="flex-shrink-0">
             <DialogTitle className="text-xl">
-              {shopStep === 1 && '🛒 Class Shop'}
-              {shopStep === 2 && '🛍️ Your Basket'}
-              {shopStep === 3 && '✅ Confirm Purchase'}
+              {shopStep === 1 && '🛒 CubCoin Shop - Who is purchasing?'}
+              {shopStep === 2 && '🛍️ Browse Shop'}
+              {shopStep === 3 && '📋 Review Basket'}
+              {shopStep === 4 && '✅ Confirm Purchase'}
             </DialogTitle>
             <DialogDescription>
-              {shopStep === 1 && 'Choose items for your class (class fund purchases only)'}
-              {shopStep === 2 && 'Review your selected items'}
-              {shopStep === 3 && 'Confirm your purchase with VAT'}
+              {shopStep === 1 && 'Select who will be making this purchase'}
+              {shopStep === 2 && `Shopping for: ${selectedPurchaser === 'whole-class' ? 'Whole Class' : studentsList.find(s => s.id === selectedPurchaser)?.name}`}
+              {shopStep === 3 && 'Review your items before purchase'}
+              {shopStep === 4 && 'Final confirmation with VAT'}
             </DialogDescription>
           </DialogHeader>
 
-          {/* Step 1: Browse items */}
+          {/* Step 1: Select purchaser */}
           {shopStep === 1 && (
-            <>
-              <ScrollArea className="h-[400px] flex-1">
-                <div className="space-y-4 pr-4">
-                  <div>
-                    <h4 className="font-semibold mb-3">Class Rewards</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {shopItems.map((item) => (
-                        <Card key={item.id} className="border hover:border-amber-300 transition-colors">
-                          <CardContent className="p-3">
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="text-2xl">{item.emoji}</span>
-                                  <span className="font-semibold">{item.name}</span>
-                                </div>
-                                <p className="text-xs text-muted-foreground mb-2">{item.description}</p>
-                                <Badge variant="outline" className="font-mono">{item.price} CC</Badge>
-                              </div>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => addToBasket(item)}
-                                className="h-9 w-9 p-0"
-                              >
-                                +
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </ScrollArea>
-              <DialogFooter className="flex-shrink-0 mt-4">
-                <div className="flex justify-between w-full items-center">
-                  <p className="text-sm text-muted-foreground">
-                    {basket.length > 0 ? `${basket.reduce((sum, i) => sum + i.quantity, 0)} items in basket` : 'No items selected'}
-                  </p>
-                  <Button
-                    onClick={() => setShopStep(2)}
-                    disabled={basket.length === 0}
-                    className="gap-2"
-                  >
-                    View Basket
-                    <span>→</span>
-                  </Button>
-                </div>
+            <div className="space-y-4">
+              <Select value={selectedPurchaser} onValueChange={setSelectedPurchaser}>
+                <SelectTrigger className="h-12">
+                  <SelectValue placeholder="Select purchaser..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="whole-class">🏫 Whole Class (Class Fund)</SelectItem>
+                  {studentsList.map(student => (
+                    <SelectItem key={student.id} value={student.id}>
+                      {student.name} ({student.personalBalance} CC)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <DialogFooter>
+                <Button
+                  disabled={!selectedPurchaser}
+                  onClick={() => setShopStep(2)}
+                  className="w-full h-11"
+                >
+                  Continue
+                </Button>
               </DialogFooter>
-            </>
+            </div>
           )}
 
-          {/* Step 2: Review basket */}
+          {/* Step 2: Browse items */}
           {shopStep === 2 && (
-            <>
-              <ScrollArea className="h-[350px] flex-1">
-                <div className="space-y-3 pr-4">
-                  {basket.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">{item.emoji}</span>
-                        <div>
-                          <p className="font-semibold">{item.name}</p>
-                          <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
+            <div className="flex flex-col flex-1 min-h-0 space-y-4">
+              <div className="bg-primary/10 p-3 rounded-lg flex justify-between items-center flex-shrink-0">
+                <span className="font-medium">Available Balance:</span>
+                <span className="text-xl font-bold">{getPurchaserBalance()} CC</span>
+              </div>
+
+              <ScrollArea className="h-[400px]">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pr-4">
+                  {getFilteredShopItems().map(item => (
+                    <Card key={item.id} className="border hover:border-amber-300 transition-colors">
+                      <CardContent className="p-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-2xl">{item.emoji}</span>
+                            <div>
+                              <div className="font-medium">{item.name}</div>
+                              <div className="text-xs text-muted-foreground">{item.description}</div>
+                              <Badge variant="outline" className="mt-1 text-xs">{item.category}</Badge>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold">{item.price} CC</div>
+                            <Button size="sm" className="mt-1" onClick={() => addToBasket(item)}>
+                              Add
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="font-mono font-semibold">{item.price * item.quantity} CC</span>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => removeFromBasket(item.id)}
-                          className="h-8 w-8 p-0"
-                        >
-                          ×
-                        </Button>
-                      </div>
-                    </div>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
               </ScrollArea>
-              <DialogFooter className="flex-shrink-0 mt-4">
-                <div className="flex justify-between w-full">
-                  <Button variant="outline" onClick={() => setShopStep(1)}>
-                    ← Back
-                  </Button>
-                  <Button onClick={() => setShopStep(3)} className="gap-2">
-                    Checkout
-                    <span>→</span>
+
+              <DialogFooter className="flex justify-between flex-shrink-0">
+                <Button variant="outline" onClick={() => setShopStep(1)}>← Back</Button>
+                <div className="flex items-center gap-2">
+                  {basket.length > 0 && (
+                    <Badge className="text-sm">{basket.reduce((sum, b) => sum + b.quantity, 0)} items</Badge>
+                  )}
+                  <Button
+                    disabled={basket.length === 0}
+                    onClick={() => setShopStep(3)}
+                  >
+                    View Basket
                   </Button>
                 </div>
               </DialogFooter>
-            </>
+            </div>
           )}
 
-          {/* Step 3: Confirm with VAT */}
+          {/* Step 3: Review basket */}
           {shopStep === 3 && (
-            <>
-              <div className="space-y-4">
-                <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-                  <div className="flex justify-between">
-                    <span>Subtotal:</span>
-                    <span className="font-mono">{getBasketSubtotal()} CC</span>
+            <div className="space-y-4">
+              <div className="border rounded-lg divide-y">
+                {basket.map(item => (
+                  <div key={item.id} className="p-3 flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{item.emoji}</span>
+                      <span>{item.name} x{item.quantity}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="font-medium">{item.price * item.quantity} CC</span>
+                      <Button size="sm" variant="destructive" onClick={() => removeFromBasket(item.id)}>
+                        Remove
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex justify-between text-muted-foreground">
-                    <span>VAT (20%):</span>
-                    <span className="font-mono">{getBasketVAT()} CC</span>
-                  </div>
-                  <div className="border-t pt-2 flex justify-between font-bold text-lg">
-                    <span>Total:</span>
-                    <span className="font-mono">{getBasketTotal()} CC</span>
-                  </div>
+                ))}
+              </div>
+
+              <div className="bg-muted p-4 rounded-lg space-y-2">
+                <div className="flex justify-between">
+                  <span>Subtotal:</span>
+                  <span>{getBasketSubtotal()} CC</span>
                 </div>
-                <div className="bg-amber-50 rounded-lg p-3 border border-amber-200">
-                  <p className="text-sm">
-                    <span className="font-semibold">Class Fund Balance:</span>{' '}
-                    <span className="font-mono">{currentBalance} CC</span>
-                  </p>
-                  {getBasketTotal() > currentBalance && (
-                    <p className="text-red-600 text-sm mt-1 font-semibold">
-                      Insufficient funds! Need {getBasketTotal() - currentBalance} more CC.
-                    </p>
-                  )}
+                <div className="flex justify-between text-muted-foreground">
+                  <span>VAT (20%):</span>
+                  <span>{getBasketVAT()} CC</span>
+                </div>
+                <div className="border-t pt-2 flex justify-between font-bold text-lg">
+                  <span>Total:</span>
+                  <span>{getBasketTotal()} CC</span>
+                </div>
+                <div className="border-t pt-2 flex justify-between">
+                  <span>Current Balance:</span>
+                  <span>{getPurchaserBalance()} CC</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>After Purchase:</span>
+                  <span className={getPurchaserBalance() >= getBasketTotal() ? 'text-green-600 font-medium' : 'text-red-600 font-medium'}>
+                    {getPurchaserBalance() - getBasketTotal()} CC
+                  </span>
                 </div>
               </div>
-              <DialogFooter className="flex-shrink-0 mt-4">
-                <div className="flex justify-between w-full">
-                  <Button variant="outline" onClick={() => setShopStep(2)}>
-                    ← Back
-                  </Button>
-                  <Button
-                    onClick={handleConfirmPurchase}
-                    disabled={getBasketTotal() > currentBalance}
-                    className="gap-2 bg-green-600 hover:bg-green-700"
-                  >
-                    ✓ Confirm Purchase
-                  </Button>
-                </div>
+
+              <DialogFooter className="flex justify-between">
+                <Button variant="outline" onClick={() => setShopStep(2)}>Continue Shopping</Button>
+                <Button
+                  disabled={getPurchaserBalance() < getBasketTotal()}
+                  onClick={() => setShopStep(4)}
+                >
+                  Confirm Order
+                </Button>
               </DialogFooter>
-            </>
+            </div>
+          )}
+
+          {/* Step 4: Final confirmation */}
+          {shopStep === 4 && (
+            <div className="space-y-4">
+              <Alert>
+                <AlertDescription>
+                  You are about to purchase {basket.reduce((sum, b) => sum + b.quantity, 0)} item(s) for <strong>{selectedPurchaser === 'whole-class' ? 'Whole Class' : studentsList.find(s => s.id === selectedPurchaser)?.name}</strong> for a total of <strong>{getBasketTotal()} CC</strong> (including VAT).
+                </AlertDescription>
+              </Alert>
+
+              <div className="text-center">
+                <div className="text-sm text-muted-foreground mb-2">Items:</div>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {basket.map(item => (
+                    <Badge key={item.id} variant="secondary" className="text-sm">
+                      {item.emoji} {item.name} x{item.quantity}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <DialogFooter className="flex justify-between">
+                <Button variant="outline" onClick={() => setShopStep(3)}>← Back</Button>
+                <Button onClick={handleConfirmPurchase} className="bg-green-600 hover:bg-green-700">
+                  Complete Purchase
+                </Button>
+              </DialogFooter>
+            </div>
           )}
         </DialogContent>
       </Dialog>

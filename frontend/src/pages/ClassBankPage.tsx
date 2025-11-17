@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useState } from 'react';
-import { useIsCallerAdmin, useGetClassFund, useGetTeacherClass, useGetStudents, useUpdateClassBalance, useUpdateStudent } from '../hooks/useQueries';
+import { useIsCallerAdmin, useGetClassFund, useGetTeacherClass, useGetStudents, useUpdateClassBalance, useUpdateStudent, useRecordStudentTransaction } from '../hooks/useQueries';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -27,6 +27,7 @@ export default function ClassBankPage() {
   const { data: students } = useGetStudents(teacherClass?.id);
   const updateClassBalance = useUpdateClassBalance();
   const updateStudent = useUpdateStudent();
+  const recordStudentTransaction = useRecordStudentTransaction();
   const { isDemoMode } = useDemo();
 
   // Shop states
@@ -234,9 +235,20 @@ export default function ClassBankPage() {
       } else {
         const student = studentsList.find(s => s.id === selectedPurchaser);
         if (student) {
+          const newBalance = student.personalBalance - total;
           await updateStudent.mutateAsync({
             studentId: student.id,
-            personalBalance: student.personalBalance - total,
+            personalBalance: newBalance,
+          });
+
+          // Record the transaction for the student's bank statement
+          const itemNames = basket.map(b => `${b.emoji} ${b.name}${b.quantity > 1 ? ` x${b.quantity}` : ''}`).join(', ');
+          await recordStudentTransaction.mutateAsync({
+            studentId: student.id,
+            amount: total,
+            reference: `Shop: ${itemNames}`,
+            type: 'spent',
+            balanceAfter: newBalance
           });
         }
       }

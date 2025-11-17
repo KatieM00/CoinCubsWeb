@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 // DO NOT import useAuth or useGetUserProfile directly - they cause circular dependency issues with the bundler
 // Profile is passed as a prop from the parent component (App.tsx)
-import { useIsCallerAdmin, useGetClassFund, useGetRewardsCatalog, useAddReward, useUpdateRewardPrice, useCreateClassGoal, useGetPresetAmounts, useUpdatePresetAmounts, useGetTeacherClass, useGetStudents, useAddStudent, useUpdateClassBalance, useUpdateStudent, useCreateTeacherClass, useUpdateTeacherClass, useGetClassGoals, useUpdateProfile, useDeleteStudent } from '../hooks/useQueries';
+import { useIsCallerAdmin, useGetClassFund, useGetRewardsCatalog, useAddReward, useUpdateRewardPrice, useCreateClassGoal, useGetPresetAmounts, useUpdatePresetAmounts, useGetTeacherClass, useGetStudents, useAddStudent, useUpdateClassBalance, useUpdateStudent, useCreateTeacherClass, useUpdateTeacherClass, useGetClassGoals, useUpdateProfile, useDeleteStudent, useGetStudentTransactions } from '../hooks/useQueries';
 import { useDemo } from '../contexts/DemoContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -123,6 +123,9 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
   const [bankStatementOpen, setBankStatementOpen] = useState(false);
   const [selectedBankStudent, setSelectedBankStudent] = useState<{ id: string; name: string; balance: number } | null>(null);
 
+  // Student transactions query - fetches when a student is selected for bank statement
+  const { data: studentTransactions, isLoading: transactionsLoading } = useGetStudentTransactions(selectedBankStudent?.id);
+
   // Parents section states
   const [sendLetterOpen, setSendLetterOpen] = useState(false);
   const [selectedParent, setSelectedParent] = useState<string | null>(null);
@@ -166,13 +169,10 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
     return num.toLocaleString();
   };
 
-  // Transaction history - currently returns empty, will be populated by awards and shop purchases
-  // TODO: Connect to actual transaction storage (localStorage or Supabase)
+  // Transaction history - now uses the useGetStudentTransactions hook
   const getStudentTransactions = (studentId: string) => {
-    // For now, return empty array - transactions will be recorded when:
-    // 1. Awards are given from QuickAwardPage
-    // 2. Purchases are made from Shop
-    return [] as { date: string; reference: string; amount: number; type: 'earned' | 'spent'; balanceAfter: number }[];
+    // Return the transactions from the hook (already fetched based on selectedBankStudent)
+    return studentTransactions || [] as { date: string; reference: string; amount: number; type: 'earned' | 'spent'; balanceAfter: number }[];
   };
 
   // Handler functions
@@ -1708,7 +1708,13 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {getStudentTransactions(selectedBankStudent.id).length === 0 ? (
+                      {transactionsLoading ? (
+                        <TableRow>
+                          <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                            Loading transactions...
+                          </TableCell>
+                        </TableRow>
+                      ) : getStudentTransactions(selectedBankStudent.id).length === 0 ? (
                         <TableRow>
                           <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
                             No transactions yet. Transactions will appear here when CubCoins are awarded or spent in the shop.
@@ -1717,7 +1723,9 @@ export default function SettingsPage({ profile }: SettingsPageProps) {
                       ) : (
                         getStudentTransactions(selectedBankStudent.id).map((tx, i) => (
                           <TableRow key={i}>
-                            <TableCell className="font-mono text-sm">{tx.date}</TableCell>
+                            <TableCell className="font-mono text-sm">
+                              {new Date(tx.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                            </TableCell>
                             <TableCell>{tx.reference}</TableCell>
                             <TableCell className={`text-right font-medium ${tx.type === 'earned' ? 'text-green-600' : 'text-red-600'}`}>
                               {tx.type === 'earned' ? '+' : ''}{tx.amount} CC

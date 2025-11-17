@@ -167,6 +167,23 @@ export const useAwardClassGems = () => {
           personalBalance: newPersonalBalance,
           classContribution: newClassContribution
         });
+
+        // Record student transaction in localStorage
+        const studentTxKey = `studentTransactions_${storageKey}_${params.studentId}`;
+        const storedTx = localStorage.getItem(studentTxKey);
+        const studentTransactions = storedTx ? JSON.parse(storedTx) : [];
+
+        const studentTransaction = {
+          id: Date.now(),
+          date: new Date().toISOString(),
+          reference: params.description || params.reason || 'Award',
+          amount: personalAmount,
+          type: 'earned',
+          balanceAfter: newPersonalBalance
+        };
+
+        localStorage.setItem(studentTxKey, JSON.stringify([studentTransaction, ...studentTransactions]));
+        console.log('💾 Recorded student transaction:', studentTransaction);
       }
 
       return { success: true, newBalance };
@@ -175,6 +192,7 @@ export const useAwardClassGems = () => {
       queryClient.invalidateQueries({ queryKey: ['classFund'] });
       queryClient.invalidateQueries({ queryKey: ['weeklyStats'] });
       queryClient.invalidateQueries({ queryKey: ['students'] });
+      queryClient.invalidateQueries({ queryKey: ['studentTransactions'] });
     },
   });
 };
@@ -225,6 +243,96 @@ export const useUpdateClassBalance = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['classFund'] });
       queryClient.invalidateQueries({ queryKey: ['weeklyStats'] });
+    },
+  });
+};
+
+// Student Transactions Query
+export const useGetStudentTransactions = (studentId: string | undefined) => {
+  const { isDemoMode } = useDemo();
+  const { profile, user } = useAuth();
+
+  return useQuery({
+    queryKey: ['studentTransactions', studentId],
+    queryFn: async () => {
+      if (!studentId) return [];
+
+      if (isDemoMode) {
+        // Return demo transactions
+        return [
+          {
+            id: 1,
+            date: new Date(Date.now() - 86400000).toISOString(), // Yesterday
+            reference: 'Helpful to classmates',
+            amount: 15,
+            type: 'earned',
+            balanceAfter: 150
+          },
+          {
+            id: 2,
+            date: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+            reference: 'Pencil from shop',
+            amount: -5,
+            type: 'spent',
+            balanceAfter: 135
+          },
+          {
+            id: 3,
+            date: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
+            reference: 'Great teamwork',
+            amount: 20,
+            type: 'earned',
+            balanceAfter: 140
+          }
+        ];
+      }
+
+      const storageKey = profile?.id || user?.id || 'default';
+      const studentTxKey = `studentTransactions_${storageKey}_${studentId}`;
+      const storedTx = localStorage.getItem(studentTxKey);
+
+      if (!storedTx) return [];
+
+      return JSON.parse(storedTx);
+    },
+    enabled: !!studentId,
+  });
+};
+
+// Record Student Transaction (for purchases)
+export const useRecordStudentTransaction = () => {
+  const queryClient = useQueryClient();
+  const { profile, user } = useAuth();
+  const { isDemoMode } = useDemo();
+
+  return useMutation({
+    mutationFn: async (params: { studentId: string; amount: number; reference: string; type: 'earned' | 'spent'; balanceAfter: number }) => {
+      if (isDemoMode) {
+        console.log('Demo mode - transaction not persisted');
+        return { success: true };
+      }
+
+      const storageKey = profile?.id || user?.id || 'default';
+      const studentTxKey = `studentTransactions_${storageKey}_${params.studentId}`;
+      const storedTx = localStorage.getItem(studentTxKey);
+      const studentTransactions = storedTx ? JSON.parse(storedTx) : [];
+
+      const transaction = {
+        id: Date.now(),
+        date: new Date().toISOString(),
+        reference: params.reference,
+        amount: params.type === 'spent' ? -Math.abs(params.amount) : Math.abs(params.amount),
+        type: params.type,
+        balanceAfter: params.balanceAfter
+      };
+
+      localStorage.setItem(studentTxKey, JSON.stringify([transaction, ...studentTransactions]));
+      console.log('💾 Recorded student transaction:', transaction);
+
+      return { success: true };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['studentTransactions'] });
     },
   });
 };

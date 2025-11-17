@@ -53,7 +53,7 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-[#DDB76F] border-b border-[#C4A35A] sticky top-0 z-50">
+    <header className="bg-[#FFF8E7] border-b-2 border-orange-500 sticky top-0 z-50">
         <div className="container mx-auto px-3 md:px-4 lg:px-6 py-3 md:py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
@@ -61,7 +61,7 @@ export default function Header() {
               onClick={() => handleNavigate('/')}
               className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-opacity"
             >
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-[#5D4037] to-[#3E2723] rounded-full flex items-center justify-center shadow-lg">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
                 <Icon className="w-4 h-4 md:w-6 md:h-6" />
               </div>
               <div>
@@ -78,7 +78,7 @@ export default function Header() {
               variant={currentPath === '/' || currentPath === '/quick-award' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => handleNavigate('/quick-award')}
-              className={`gap-2 h-9 ${currentPath === '/' || currentPath === '/quick-award' ? 'bg-[#5D4037] text-[#FFF8E7] hover:bg-[#3E2723]' : 'text-[#3E2723] hover:bg-[#C4A35A] hover:text-[#3E2723]'}`}
+              className={`gap-2 h-9 ${currentPath === '/' || currentPath === '/quick-award' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600' : 'text-[#3E2723] hover:bg-orange-100 hover:text-[#3E2723]'}`}
             >
               ⚡
               Award
@@ -87,7 +87,7 @@ export default function Header() {
               variant={currentPath === '/class-display' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => handleNavigate('/class-display')}
-              className={`gap-2 h-9 ${currentPath === '/class-display' ? 'bg-[#5D4037] text-[#FFF8E7] hover:bg-[#3E2723]' : 'text-[#3E2723] hover:bg-[#C4A35A] hover:text-[#3E2723]'}`}
+              className={`gap-2 h-9 ${currentPath === '/class-display' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600' : 'text-[#3E2723] hover:bg-orange-100 hover:text-[#3E2723]'}`}
             >
               🖥️
               Class Display
@@ -96,7 +96,7 @@ export default function Header() {
               variant={currentPath === '/lessons' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => handleNavigate('/lessons')}
-              className={`gap-2 h-9 ${currentPath === '/lessons' ? 'bg-[#5D4037] text-[#FFF8E7] hover:bg-[#3E2723]' : 'text-[#3E2723] hover:bg-[#C4A35A] hover:text-[#3E2723]'}`}
+              className={`gap-2 h-9 ${currentPath === '/lessons' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600' : 'text-[#3E2723] hover:bg-orange-100 hover:text-[#3E2723]'}`}
             >
               📚
               Lessons
@@ -105,7 +105,7 @@ export default function Header() {
               variant={currentPath === '/class-bank' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => handleNavigate('/class-bank')}
-              className={`gap-2 h-9 ${currentPath === '/class-bank' ? 'bg-[#5D4037] text-[#FFF8E7] hover:bg-[#3E2723]' : 'text-[#3E2723] hover:bg-[#C4A35A] hover:text-[#3E2723]'}`}
+              className={`gap-2 h-9 ${currentPath === '/class-bank' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600' : 'text-[#3E2723] hover:bg-orange-100 hover:text-[#3E2723]'}`}
             >
               🏦
               Class Bank
@@ -114,7 +114,7 @@ export default function Header() {
               variant={currentPath === '/settings' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => handleNavigate('/settings')}
-              className={`gap-2 h-9 ${currentPath === '/settings' ? 'bg-[#5D4037] text-[#FFF8E7] hover:bg-[#3E2723]' : 'text-[#3E2723] hover:bg-[#C4A35A] hover:text-[#3E2723]'}`}
+              className={`gap-2 h-9 ${currentPath === '/settings' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600' : 'text-[#3E2723] hover:bg-orange-100 hover:text-[#3E2723]'}`}
             >
               ⚙️
               Settings
@@ -131,7 +131,7 @@ export default function Header() {
               }}
               variant="outline"
               size="sm"
-              className="gap-2 h-11 md:h-10 lg:h-9 border-[#5D4037] text-[#3E2723] hover:bg-[#5D4037] hover:text-[#FFF8E7]"
+              className="gap-2 h-11 md:h-10 lg:h-9 border-orange-500 text-orange-600 hover:bg-gradient-to-r hover:from-amber-500 hover:to-orange-500 hover:text-white hover:border-transparent"
             >
               🚪
               <span className="hidden sm:inline">{isDemoMode ? 'Exit Demo' : 'Logout'}</span>
@@ -140,14 +140,14 @@ export default function Header() {
             {/* Mobile Menu Button (<1024px) */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="outline" size="sm" className="lg:hidden h-11 md:h-10 border-[#5D4037] text-[#3E2723] hover:bg-[#5D4037] hover:text-[#FFF8E7]">
+                <Button variant="outline" size="sm" className="lg:hidden h-11 md:h-10 border-orange-500 text-orange-600 hover:bg-gradient-to-r hover:from-amber-500 hover:to-orange-500 hover:text-white hover:border-transparent">
                   ☰
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[280px] sm:w-[320px] bg-[#FFF8E7]">
                 <div className="flex flex-col gap-4 mt-8">
                   {(isDemoMode || profile) && (
-                    <div className="pb-4 border-b border-[#E8C391]">
+                    <div className="pb-4 border-b border-orange-300">
                       <p className="text-base font-semibold text-[#3E2723]">
                         {isDemoMode ? 'Demo Teacher' : profile?.full_name}
                       </p>
@@ -159,7 +159,7 @@ export default function Header() {
                       variant={currentPath === '/' || currentPath === '/quick-award' ? 'default' : 'ghost'}
                       size="lg"
                       onClick={() => handleNavigate('/quick-award')}
-                      className={`justify-start gap-3 h-12 ${currentPath === '/' || currentPath === '/quick-award' ? 'bg-[#5D4037] text-[#FFF8E7] hover:bg-[#3E2723]' : 'text-[#3E2723] hover:bg-[#E8C391]'}`}
+                      className={`justify-start gap-3 h-12 ${currentPath === '/' || currentPath === '/quick-award' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600' : 'text-[#3E2723] hover:bg-orange-100'}`}
                     >
                       ⚡
                       Award
@@ -168,7 +168,7 @@ export default function Header() {
                       variant={currentPath === '/class-display' ? 'default' : 'ghost'}
                       size="lg"
                       onClick={() => handleNavigate('/class-display')}
-                      className={`justify-start gap-3 h-12 ${currentPath === '/class-display' ? 'bg-[#5D4037] text-[#FFF8E7] hover:bg-[#3E2723]' : 'text-[#3E2723] hover:bg-[#E8C391]'}`}
+                      className={`justify-start gap-3 h-12 ${currentPath === '/class-display' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600' : 'text-[#3E2723] hover:bg-orange-100'}`}
                     >
                       🖥️
                       Class Display
@@ -177,7 +177,7 @@ export default function Header() {
                       variant={currentPath === '/lessons' ? 'default' : 'ghost'}
                       size="lg"
                       onClick={() => handleNavigate('/lessons')}
-                      className={`justify-start gap-3 h-12 ${currentPath === '/lessons' ? 'bg-[#5D4037] text-[#FFF8E7] hover:bg-[#3E2723]' : 'text-[#3E2723] hover:bg-[#E8C391]'}`}
+                      className={`justify-start gap-3 h-12 ${currentPath === '/lessons' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600' : 'text-[#3E2723] hover:bg-orange-100'}`}
                     >
                       📚
                       Lessons
@@ -186,7 +186,7 @@ export default function Header() {
                       variant={currentPath === '/class-bank' ? 'default' : 'ghost'}
                       size="lg"
                       onClick={() => handleNavigate('/class-bank')}
-                      className={`justify-start gap-3 h-12 ${currentPath === '/class-bank' ? 'bg-[#5D4037] text-[#FFF8E7] hover:bg-[#3E2723]' : 'text-[#3E2723] hover:bg-[#E8C391]'}`}
+                      className={`justify-start gap-3 h-12 ${currentPath === '/class-bank' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600' : 'text-[#3E2723] hover:bg-orange-100'}`}
                     >
                       🏦
                       Class Bank
@@ -195,7 +195,7 @@ export default function Header() {
                       variant={currentPath === '/settings' ? 'default' : 'ghost'}
                       size="lg"
                       onClick={() => handleNavigate('/settings')}
-                      className={`justify-start gap-3 h-12 ${currentPath === '/settings' ? 'bg-[#5D4037] text-[#FFF8E7] hover:bg-[#3E2723]' : 'text-[#3E2723] hover:bg-[#E8C391]'}`}
+                      className={`justify-start gap-3 h-12 ${currentPath === '/settings' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600' : 'text-[#3E2723] hover:bg-orange-100'}`}
                     >
                       ⚙️
                       Settings

@@ -33,12 +33,12 @@ export default function ParentHeader() {
   };
 
   return (
-    <header className="bg-[#DDB76F] border-b border-[#C4A35A] sticky top-0 z-50">
+    <header className="bg-[#FFF8E7] border-b-2 border-orange-500 sticky top-0 z-50">
         <div className="container mx-auto px-3 md:px-4 lg:px-6 py-3 md:py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center gap-2 md:gap-3">
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-[#5D4037] to-[#3E2723] rounded-full flex items-center justify-center shadow-lg">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
                 <Icon className="w-4 h-4 md:w-6 md:h-6" />
               </div>
               <div>
@@ -59,7 +59,7 @@ export default function ParentHeader() {
                   <p className="text-xs text-[#5D4037]">Parent</p>
                 </div>
               )}
-              <Button onClick={handleLogout} variant="outline" size="sm" className="gap-2 h-11 md:h-10 lg:h-9 border-[#5D4037] text-[#3E2723] hover:bg-[#5D4037] hover:text-[#FFF8E7]">
+              <Button onClick={handleLogout} variant="outline" size="sm" className="gap-2 h-11 md:h-10 lg:h-9 border-orange-500 text-orange-600 hover:bg-gradient-to-r hover:from-amber-500 hover:to-orange-500 hover:text-white hover:border-transparent">
                 🚪
                 <span className="hidden sm:inline">{isDemoMode ? 'Exit Demo' : 'Logout'}</span>
               </Button>
